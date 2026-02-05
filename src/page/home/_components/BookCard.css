@@ -18,6 +18,8 @@
   height: 72px;
   border-radius: 4px;
   overflow: hidden;
+  border: 1px solid var(--border-color);
+  background: var(--bg-tertiary);
 }
 
 .book-cover-img {
@@ -32,6 +34,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  background: var(--bg-tertiary);
 }
 
 .fallback-emoji {
@@ -99,13 +102,10 @@
   gap: 1px;
 }
 
-.star-filled {
-  color: var(--yellow);
-  fill: var(--yellow);
-}
-
+.star-full,
+.star-half,
 .star-empty {
-  color: var(--border-color);
+  display: block;
 }
 
 .book-tags {
