@@ -66,6 +66,10 @@
   color: var(--text-primary);
 }
 
+.chapter-body > :first-child {
+  margin-top: 0;
+}
+
 .chapter-body h1 {
   font-size: 1.4rem;
   font-weight: 700;
