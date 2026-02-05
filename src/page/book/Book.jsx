@@ -150,7 +150,7 @@ function Book() {
                   <span className="chapter-name">{ch.name}</span>
                   <div className="chapter-right">
                     {commentCounts[ch.path] > 0 && (
-                      <span className="chapter-comments">
+                      <span className="comment-count">
                         <FiMessageSquare size={12} />
                         {commentCounts[ch.path]}
                       </span>
@@ -175,7 +175,7 @@ function Book() {
                     <span className="chapter-name">{ch.name}</span>
                     <div className="chapter-right">
                       {commentCounts[ch.path] > 0 && (
-                        <span className="chapter-comments">
+                        <span className="comment-count">
                           <FiMessageSquare size={12} />
                           {commentCounts[ch.path]}
                         </span>

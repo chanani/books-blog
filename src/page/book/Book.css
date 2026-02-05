@@ -229,13 +229,12 @@
   gap: 8px;
 }
 
-.chapter-comments {
+.comment-count {
   display: flex;
   align-items: center;
   gap: 3px;
   font-size: 0.7rem;
   color: var(--text-tertiary);
-  margin-top: 0;
 }
 
 .chapter-arrow {
