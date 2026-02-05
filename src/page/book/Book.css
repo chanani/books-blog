@@ -36,7 +36,7 @@
 .book-cover-lg {
   flex-shrink: 0;
   width: 140px;
-  height: 196px;
+  height: 160px;
   border-radius: 4px;
   overflow: hidden;
   border: 1px solid var(--border-color);
@@ -279,7 +279,7 @@
 
   .book-cover-lg {
     width: 120px;
-    height: 168px;
+    height: 136px;
   }
 
   .book-info-detail {

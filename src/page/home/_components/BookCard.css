@@ -15,7 +15,7 @@
 .book-cover-wrap {
   flex-shrink: 0;
   width: 64px;
-  height: 88px;
+  height: 72px;
   border-radius: 4px;
   overflow: hidden;
   border: 1px solid var(--border-color);
@@ -140,7 +140,7 @@
 
   .book-cover-wrap {
     width: 52px;
-    height: 72px;
+    height: 60px;
   }
 
   .book-title {
