@@ -4,6 +4,7 @@ import Home from '../page/home/Home';
 
 const Book = lazy(() => import('../page/book/Book'));
 const Chapter = lazy(() => import('../page/chapter/Chapter'));
+const About = lazy(() => import('../page/about/About'));
 
 function Router() {
   return (
@@ -16,6 +17,7 @@ function Router() {
     >
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/about" element={<About />} />
         <Route path="/book/:bookSlug" element={<Book />} />
         <Route path="/book/:bookSlug/read/*" element={<Chapter />} />
       </Routes>
