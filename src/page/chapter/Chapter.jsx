@@ -151,7 +151,8 @@ function Chapter() {
             repoId="R_kgDORI3Ksw"
             category="Announcements"
             categoryId="DIC_kwDORI3Ks84C15da"
-            mapping="pathname"
+            mapping="specific"
+            term={`book/${bookSlug}/read/${chapterPath}`}
             reactionsEnabled="1"
             emitMetadata="0"
             inputPosition="top"

@@ -218,22 +218,19 @@ export async function fetchDiscussionCounts(bookSlug) {
 
     const discussions = data.data?.repository?.discussions?.nodes || [];
     const counts = {};
-
-    // giscus stores pathname as title, with or without leading slash
-    // bookSlug may be URL-encoded (Korean) or plain ASCII
-    const suffixes = [
-      `book/${bookSlug}/read/`,
-      `book/${encodeURIComponent(bookSlug)}/read/`,
-    ];
+    const prefix = `book/${bookSlug}/read/`;
 
     for (const d of discussions) {
-      const title = d.title.replace(/^\//, ''); // strip leading slash
-      for (const suffix of suffixes) {
-        if (title.startsWith(suffix)) {
-          const chapterPath = title.slice(suffix.length);
-          counts[chapterPath] = (counts[chapterPath] || 0) + d.comments.totalCount;
-          break;
-        }
+      let title;
+      try {
+        title = decodeURIComponent(d.title.replace(/^\//, ''));
+      } catch {
+        title = d.title.replace(/^\//, '');
+      }
+
+      if (title.startsWith(prefix)) {
+        const chapterPath = title.slice(prefix.length);
+        counts[chapterPath] = (counts[chapterPath] || 0) + d.comments.totalCount;
       }
     }
 
