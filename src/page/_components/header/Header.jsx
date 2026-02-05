@@ -7,8 +7,8 @@ function Header({ theme, toggleTheme }) {
     <header className="header">
       <div className="header-inner">
         <Link to="/" className="header-logo">
-          <FiBookOpen size={20} className="logo-icon" />
-          <span className="logo-text">차나니의 기록</span>
+          <FiBookOpen size={18} className="logo-icon" />
+          <span className="logo-text">차나니의 책방</span>
         </Link>
 
         <button
@@ -16,7 +16,7 @@ function Header({ theme, toggleTheme }) {
           onClick={toggleTheme}
           aria-label="Toggle theme"
         >
-          {theme === 'light' ? <FiMoon size={18} /> : <FiSun size={18} />}
+          {theme === 'light' ? <FiMoon size={16} /> : <FiSun size={16} />}
         </button>
       </div>
     </header>

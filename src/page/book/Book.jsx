@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FiArrowLeft, FiStar, FiChevronRight } from 'react-icons/fi';
+import { FiArrowLeft, FiStar, FiChevronRight, FiMessageSquare } from 'react-icons/fi';
 import useBookStore from '../../store/useBookStore';
 import './Book.css';
 
@@ -57,6 +57,7 @@ function Book() {
   if (!currentBook) return null;
 
   const folderNames = Object.keys(currentBook.folderGroups || {});
+  const commentCounts = currentBook.commentCounts || {};
 
   return (
     <main className="book-page">
@@ -88,16 +89,18 @@ function Book() {
           </div>
 
           <div className="book-info-detail">
-            {currentBook.category && (
-              <span className="info-category">{currentBook.category}</span>
-            )}
             <h1 className="info-title">{currentBook.title}</h1>
             {currentBook.subtitle && (
               <p className="info-subtitle">{currentBook.subtitle}</p>
             )}
-            {currentBook.author && (
-              <p className="info-author">{currentBook.author}</p>
-            )}
+            <div className="info-author-row">
+              {currentBook.author && (
+                <span className="info-author">{currentBook.author}</span>
+              )}
+              {currentBook.category && (
+                <span className="info-category">{currentBook.category}</span>
+              )}
+            </div>
             {currentBook.rating > 0 && (
               <div className="info-rating">
                 {renderStars(currentBook.rating)}
@@ -146,7 +149,15 @@ function Book() {
                 >
                   <div className="chapter-info">
                     <span className="chapter-name">{ch.name}</span>
-                    {ch.date && <span className="chapter-date">{ch.date}</span>}
+                    <div className="chapter-meta">
+                      {commentCounts[ch.path] > 0 && (
+                        <span className="chapter-comments">
+                          <FiMessageSquare size={12} />
+                          {commentCounts[ch.path]}
+                        </span>
+                      )}
+                      {ch.date && <span className="chapter-date">{ch.date}</span>}
+                    </div>
                   </div>
                   <FiChevronRight size={16} className="chapter-arrow" />
                 </Link>
@@ -166,7 +177,15 @@ function Book() {
                   >
                     <div className="chapter-info">
                       <span className="chapter-name">{ch.name}</span>
-                      {ch.date && <span className="chapter-date">{ch.date}</span>}
+                      <div className="chapter-meta">
+                        {commentCounts[ch.path] > 0 && (
+                          <span className="chapter-comments">
+                            <FiMessageSquare size={12} />
+                            {commentCounts[ch.path]}
+                          </span>
+                        )}
+                        {ch.date && <span className="chapter-date">{ch.date}</span>}
+                      </div>
                     </div>
                     <FiChevronRight size={16} className="chapter-arrow" />
                   </Link>

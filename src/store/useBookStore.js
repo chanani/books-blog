@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { fetchBookList, fetchBookDetail, fetchChapter } from '../api/github';
+import { fetchBookList, fetchBookDetail, fetchChapter, fetchDiscussionCounts } from '../api/github';
 
 const useBookStore = create((set, get) => ({
   books: [],
@@ -26,7 +26,11 @@ const useBookStore = create((set, get) => ({
     if (cached && cached.slug === slug) return;
     set({ loading: true, error: null, currentBook: null });
     try {
-      const book = await fetchBookDetail(slug);
+      const [book, commentCounts] = await Promise.all([
+        fetchBookDetail(slug),
+        fetchDiscussionCounts(slug),
+      ]);
+      book.commentCounts = commentCounts;
       set({ currentBook: book, loading: false });
     } catch (error) {
       set({ error: error.message, loading: false });

@@ -191,6 +191,47 @@ export async function fetchBookDetail(bookSlug) {
   };
 }
 
+// Fetch discussion comment counts from giscus (GitHub Discussions)
+const BLOG_REPO = 'books-blog';
+const DISCUSSION_CATEGORY_ID = 'DIC_kwDORI3Ks84C15da';
+
+export async function fetchDiscussionCounts(bookSlug) {
+  if (!TOKEN) return {};
+
+  try {
+    const query = `{
+      repository(owner: "${OWNER}", name: "${BLOG_REPO}") {
+        discussions(first: 100, categoryId: "${DISCUSSION_CATEGORY_ID}") {
+          nodes {
+            title
+            comments { totalCount }
+          }
+        }
+      }
+    }`;
+
+    const { data } = await axios.post(
+      'https://api.github.com/graphql',
+      { query },
+      { headers: { Authorization: `Bearer ${TOKEN}` } },
+    );
+
+    const discussions = data.data?.repository?.discussions?.nodes || [];
+    const counts = {};
+    const prefix = `/book/${bookSlug}/read/`;
+
+    for (const d of discussions) {
+      if (d.title.startsWith(prefix)) {
+        counts[d.title.slice(prefix.length)] = d.comments.totalCount;
+      }
+    }
+
+    return counts;
+  } catch {
+    return {};
+  }
+}
+
 // Fetch commit dates (first = created, last = updated)
 async function fetchCommitDates(filePath) {
   try {

@@ -12,107 +12,84 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 8px 14px;
-  border-radius: var(--radius-sm);
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: var(--text-tertiary);
-  transition: all 0.2s;
-  margin-bottom: 20px;
+  font-size: 0.8rem;
+  color: var(--accent-primary);
+  margin-bottom: 16px;
+  transition: color 0.2s;
 }
 
 .back-link:hover {
-  color: var(--accent-primary);
-  background: var(--accent-light);
+  color: var(--accent-hover);
 }
 
 .chapter-article {
   background: var(--bg-secondary);
-  border-radius: var(--radius-2xl);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
   overflow: hidden;
-  box-shadow: var(--shadow-card);
-  position: relative;
-}
-
-.chapter-article::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: var(--accent-gradient);
 }
 
 .chapter-header {
-  padding: 36px 32px 24px;
+  padding: 24px 24px 16px;
   border-bottom: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
 }
 
 .chapter-dates {
   display: flex;
   flex-wrap: wrap;
-  gap: 16px;
+  gap: 12px;
 }
 
 .chapter-date-item {
   display: flex;
   align-items: center;
-  gap: 5px;
-  font-size: 0.8rem;
+  gap: 4px;
+  font-size: 0.75rem;
   color: var(--text-tertiary);
-  font-weight: 400;
-  padding: 3px 10px;
-  background: var(--bg-primary);
-  border-radius: 6px;
 }
 
 .chapter-title {
-  font-size: 1.5rem;
-  font-weight: 800;
+  font-size: 1.3rem;
+  font-weight: 700;
   color: var(--text-primary);
-  letter-spacing: -0.03em;
   line-height: 1.35;
 }
 
 /* Markdown body */
 .chapter-body {
-  padding: 32px 32px 44px;
-  font-size: 0.95rem;
-  line-height: 1.85;
+  padding: 24px 24px 32px;
+  font-size: 0.9rem;
+  line-height: 1.8;
   color: var(--text-primary);
 }
 
 .chapter-body h1 {
-  font-size: 1.5rem;
-  font-weight: 800;
-  margin: 40px 0 12px;
-  padding-bottom: 10px;
-  border-bottom: 2px solid var(--border-color);
-  letter-spacing: -0.02em;
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin: 32px 0 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .chapter-body h2 {
-  font-size: 1.28rem;
-  font-weight: 700;
-  margin: 32px 0 10px;
-  letter-spacing: -0.01em;
-  color: var(--text-primary);
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 28px 0 8px;
 }
 
 .chapter-body h3 {
-  font-size: 1.1rem;
-  font-weight: 700;
-  margin: 24px 0 8px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin: 20px 0 8px;
 }
 
 .chapter-body h4 {
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 600;
-  margin: 20px 0 6px;
+  margin: 16px 0 4px;
 }
 
 .chapter-body p {
@@ -145,24 +122,18 @@
 
 .chapter-body a {
   color: var(--accent-primary);
-  text-decoration: none;
-  font-weight: 500;
-  border-bottom: 1px solid rgba(49, 130, 246, 0.3);
-  transition: border-color 0.15s;
+  text-decoration: underline;
 }
 
 .chapter-body a:hover {
-  border-color: var(--accent-primary);
+  color: var(--accent-hover);
 }
 
 .chapter-body blockquote {
-  margin: 20px 0;
-  padding: 16px 20px;
-  border-left: 4px solid var(--accent-primary);
-  background: var(--accent-light);
-  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  margin: 16px 0;
+  padding: 8px 16px;
+  border-left: 3px solid var(--border-color);
   color: var(--text-secondary);
-  font-style: italic;
 }
 
 .chapter-body blockquote p:last-child {
@@ -170,73 +141,67 @@
 }
 
 .chapter-body code {
-  padding: 3px 7px;
-  border-radius: 6px;
+  padding: 2px 6px;
+  border-radius: 4px;
   font-size: 0.85em;
   background: var(--bg-tertiary);
-  color: var(--accent-hover);
-  font-family: 'SF Mono', 'Fira Code', Menlo, monospace;
-  font-weight: 500;
+  font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, monospace;
 }
 
 .chapter-body pre {
-  margin: 20px 0;
-  border-radius: var(--radius-md) !important;
-  box-shadow: var(--shadow-sm);
+  margin: 16px 0;
+  border-radius: var(--radius-sm) !important;
+  border: 1px solid var(--border-color);
 }
 
 .chapter-body pre code {
   padding: 0;
   background: none;
-  color: inherit;
-  font-weight: 400;
 }
 
 .chapter-body img {
-  border-radius: var(--radius-md);
-  margin: 20px 0;
-  box-shadow: var(--shadow-md);
+  border-radius: var(--radius-sm);
+  margin: 16px 0;
+  border: 1px solid var(--border-color);
 }
 
 .chapter-body table {
   width: 100%;
   border-collapse: collapse;
-  margin: 20px 0;
-  font-size: 0.88rem;
+  margin: 16px 0;
+  font-size: 0.85rem;
+  border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
   overflow: hidden;
-  box-shadow: var(--shadow-sm);
 }
 
 .chapter-body th,
 .chapter-body td {
-  padding: 12px 16px;
+  padding: 8px 12px;
   text-align: left;
   border-bottom: 1px solid var(--border-color);
 }
 
 .chapter-body th {
-  font-weight: 700;
-  color: var(--text-secondary);
-  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-primary);
   background: var(--bg-primary);
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
+  font-size: 0.8rem;
 }
 
 .chapter-body tr:hover td {
-  background: var(--accent-light);
+  background: var(--bg-primary);
 }
 
 .chapter-body hr {
   border: none;
-  border-top: 2px solid var(--border-color);
-  margin: 36px 0;
+  border-top: 1px solid var(--border-color);
+  margin: 24px 0;
 }
 
 /* Comments */
 .chapter-comments {
-  margin-top: 32px;
+  margin-top: 24px;
 }
 
 /* Status */
@@ -244,8 +209,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
-  padding: 80px 20px;
+  gap: 8px;
+  padding: 64px 20px;
   text-align: center;
 }
 
@@ -255,24 +220,24 @@
   }
 
   .chapter-header {
-    padding: 28px 20px 20px;
+    padding: 20px 16px 12px;
   }
 
   .chapter-title {
-    font-size: 1.25rem;
+    font-size: 1.1rem;
   }
 
   .chapter-body {
-    padding: 24px 20px 32px;
-    font-size: 0.9rem;
+    padding: 16px 16px 24px;
+    font-size: 0.85rem;
   }
 
   .chapter-body h1 {
-    font-size: 1.25rem;
+    font-size: 1.2rem;
   }
 
   .chapter-body h2 {
-    font-size: 1.1rem;
+    font-size: 1.05rem;
   }
 
   .chapter-body table {

@@ -40,9 +40,6 @@ function BookCard({ book, index }) {
         </div>
 
         <div className="book-card-info">
-          {book.category && (
-            <span className="book-category">{book.category}</span>
-          )}
           <h3 className="book-title">{book.title}</h3>
           {book.subtitle && (
             <p className="book-subtitle">{book.subtitle}</p>
@@ -52,6 +49,12 @@ function BookCard({ book, index }) {
             {book.author && <span>{book.author}</span>}
             {book.author && book.date && <span className="dot">&middot;</span>}
             {book.date && <span>{book.date}</span>}
+            {book.category && (
+              <>
+                <span className="dot">&middot;</span>
+                <span className="book-category">{book.category}</span>
+              </>
+            )}
           </div>
 
           {book.rating > 0 && (
