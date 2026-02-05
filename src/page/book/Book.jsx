@@ -147,19 +147,16 @@ function Book() {
                   to={`/book/${bookSlug}/read/${ch.path}`}
                   className="chapter-item"
                 >
-                  <div className="chapter-info">
-                    <span className="chapter-name">{ch.name}</span>
-                    <div className="chapter-meta">
-                      {commentCounts[ch.path] > 0 && (
-                        <span className="chapter-comments">
-                          <FiMessageSquare size={12} />
-                          {commentCounts[ch.path]}
-                        </span>
-                      )}
-                      {ch.date && <span className="chapter-date">{ch.date}</span>}
-                    </div>
+                  <span className="chapter-name">{ch.name}</span>
+                  <div className="chapter-right">
+                    {commentCounts[ch.path] > 0 && (
+                      <span className="chapter-comments">
+                        <FiMessageSquare size={12} />
+                        {commentCounts[ch.path]}
+                      </span>
+                    )}
+                    <FiChevronRight size={16} className="chapter-arrow" />
                   </div>
-                  <FiChevronRight size={16} className="chapter-arrow" />
                 </Link>
               ))}
             </div>
@@ -175,19 +172,16 @@ function Book() {
                     to={`/book/${bookSlug}/read/${ch.path}`}
                     className="chapter-item"
                   >
-                    <div className="chapter-info">
-                      <span className="chapter-name">{ch.name}</span>
-                      <div className="chapter-meta">
-                        {commentCounts[ch.path] > 0 && (
-                          <span className="chapter-comments">
-                            <FiMessageSquare size={12} />
-                            {commentCounts[ch.path]}
-                          </span>
-                        )}
-                        {ch.date && <span className="chapter-date">{ch.date}</span>}
-                      </div>
+                    <span className="chapter-name">{ch.name}</span>
+                    <div className="chapter-right">
+                      {commentCounts[ch.path] > 0 && (
+                        <span className="chapter-comments">
+                          <FiMessageSquare size={12} />
+                          {commentCounts[ch.path]}
+                        </span>
+                      )}
+                      <FiChevronRight size={16} className="chapter-arrow" />
                     </div>
-                    <FiChevronRight size={16} className="chapter-arrow" />
                   </Link>
                 ))}
               </div>

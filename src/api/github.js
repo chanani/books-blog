@@ -218,11 +218,22 @@ export async function fetchDiscussionCounts(bookSlug) {
 
     const discussions = data.data?.repository?.discussions?.nodes || [];
     const counts = {};
-    const prefix = `/book/${bookSlug}/read/`;
+
+    // giscus stores pathname as title, with or without leading slash
+    // bookSlug may be URL-encoded (Korean) or plain ASCII
+    const suffixes = [
+      `book/${bookSlug}/read/`,
+      `book/${encodeURIComponent(bookSlug)}/read/`,
+    ];
 
     for (const d of discussions) {
-      if (d.title.startsWith(prefix)) {
-        counts[d.title.slice(prefix.length)] = d.comments.totalCount;
+      const title = d.title.replace(/^\//, ''); // strip leading slash
+      for (const suffix of suffixes) {
+        if (title.startsWith(suffix)) {
+          const chapterPath = title.slice(suffix.length);
+          counts[chapterPath] = (counts[chapterPath] || 0) + d.comments.totalCount;
+          break;
+        }
       }
     }
 
