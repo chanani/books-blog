@@ -11,6 +11,21 @@ import Giscus from '@giscus/react';
 import useBookStore from '../../store/useBookStore';
 import './Chapter.css';
 
+const GITHUB_RAW = `https://raw.githubusercontent.com/${import.meta.env.VITE_GITHUB_OWNER}/${import.meta.env.VITE_GITHUB_REPO}/master`;
+const BOOKS_PATH = import.meta.env.VITE_GITHUB_PATH || 'books';
+
+function resolveImageSrc(src, bookSlug, chapterPath) {
+  if (!src || /^https?:\/\//.test(src)) return src;
+  // 챕터 파일의 디렉토리 기준으로 상대경로 해석
+  const chapterDir = `${BOOKS_PATH}/${bookSlug}/${chapterPath}`.split('/').slice(0, -1);
+  const parts = src.split('/');
+  for (const part of parts) {
+    if (part === '..') chapterDir.pop();
+    else if (part !== '.') chapterDir.push(part);
+  }
+  return `${GITHUB_RAW}/${chapterDir.join('/')}`;
+}
+
 function Chapter() {
   const { bookSlug, '*': chapterPath } = useParams();
   const navigate = useNavigate();
@@ -115,6 +130,15 @@ function Chapter() {
               remarkPlugins={[remarkGfm]}
               rehypePlugins={[rehypeRaw]}
               components={{
+                img({ src, alt, ...props }) {
+                  return (
+                    <img
+                      src={resolveImageSrc(src, bookSlug, chapterPath)}
+                      alt={alt}
+                      {...props}
+                    />
+                  );
+                },
                 code({ inline, className, children, ...props }) {
                   const match = /language-(\w+)/.exec(className || '');
                   return !inline && match ? (
