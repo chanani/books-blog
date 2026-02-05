@@ -1,8 +1,18 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <rect x="20" y="10" width="60" height="80" rx="4" fill="#c4a35a" />
-  <rect x="26" y="16" width="48" height="68" rx="2" fill="#f8f6f1" />
-  <line x1="32" y1="30" x2="68" y2="30" stroke="#2d2d2d" stroke-width="2" />
-  <line x1="32" y1="40" x2="68" y2="40" stroke="#2d2d2d" stroke-width="2" />
-  <line x1="32" y1="50" x2="58" y2="50" stroke="#2d2d2d" stroke-width="2" />
-  <rect x="15" y="10" width="8" height="80" rx="2" fill="#8b6f47" />
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#3182f6"/>
+      <stop offset="100%" stop-color="#6aabff"/>
+    </linearGradient>
+  </defs>
+  <!-- Book cover -->
+  <path d="M22 12 C22 12 20 12 20 14 L20 82 C20 84 22 86 24 86 L72 86 C74 86 76 84 76 82 L76 14 C76 12 74 12 72 12 Z" fill="url(#g)"/>
+  <!-- Spine -->
+  <rect x="16" y="12" width="7" height="74" rx="3" fill="#1b64da"/>
+  <!-- Pages -->
+  <rect x="27" y="18" width="43" height="62" rx="2" fill="#ffffff"/>
+  <!-- Text lines -->
+  <rect x="33" y="30" width="30" height="3" rx="1.5" fill="#3182f6" opacity="0.6"/>
+  <rect x="33" y="39" width="24" height="3" rx="1.5" fill="#3182f6" opacity="0.4"/>
+  <rect x="33" y="48" width="28" height="3" rx="1.5" fill="#3182f6" opacity="0.3"/>
 </svg>
