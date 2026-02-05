@@ -5,7 +5,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { oneLight, oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { FiArrowLeft, FiCalendar, FiEdit3 } from 'react-icons/fi';
 import Giscus from '@giscus/react';
 import useBookStore from '../../store/useBookStore';
@@ -119,13 +119,12 @@ function Chapter() {
                   const match = /language-(\w+)/.exec(className || '');
                   return !inline && match ? (
                     <SyntaxHighlighter
-                      style={oneLight}
+                      style={giscusTheme === 'dark' ? oneDark : oneLight}
                       language={match[1]}
                       PreTag="div"
                       customStyle={{
-                        borderRadius: '12px',
+                        borderRadius: '6px',
                         fontSize: '0.85rem',
-                        background: '#f2f4f6',
                         border: 'none',
                       }}
                       {...props}
