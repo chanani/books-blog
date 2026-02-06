@@ -10,8 +10,9 @@ function Router() {
   return (
     <Suspense
       fallback={
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '80px 0' }}>
-          <div className="loader" />
+        <div className="page-loading">
+          <div className="loader-lg" />
+          <p className="loading-text">페이지를 불러오는 중...</p>
         </div>
       }
     >

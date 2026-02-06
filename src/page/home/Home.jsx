@@ -49,8 +49,9 @@ function Home() {
         )}
 
         {loading && (
-          <div className="home-status">
-            <div className="loader" />
+          <div className="page-loading">
+            <div className="loader-lg" />
+            <p className="loading-text">책 목록을 불러오는 중...</p>
           </div>
         )}
 

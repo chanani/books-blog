@@ -4,6 +4,16 @@
   position: relative;
 }
 
+.read-progress-bar {
+  position: fixed;
+  top: var(--header-height);
+  left: 0;
+  height: 3px;
+  background: var(--accent-primary);
+  z-index: 99;
+  transition: width 0.1s linear;
+}
+
 .chapter-wrap {
   max-width: 720px;
   margin: 0 auto;

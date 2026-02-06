@@ -6,7 +6,7 @@ import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneLight, oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { FiArrowLeft, FiCalendar, FiEdit3, FiChevronLeft, FiChevronRight, FiList } from 'react-icons/fi';
+import { FiArrowLeft, FiCalendar, FiEdit3, FiChevronLeft, FiChevronRight, FiList, FiMinus, FiPlus } from 'react-icons/fi';
 import Giscus from '@giscus/react';
 import useBookStore from '../../store/useBookStore';
 import './Chapter.css';
@@ -41,6 +41,19 @@ function Chapter() {
   );
   const [activeId, setActiveId] = useState('');
   const [tocOpen, setTocOpen] = useState(false);
+  const [readProgress, setReadProgress] = useState(0);
+  const [fontSize, setFontSize] = useState(() => {
+    const saved = localStorage.getItem('chapter-font-size');
+    return saved ? parseInt(saved, 10) : 16;
+  });
+
+  const changeFontSize = (delta) => {
+    setFontSize((prev) => {
+      const next = Math.min(Math.max(prev + delta, 14), 22);
+      localStorage.setItem('chapter-font-size', String(next));
+      return next;
+    });
+  };
 
   const headings = useMemo(() => {
     if (!currentChapter?.content) return [];
@@ -102,6 +115,21 @@ function Chapter() {
   }), [bookSlug, chapterPath]);
 
   const handleScroll = useCallback(() => {
+    // 읽기 진행률 계산 (chapter-article 기준)
+    const article = document.querySelector('.chapter-article');
+    if (article) {
+      const articleTop = article.offsetTop;
+      const articleHeight = article.offsetHeight;
+      const scrollTop = window.scrollY;
+      const viewportHeight = window.innerHeight;
+      const articleEnd = articleTop + articleHeight - viewportHeight;
+      const progress = articleEnd > articleTop
+        ? Math.min(Math.max((scrollTop - articleTop) / (articleEnd - articleTop) * 100, 0), 100)
+        : 100;
+      setReadProgress(progress);
+    }
+
+    // 목차 활성 항목 계산
     if (headings.length === 0) return;
     const scrollY = window.scrollY + 100;
     let current = '';
@@ -150,10 +178,9 @@ function Chapter() {
   if (loading) {
     return (
       <main className="chapter-page">
-        <div className="chapter-wrap">
-          <div className="chapter-status">
-            <div className="loader" />
-          </div>
+        <div className="page-loading">
+          <div className="loader-lg" />
+          <p className="loading-text">글을 불러오는 중...</p>
         </div>
       </main>
     );
@@ -182,6 +209,8 @@ function Chapter() {
 
   return (
     <main className="chapter-page">
+      <div className="read-progress-bar" style={{ width: `${readProgress}%` }} />
+
       {headings.length > 0 && (
         <>
           <aside className={`toc-sidebar${tocOpen ? ' open' : ''}`}>

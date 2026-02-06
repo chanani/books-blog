@@ -46,10 +46,9 @@ function Book() {
   if (loading) {
     return (
       <main className="book-page">
-        <div className="book-wrap">
-          <div className="book-status">
-            <div className="loader" />
-          </div>
+        <div className="page-loading">
+          <div className="loader-lg" />
+          <p className="loading-text">책 정보를 불러오는 중...</p>
         </div>
       </main>
     );
