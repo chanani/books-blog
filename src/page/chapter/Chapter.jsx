@@ -6,7 +6,7 @@ import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneLight, oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { FiArrowLeft, FiCalendar, FiEdit3, FiChevronLeft, FiChevronRight, FiList, FiMinus, FiPlus, FiSettings, FiLink, FiCheck } from 'react-icons/fi';
+import { FiArrowLeft, FiCalendar, FiEdit3, FiChevronLeft, FiChevronRight, FiList, FiMinus, FiPlus, FiSettings, FiLink, FiCheck, FiCopy } from 'react-icons/fi';
 import Giscus from '@giscus/react';
 import useBookStore from '../../store/useBookStore';
 import './Chapter.css';
@@ -29,6 +29,43 @@ function extractHeadings(content) {
 
 const GITHUB_RAW = `https://raw.githubusercontent.com/${import.meta.env.VITE_GITHUB_OWNER}/${import.meta.env.VITE_GITHUB_REPO}/master`;
 const BOOKS_PATH = import.meta.env.VITE_GITHUB_PATH || 'books';
+
+function CodeBlock({ language, children }) {
+  const [copied, setCopied] = useState(false);
+  const theme = document.documentElement.getAttribute('data-theme') || 'light';
+  const code = String(children).replace(/\n$/, '');
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy code:', err);
+    }
+  };
+
+  return (
+    <div className="code-block-wrapper">
+      <button className="code-copy-btn" onClick={handleCopy} aria-label="코드 복사">
+        {copied ? <FiCheck size={14} /> : <FiCopy size={14} />}
+      </button>
+      <SyntaxHighlighter
+        style={theme === 'dark' ? oneDark : oneLight}
+        language={language}
+        PreTag="div"
+        customStyle={{
+          borderRadius: '6px',
+          fontSize: '0.85rem',
+          border: 'none',
+          margin: 0,
+        }}
+      >
+        {code}
+      </SyntaxHighlighter>
+    </div>
+  );
+}
 
 function Chapter() {
   const { bookSlug, '*': chapterPath } = useParams();
@@ -103,21 +140,8 @@ function Chapter() {
     },
     code({ inline, className, children, ...props }) {
       const match = /language-(\w+)/.exec(className || '');
-      const theme = document.documentElement.getAttribute('data-theme') || 'light';
       return !inline && match ? (
-        <SyntaxHighlighter
-          style={theme === 'dark' ? oneDark : oneLight}
-          language={match[1]}
-          PreTag="div"
-          customStyle={{
-            borderRadius: '6px',
-            fontSize: '0.85rem',
-            border: 'none',
-          }}
-          {...props}
-        >
-          {String(children).replace(/\n$/, '')}
-        </SyntaxHighlighter>
+        <CodeBlock language={match[1]}>{children}</CodeBlock>
       ) : (
         <code className={className} {...props}>
           {children}
