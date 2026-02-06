@@ -146,7 +146,7 @@
 }
 
 .progress-bar {
-  width: 60px;
+  width: 120px;
   height: 4px;
   background: var(--border-color);
   border-radius: 2px;

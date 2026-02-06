@@ -1,0 +1,16 @@
+{
+  "name": "차나니의 책방",
+  "short_name": "책방",
+  "description": "개발 서적 독서 기록과 정리",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#4f46e5",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
