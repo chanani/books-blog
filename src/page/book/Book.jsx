@@ -222,7 +222,7 @@ function Book() {
             el.style.fontWeight = '600';
           }
           if (el.tagName === 'IMG') {
-            el.style.display = 'none';
+            el.style.maxWidth = '100%';
           }
         });
 

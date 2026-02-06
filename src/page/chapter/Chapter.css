@@ -691,6 +691,10 @@
   max-width: 50%;
 }
 
+.chapter-nav-btn:only-child {
+  min-width: 50%;
+}
+
 .chapter-nav-btn:hover {
   border-color: var(--accent-primary);
   background: var(--bg-tertiary);
@@ -732,6 +736,7 @@
   flex-direction: column;
   gap: 4px;
   min-width: 0;
+  flex: 1;
 }
 
 .chapter-nav-label {
@@ -749,7 +754,9 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  max-width: 100%;
 }
+
 
 /* Comments */
 .chapter-comments {
@@ -816,9 +823,6 @@
     font-size: 0.75rem;
   }
 
-  .chapter-nav.has-both .chapter-nav-title {
-    max-width: 80px;
-  }
 }
 
 /* Print Styles */
