@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FiArrowLeft, FiChevronRight, FiMessageSquare } from 'react-icons/fi';
+import { FiArrowLeft, FiChevronRight, FiMessageSquare, FiSearch } from 'react-icons/fi';
 import useBookStore from '../../store/useBookStore';
 import './Book.css';
 
@@ -10,6 +10,7 @@ function Book() {
   const navigate = useNavigate();
   const { currentBook, loading, error, loadBook, clearBook } = useBookStore();
   const [imgError, setImgError] = useState(false);
+  const [chapterSearch, setChapterSearch] = useState('');
 
   useEffect(() => {
     loadBook(bookSlug);
@@ -72,8 +73,28 @@ function Book() {
 
   if (!currentBook) return null;
 
-  const folderNames = Object.keys(currentBook.folderGroups || {});
   const commentCounts = currentBook.commentCounts || {};
+  const searchQuery = chapterSearch.toLowerCase().trim();
+
+  const filteredRootChapters = (currentBook.rootChapters || []).filter((ch) =>
+    ch.name.toLowerCase().includes(searchQuery)
+  );
+
+  const filteredFolderGroups = Object.entries(currentBook.folderGroups || {}).reduce(
+    (acc, [folder, chapters]) => {
+      const filtered = chapters.filter((ch) =>
+        ch.name.toLowerCase().includes(searchQuery)
+      );
+      if (filtered.length > 0) {
+        acc[folder] = filtered;
+      }
+      return acc;
+    },
+    {}
+  );
+
+  const folderNames = Object.keys(filteredFolderGroups);
+  const hasResults = filteredRootChapters.length > 0 || folderNames.length > 0;
 
   return (
     <main className="book-page">
@@ -150,14 +171,28 @@ function Book() {
 
         {/* Chapter List */}
         <section className="chapter-section">
-          <h2 className="section-title">
-            목차
-            <span className="chapter-count">{currentBook.totalChapters}</span>
-          </h2>
+          <div className="chapter-section-header">
+            <h2 className="section-title">
+              목차
+              <span className="chapter-count">{currentBook.totalChapters}</span>
+            </h2>
+            {currentBook.totalChapters > 0 && (
+              <div className="chapter-search">
+                <FiSearch size={14} className="chapter-search-icon" />
+                <input
+                  type="text"
+                  placeholder="챕터 검색..."
+                  value={chapterSearch}
+                  onChange={(e) => setChapterSearch(e.target.value)}
+                  className="chapter-search-input"
+                />
+              </div>
+            )}
+          </div>
 
-          {currentBook.rootChapters?.length > 0 && (
+          {filteredRootChapters.length > 0 && (
             <div className="chapter-group">
-              {currentBook.rootChapters.map((ch) => (
+              {filteredRootChapters.map((ch) => (
                 <Link
                   key={ch.path}
                   to={`/book/${bookSlug}/read/${ch.path}`}
@@ -182,7 +217,7 @@ function Book() {
             <div key={folder}>
               <h3 className="folder-title">{folder}</h3>
               <div className="chapter-group">
-                {currentBook.folderGroups[folder].map((ch) => (
+                {filteredFolderGroups[folder].map((ch) => (
                   <Link
                     key={ch.path}
                     to={`/book/${bookSlug}/read/${ch.path}`}
@@ -206,6 +241,10 @@ function Book() {
 
           {currentBook.totalChapters === 0 && (
             <p className="no-chapters">아직 작성된 챕터가 없습니다.</p>
+          )}
+
+          {currentBook.totalChapters > 0 && !hasResults && (
+            <p className="no-chapters">검색 결과가 없습니다.</p>
           )}
         </section>
       </motion.div>
