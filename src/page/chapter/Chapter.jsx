@@ -6,7 +6,7 @@ import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneLight, oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { FiArrowLeft, FiCalendar, FiEdit3, FiChevronLeft, FiChevronRight, FiList, FiMinus, FiPlus } from 'react-icons/fi';
+import { FiArrowLeft, FiCalendar, FiEdit3, FiChevronLeft, FiChevronRight, FiList, FiMinus, FiPlus, FiSettings } from 'react-icons/fi';
 import Giscus from '@giscus/react';
 import useBookStore from '../../store/useBookStore';
 import './Chapter.css';
@@ -46,6 +46,7 @@ function Chapter() {
     const saved = localStorage.getItem('chapter-font-size');
     return saved ? parseInt(saved, 10) : 16;
   });
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const changeFontSize = (delta) => {
     setFontSize((prev) => {
@@ -256,7 +257,47 @@ function Chapter() {
 
         <article className="chapter-article">
           <header className="chapter-header">
-            <h1 className="chapter-title">{currentChapter.title}</h1>
+            <div className="chapter-header-top">
+              <h1 className="chapter-title">{currentChapter.title}</h1>
+              <div className="chapter-settings">
+                <button
+                  className="settings-btn"
+                  onClick={() => setSettingsOpen(!settingsOpen)}
+                  aria-label="설정"
+                >
+                  <FiSettings size={18} />
+                </button>
+                {settingsOpen && (
+                  <>
+                    <div className="settings-overlay" onClick={() => setSettingsOpen(false)} />
+                    <div className="settings-dropdown">
+                      <div className="settings-item">
+                        <span className="settings-label">글자 크기</span>
+                        <div className="font-size-control">
+                          <button
+                            className="font-size-btn"
+                            onClick={() => changeFontSize(-1)}
+                            disabled={fontSize <= 14}
+                            aria-label="글자 작게"
+                          >
+                            <FiMinus size={14} />
+                          </button>
+                          <span className="font-size-value">{fontSize}</span>
+                          <button
+                            className="font-size-btn"
+                            onClick={() => changeFontSize(1)}
+                            disabled={fontSize >= 22}
+                            aria-label="글자 크게"
+                          >
+                            <FiPlus size={14} />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
             {(currentChapter.createdAt || currentChapter.updatedAt) && (
               <div className="chapter-dates">
                 {currentChapter.createdAt && (
@@ -276,7 +317,7 @@ function Chapter() {
             )}
           </header>
 
-          <div className="chapter-body">
+          <div className="chapter-body" style={{ fontSize: `${fontSize}px` }}>
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
               rehypePlugins={[rehypeRaw]}

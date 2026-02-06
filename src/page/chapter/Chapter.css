@@ -158,6 +158,106 @@
   gap: 8px;
 }
 
+.chapter-header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.chapter-settings {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.settings-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  background: var(--bg-primary);
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.settings-btn:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.settings-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99;
+}
+
+.settings-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  padding: 16px;
+}
+
+.settings-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.settings-label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.font-size-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.font-size-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  background: var(--bg-primary);
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.font-size-btn:hover:not(:disabled) {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border-color: var(--accent-primary);
+}
+
+.font-size-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.font-size-value {
+  min-width: 32px;
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
 .chapter-dates {
   display: flex;
   flex-wrap: wrap;
@@ -173,7 +273,7 @@
 }
 
 .chapter-title {
-  font-size: 1.3rem;
+  font-size: 1.5rem;
   font-weight: 700;
   color: var(--text-primary);
   line-height: 1.35;
@@ -182,7 +282,6 @@
 /* Markdown body */
 .chapter-body {
   padding: 24px 24px 32px;
-  font-size: 0.9rem;
   line-height: 1.8;
   color: var(--text-primary);
 }
@@ -192,7 +291,7 @@
 }
 
 .chapter-body h1 {
-  font-size: 1.4rem;
+  font-size: 1.5em;
   font-weight: 700;
   margin: 32px 0 12px;
   padding-bottom: 8px;
@@ -200,19 +299,19 @@
 }
 
 .chapter-body h2 {
-  font-size: 1.2rem;
+  font-size: 1.3em;
   font-weight: 600;
   margin: 28px 0 8px;
 }
 
 .chapter-body h3 {
-  font-size: 1.05rem;
+  font-size: 1.15em;
   font-weight: 600;
   margin: 20px 0 8px;
 }
 
 .chapter-body h4 {
-  font-size: 0.95rem;
+  font-size: 1.05em;
   font-weight: 600;
   margin: 16px 0 4px;
 }
@@ -441,20 +540,20 @@
   }
 
   .chapter-title {
-    font-size: 1.1rem;
+    font-size: 1.25rem;
+  }
+
+  .chapter-header-top {
+    flex-direction: row;
+    gap: 12px;
+  }
+
+  .chapter-settings {
+    align-self: flex-start;
   }
 
   .chapter-body {
     padding: 16px 16px 24px;
-    font-size: 0.85rem;
-  }
-
-  .chapter-body h1 {
-    font-size: 1.2rem;
-  }
-
-  .chapter-body h2 {
-    font-size: 1.05rem;
   }
 
   .chapter-body table {
