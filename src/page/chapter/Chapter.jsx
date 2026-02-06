@@ -7,7 +7,7 @@ import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneLight, oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { FiArrowLeft, FiCalendar, FiEdit3, FiChevronLeft, FiChevronRight, FiList, FiMinus, FiPlus, FiSettings, FiLink, FiCheck, FiCopy, FiPrinter } from 'react-icons/fi';
+import { FiArrowLeft, FiCalendar, FiEdit3, FiChevronLeft, FiChevronRight, FiList, FiMinus, FiPlus, FiSettings, FiLink, FiCheck, FiCopy, FiDownload } from 'react-icons/fi';
 import Giscus from '@giscus/react';
 import useBookStore from '../../store/useBookStore';
 import './Chapter.css';
@@ -90,6 +90,7 @@ function Chapter() {
   const [sepiaMode, setSepiaMode] = useState(() => {
     return localStorage.getItem('chapter-sepia-mode') === 'true';
   });
+  const [pdfLoading, setPdfLoading] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [fontSelectOpen, setFontSelectOpen] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -125,9 +126,198 @@ function Chapter() {
     });
   };
 
-  const handlePrint = () => {
+  const downloadPdf = async () => {
     setSettingsOpen(false);
-    setTimeout(() => window.print(), 100);
+    setPdfLoading(true);
+
+    const element = document.querySelector('.chapter-body');
+    if (!element) {
+      setPdfLoading(false);
+      return;
+    }
+
+    const [domtoimage, { jsPDF }] = await Promise.all([
+      import('dom-to-image-more'),
+      import('jspdf'),
+    ]);
+
+    // 복제본 생성 (화면 밖에 배치, PC 사이즈 고정)
+    const clone = document.createElement('div');
+    clone.style.cssText = `
+      position: absolute;
+      left: -9999px;
+      top: 0;
+      width: 800px;
+      background: #ffffff;
+      color: #1a1a1a;
+      padding: 40px;
+      font-size: 14px;
+      line-height: 1.8;
+    `;
+
+    // 제목 추가
+    const title = document.createElement('h1');
+    title.textContent = currentChapter?.title || '';
+    title.style.cssText = `
+      font-size: 24px;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin: 0 0 8px 0;
+      padding-bottom: 16px;
+      border-bottom: 2px solid #6366f1;
+    `;
+    clone.appendChild(title);
+
+    // 본문 복제
+    const body = element.cloneNode(true);
+    body.style.cssText = 'background: transparent; color: #1a1a1a;';
+    clone.appendChild(body);
+
+    // 라이트 모드 스타일 적용
+    body.querySelectorAll('*').forEach((el) => {
+      el.style.color = '#1a1a1a';
+      el.style.backgroundColor = 'transparent';
+
+      if (el.tagName === 'P') {
+        if (!el.closest('blockquote')) {
+          el.style.marginBottom = '16px';
+        } else {
+          el.style.margin = '0';
+          el.style.padding = '0';
+        }
+        el.style.lineHeight = '1.8';
+      }
+      if (el.tagName === 'A') el.style.color = '#2563eb';
+      if (el.tagName === 'H1' || el.tagName === 'H2' || el.tagName === 'H3' || el.tagName === 'H4') {
+        el.style.marginTop = '24px';
+        el.style.marginBottom = '12px';
+      }
+      if (el.tagName === 'PRE') {
+        el.style.backgroundColor = '#f5f5f5';
+        el.style.color = '#333';
+        el.style.padding = '12px';
+        el.style.borderRadius = '6px';
+        el.style.marginBottom = '16px';
+      }
+      if (el.tagName === 'CODE') {
+        el.style.color = '#333';
+        if (!el.closest('pre')) {
+          el.style.backgroundColor = '#f0f0f0';
+          el.style.padding = '2px 6px';
+          el.style.borderRadius = '4px';
+        }
+      }
+      if (el.tagName === 'BLOCKQUOTE') {
+        el.style.borderLeft = '4px solid #6366f1';
+        el.style.padding = '12px 16px';
+        el.style.margin = '16px 0';
+        el.style.background = '#f5f5f5';
+        el.style.color = '#555';
+      }
+      if (el.tagName === 'UL') {
+        el.style.marginBottom = '16px';
+        el.style.paddingLeft = '24px';
+        el.style.listStyleType = 'disc';
+      }
+      if (el.tagName === 'OL') {
+        el.style.marginBottom = '16px';
+        el.style.paddingLeft = '24px';
+        el.style.listStyleType = 'decimal';
+      }
+      if (el.tagName === 'LI') {
+        el.style.marginBottom = '8px';
+        el.style.display = 'list-item';
+      }
+      if (el.tagName === 'STRONG' || el.tagName === 'B') {
+        el.style.backgroundColor = 'transparent';
+        el.style.fontWeight = '700';
+      }
+      if (el.tagName === 'HR') {
+        el.style.border = 'none';
+        el.style.borderTop = '1px solid #ddd';
+        el.style.margin = '24px 0';
+      }
+      if (el.tagName === 'TABLE') {
+        el.style.width = '100%';
+        el.style.borderCollapse = 'collapse';
+        el.style.marginBottom = '16px';
+      }
+      if (el.tagName === 'TH' || el.tagName === 'TD') {
+        el.style.border = '1px solid #ddd';
+        el.style.padding = '8px 12px';
+      }
+      if (el.tagName === 'TH') {
+        el.style.backgroundColor = '#f5f5f5';
+        el.style.fontWeight = '600';
+      }
+      if (el.tagName === 'IMG') {
+        el.style.display = 'none';
+      }
+    });
+
+    document.body.appendChild(clone);
+
+    // 렌더링 대기
+    await new Promise((r) => setTimeout(r, 100));
+
+    try {
+      const scale = 4;
+      const dataUrl = await domtoimage.toPng(clone, {
+        quality: 1,
+        bgcolor: '#ffffff',
+        width: clone.offsetWidth * scale,
+        height: clone.offsetHeight * scale,
+        style: {
+          transform: `scale(${scale})`,
+          transformOrigin: 'top left',
+        },
+      });
+
+      const img = new Image();
+      img.src = dataUrl;
+      await new Promise((resolve) => { img.onload = resolve; });
+
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const margin = 15;
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const contentWidth = pdfWidth - margin * 2;
+      const contentHeight = pdfHeight - margin * 2;
+
+      const ratio = contentWidth / (clone.offsetWidth);
+      const scaledHeight = clone.offsetHeight * ratio;
+
+      const totalPages = Math.ceil(scaledHeight / contentHeight);
+
+      for (let page = 0; page < totalPages; page++) {
+        if (page > 0) pdf.addPage();
+
+        // 각 페이지별로 이미지 영역 잘라서 추가
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const sourceY = page * (contentHeight / ratio) * scale;
+        const sourceHeight = (contentHeight / ratio) * scale;
+
+        canvas.width = img.width;
+        canvas.height = sourceHeight;
+
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(
+          img,
+          0, sourceY, img.width, Math.min(sourceHeight, img.height - sourceY),
+          0, 0, img.width, Math.min(sourceHeight, img.height - sourceY)
+        );
+
+        const pageData = canvas.toDataURL('image/png', 1.0);
+        pdf.addImage(pageData, 'PNG', margin, margin, contentWidth, contentHeight);
+      }
+
+      pdf.save(`${currentChapter?.title || 'chapter'}.pdf`);
+    } finally {
+      document.body.removeChild(clone);
+      setPdfLoading(false);
+    }
   };
 
 
@@ -264,6 +454,31 @@ function Chapter() {
     return () => clearChapter();
   }, [bookSlug, chapterPath, loadChapter, clearChapter]);
 
+  // 저장된 읽기 위치로 스크롤 복원
+  useEffect(() => {
+    if (!currentChapter || loading) return;
+
+    const history = JSON.parse(localStorage.getItem('reading-history') || '[]');
+    const saved = history.find(
+      (h) => h.bookSlug === bookSlug && h.chapterPath === chapterPath
+    );
+
+    if (saved && saved.progress > 0 && saved.progress < 100) {
+      setTimeout(() => {
+        const article = document.querySelector('.chapter-article');
+        if (!article) return;
+
+        const articleTop = article.offsetTop;
+        const articleHeight = article.scrollHeight;
+        const viewportHeight = window.innerHeight;
+        const articleEnd = articleTop + articleHeight - viewportHeight;
+        const scrollTarget = articleTop + ((articleEnd - articleTop) * saved.progress) / 100;
+
+        window.scrollTo({ top: scrollTarget, behavior: 'auto' });
+      }, 100);
+    }
+  }, [currentChapter, loading, bookSlug, chapterPath]);
+
   useEffect(() => {
     const observer = new MutationObserver(() => {
       const t = document.documentElement.getAttribute('data-theme') || 'light';
@@ -317,6 +532,13 @@ function Chapter() {
         <meta property="og:description" content={`${currentChapter.bookTitle} - ${currentChapter.title}`} />
       </Helmet>
       <div className="read-progress-bar" style={{ width: `${readProgress}%` }} />
+
+      {pdfLoading && (
+        <div className="pdf-loading-toast">
+          <div className="pdf-loading-spinner" />
+          <span>PDF 생성 중...</span>
+        </div>
+      )}
 
       {headings.length > 0 && (
         <>
@@ -446,9 +668,9 @@ function Chapter() {
                         {copied ? <FiCheck size={14} /> : <FiLink size={14} />}
                         <span>{copied ? '복사됨' : 'URL 복사'}</span>
                       </button>
-                      <button className="settings-copy-btn" onClick={handlePrint}>
-                        <FiPrinter size={14} />
-                        <span>인쇄 / PDF</span>
+                      <button className="settings-copy-btn" onClick={downloadPdf}>
+                        <FiDownload size={14} />
+                        <span>PDF 저장</span>
                       </button>
                     </div>
                   </>
