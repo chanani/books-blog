@@ -84,7 +84,11 @@ function Chapter() {
     const saved = localStorage.getItem('chapter-font-size');
     return saved ? parseInt(saved, 10) : 16;
   });
+  const [fontFamily, setFontFamily] = useState(() => {
+    return localStorage.getItem('chapter-font-family') || 'default';
+  });
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [fontSelectOpen, setFontSelectOpen] = useState(false);
   const [copied, setCopied] = useState(false);
 
   const copyUrl = async () => {
@@ -104,6 +108,22 @@ function Chapter() {
       return next;
     });
   };
+
+  const changeFontFamily = (family) => {
+    setFontFamily(family);
+    localStorage.setItem('chapter-font-family', family);
+  };
+
+  const fontFamilyOptions = [
+    { value: 'default', label: '시스템 기본' },
+    { value: 'pretendard', label: 'Pretendard' },
+    { value: 'noto-sans', label: 'Noto Sans KR' },
+    { value: 'noto-serif', label: 'Noto Serif KR' },
+    { value: 'nanum-gothic', label: '나눔고딕' },
+    { value: 'nanum-myeongjo', label: '나눔명조' },
+    { value: 'ibm-plex', label: 'IBM Plex Sans KR' },
+    { value: 'gmarket', label: 'Gmarket Sans' },
+  ];
 
   const headings = useMemo(() => {
     if (!currentChapter?.content) return [];
@@ -362,6 +382,39 @@ function Chapter() {
                           </button>
                         </div>
                       </div>
+                      <div className="settings-item">
+                        <span className="settings-label">글꼴</span>
+                        <div className="font-select-wrapper">
+                          <button
+                            className="font-select-btn"
+                            onClick={() => setFontSelectOpen(!fontSelectOpen)}
+                          >
+                            <span>{fontFamilyOptions.find(f => f.value === fontFamily)?.label}</span>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <polyline points="6 9 12 15 18 9" />
+                            </svg>
+                          </button>
+                          {fontSelectOpen && (
+                            <>
+                              <div className="font-select-overlay" onClick={() => setFontSelectOpen(false)} />
+                              <div className="font-select-dropdown">
+                                {fontFamilyOptions.map((option) => (
+                                  <button
+                                    key={option.value}
+                                    className={`font-select-option${fontFamily === option.value ? ' active' : ''}`}
+                                    onClick={() => {
+                                      changeFontFamily(option.value);
+                                      setFontSelectOpen(false);
+                                    }}
+                                  >
+                                    {option.label}
+                                  </button>
+                                ))}
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      </div>
                       <button className="settings-copy-btn" onClick={copyUrl}>
                         {copied ? <FiCheck size={14} /> : <FiLink size={14} />}
                         <span>{copied ? '복사됨' : 'URL 복사'}</span>
@@ -390,7 +443,7 @@ function Chapter() {
             )}
           </header>
 
-          <div className="chapter-body" style={{ fontSize: `${fontSize}px` }}>
+          <div className={`chapter-body font-${fontFamily}`} style={{ fontSize: `${fontSize}px` }}>
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
               rehypePlugins={[rehypeRaw]}
