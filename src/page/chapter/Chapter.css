@@ -349,6 +349,36 @@
   background: var(--accent-light);
 }
 
+.sepia-toggle {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  background: var(--border-color);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.sepia-toggle.active {
+  background: var(--accent-primary);
+}
+
+.sepia-toggle-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.2s;
+}
+
+.sepia-toggle.active .sepia-toggle-thumb {
+  transform: translateX(20px);
+}
+
 .chapter-dates {
   display: flex;
   flex-wrap: wrap;
@@ -407,6 +437,34 @@
 
 .chapter-body.font-gmarket {
   font-family: 'GmarketSans', sans-serif;
+}
+
+.chapter-body.sepia {
+  background: #f5e6d3;
+  color: #5c4b37;
+  border-radius: var(--radius-sm);
+  margin: 0 -24px;
+  padding: 24px 48px 32px;
+}
+
+.chapter-body.sepia code {
+  background: #e8d5c0;
+  color: #5c4b37;
+}
+
+.chapter-body.sepia a {
+  color: #8b6914;
+}
+
+.chapter-body.sepia blockquote,
+[data-theme='dark'] .chapter-body.sepia blockquote {
+  border-color: #c9a96e;
+  background: #efe0cc;
+  color: #6b5a48;
+}
+
+.chapter-body.sepia hr {
+  border-color: #d4c4a8;
 }
 
 .chapter-body > :first-child {

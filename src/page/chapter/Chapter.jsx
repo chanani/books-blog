@@ -87,6 +87,9 @@ function Chapter() {
   const [fontFamily, setFontFamily] = useState(() => {
     return localStorage.getItem('chapter-font-family') || 'default';
   });
+  const [sepiaMode, setSepiaMode] = useState(() => {
+    return localStorage.getItem('chapter-sepia-mode') === 'true';
+  });
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [fontSelectOpen, setFontSelectOpen] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -112,6 +115,14 @@ function Chapter() {
   const changeFontFamily = (family) => {
     setFontFamily(family);
     localStorage.setItem('chapter-font-family', family);
+  };
+
+  const toggleSepiaMode = () => {
+    setSepiaMode((prev) => {
+      const next = !prev;
+      localStorage.setItem('chapter-sepia-mode', String(next));
+      return next;
+    });
   };
 
   const fontFamilyOptions = [
@@ -415,6 +426,16 @@ function Chapter() {
                           )}
                         </div>
                       </div>
+                      <div className="settings-item">
+                        <span className="settings-label">세피아 모드</span>
+                        <button
+                          className={`sepia-toggle${sepiaMode ? ' active' : ''}`}
+                          onClick={toggleSepiaMode}
+                          aria-label="세피아 모드 토글"
+                        >
+                          <span className="sepia-toggle-thumb" />
+                        </button>
+                      </div>
                       <button className="settings-copy-btn" onClick={copyUrl}>
                         {copied ? <FiCheck size={14} /> : <FiLink size={14} />}
                         <span>{copied ? '복사됨' : 'URL 복사'}</span>
@@ -443,7 +464,7 @@ function Chapter() {
             )}
           </header>
 
-          <div className={`chapter-body font-${fontFamily}`} style={{ fontSize: `${fontSize}px` }}>
+          <div className={`chapter-body font-${fontFamily}${sepiaMode ? ' sepia' : ''}`} style={{ fontSize: `${fontSize}px` }}>
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
               rehypePlugins={[rehypeRaw]}
