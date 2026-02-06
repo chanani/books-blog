@@ -7,7 +7,7 @@ import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneLight, oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { FiArrowLeft, FiCalendar, FiEdit3, FiChevronLeft, FiChevronRight, FiList, FiMinus, FiPlus, FiSettings, FiLink, FiCheck, FiCopy } from 'react-icons/fi';
+import { FiArrowLeft, FiCalendar, FiEdit3, FiChevronLeft, FiChevronRight, FiList, FiMinus, FiPlus, FiSettings, FiLink, FiCheck, FiCopy, FiPrinter } from 'react-icons/fi';
 import Giscus from '@giscus/react';
 import useBookStore from '../../store/useBookStore';
 import './Chapter.css';
@@ -124,6 +124,12 @@ function Chapter() {
       return next;
     });
   };
+
+  const handlePrint = () => {
+    setSettingsOpen(false);
+    setTimeout(() => window.print(), 100);
+  };
+
 
   const fontFamilyOptions = [
     { value: 'default', label: '시스템 기본' },
@@ -429,16 +435,20 @@ function Chapter() {
                       <div className="settings-item">
                         <span className="settings-label">세피아 모드</span>
                         <button
-                          className={`sepia-toggle${sepiaMode ? ' active' : ''}`}
+                          className={`settings-toggle${sepiaMode ? ' active' : ''}`}
                           onClick={toggleSepiaMode}
                           aria-label="세피아 모드 토글"
                         >
-                          <span className="sepia-toggle-thumb" />
+                          <span className="settings-toggle-thumb" />
                         </button>
                       </div>
                       <button className="settings-copy-btn" onClick={copyUrl}>
                         {copied ? <FiCheck size={14} /> : <FiLink size={14} />}
                         <span>{copied ? '복사됨' : 'URL 복사'}</span>
+                      </button>
+                      <button className="settings-copy-btn" onClick={handlePrint}>
+                        <FiPrinter size={14} />
+                        <span>인쇄 / PDF</span>
                       </button>
                     </div>
                   </>
