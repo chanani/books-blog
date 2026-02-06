@@ -6,7 +6,7 @@ import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneLight, oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { FiArrowLeft, FiCalendar, FiEdit3, FiChevronLeft, FiChevronRight, FiList, FiMinus, FiPlus, FiSettings } from 'react-icons/fi';
+import { FiArrowLeft, FiCalendar, FiEdit3, FiChevronLeft, FiChevronRight, FiList, FiMinus, FiPlus, FiSettings, FiLink, FiCheck } from 'react-icons/fi';
 import Giscus from '@giscus/react';
 import useBookStore from '../../store/useBookStore';
 import './Chapter.css';
@@ -47,6 +47,17 @@ function Chapter() {
     return saved ? parseInt(saved, 10) : 16;
   });
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const copyUrl = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy URL:', err);
+    }
+  };
 
   const changeFontSize = (delta) => {
     setFontSize((prev) => {
@@ -115,16 +126,36 @@ function Chapter() {
     },
   }), [bookSlug, chapterPath]);
 
+  const saveReadingHistory = useCallback((progress) => {
+    if (!currentChapter) return;
+    const historyKey = 'reading-history';
+    const history = JSON.parse(localStorage.getItem(historyKey) || '[]');
+    const entry = {
+      bookSlug,
+      chapterPath,
+      chapterTitle: currentChapter.title,
+      bookTitle: currentChapter.bookTitle || bookSlug,
+      progress: Math.round(progress),
+      timestamp: Date.now(),
+    };
+    const filtered = history.filter(
+      (h) => !(h.bookSlug === bookSlug && h.chapterPath === chapterPath)
+    );
+    filtered.unshift(entry);
+    localStorage.setItem(historyKey, JSON.stringify(filtered.slice(0, 10)));
+  }, [bookSlug, chapterPath, currentChapter]);
+
   const handleScroll = useCallback(() => {
     // 읽기 진행률 계산 (chapter-article 기준)
     const article = document.querySelector('.chapter-article');
+    let progress = 0;
     if (article) {
       const articleTop = article.offsetTop;
       const articleHeight = article.offsetHeight;
       const scrollTop = window.scrollY;
       const viewportHeight = window.innerHeight;
       const articleEnd = articleTop + articleHeight - viewportHeight;
-      const progress = articleEnd > articleTop
+      progress = articleEnd > articleTop
         ? Math.min(Math.max((scrollTop - articleTop) / (articleEnd - articleTop) * 100, 0), 100)
         : 100;
       setReadProgress(progress);
@@ -148,6 +179,13 @@ function Chapter() {
     handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
   }, [handleScroll]);
+
+  // 읽기 기록 저장 (진행률 변경 시)
+  useEffect(() => {
+    if (currentChapter && readProgress > 0) {
+      saveReadingHistory(readProgress);
+    }
+  }, [currentChapter, readProgress, saveReadingHistory]);
 
   const scrollToHeading = (id) => {
     const el = document.getElementById(id);
@@ -293,6 +331,10 @@ function Chapter() {
                           </button>
                         </div>
                       </div>
+                      <button className="settings-copy-btn" onClick={copyUrl}>
+                        {copied ? <FiCheck size={14} /> : <FiLink size={14} />}
+                        <span>{copied ? '복사됨' : 'URL 복사'}</span>
+                      </button>
                     </div>
                   </>
                 )}

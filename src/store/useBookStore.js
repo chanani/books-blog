@@ -46,6 +46,7 @@ const useBookStore = create((set, get) => ({
         fetchChapter(bookSlug, chapterPath),
         needsBook ? fetchBookDetail(bookSlug) : Promise.resolve(cached),
       ]);
+      chapter.bookTitle = book.title;
       set({
         currentChapter: chapter,
         currentBook: book,

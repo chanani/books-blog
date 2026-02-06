@@ -1,5 +1,6 @@
-import { useEffect } from 'react';
-import { FiSearch } from 'react-icons/fi';
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { FiSearch, FiBookOpen, FiX } from 'react-icons/fi';
 import useBookStore from '../../store/useBookStore';
 import BookCard from './_components/BookCard';
 import CategoryFilter from './_components/CategoryFilter';
@@ -19,9 +20,23 @@ function Home() {
     refreshBooks,
   } = useBookStore();
 
+  const [readingHistory, setReadingHistory] = useState([]);
+
   useEffect(() => {
     loadBooks();
+    const history = JSON.parse(localStorage.getItem('reading-history') || '[]');
+    setReadingHistory(history);
   }, [loadBooks]);
+
+  const removeHistoryItem = (e, bookSlug, chapterPath) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const updated = readingHistory.filter(
+      (h) => !(h.bookSlug === bookSlug && h.chapterPath === chapterPath)
+    );
+    setReadingHistory(updated);
+    localStorage.setItem('reading-history', JSON.stringify(updated));
+  };
 
   const filteredBooks = getFilteredBooks();
   const categories = getCategories();
@@ -39,6 +54,46 @@ function Home() {
             className="search-input"
           />
         </div>
+
+        {readingHistory.length > 0 && (
+          <section className="reading-history">
+            <h2 className="section-title">
+              <FiBookOpen size={16} />
+              이어서 읽기
+            </h2>
+            <div className="history-list">
+              {readingHistory.slice(0, 1).map((item) => (
+                <div key={`${item.bookSlug}-${item.chapterPath}`} className="history-item">
+                  <Link
+                    to={`/book/${item.bookSlug}/read/${item.chapterPath}`}
+                    className="history-link"
+                  >
+                    <div className="history-info">
+                      <span className="history-book">{item.bookTitle}</span>
+                      <span className="history-chapter">{item.chapterTitle}</span>
+                    </div>
+                    <div className="history-progress">
+                      <div className="progress-bar">
+                        <div
+                          className="progress-fill"
+                          style={{ width: `${item.progress}%` }}
+                        />
+                      </div>
+                      <span className="progress-text">{item.progress}%</span>
+                    </div>
+                  </Link>
+                  <button
+                    className="history-remove"
+                    onClick={(e) => removeHistoryItem(e, item.bookSlug, item.chapterPath)}
+                    aria-label="기록 삭제"
+                  >
+                    <FiX size={16} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
 
         {categories.length > 1 && (
           <CategoryFilter

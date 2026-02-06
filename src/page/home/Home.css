@@ -46,6 +46,128 @@
   color: var(--text-tertiary);
 }
 
+/* Reading History */
+.reading-history {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+}
+
+.reading-history .section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.history-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  transition: border-color 0.15s;
+}
+
+.history-item:hover {
+  border-color: var(--accent-primary);
+}
+
+.history-link {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px;
+  padding-right: 40px;
+  min-width: 0;
+}
+
+.history-remove {
+  position: absolute;
+  right: 6px;
+  top: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  color: var(--text-tertiary);
+  border-radius: 4px;
+  transition: color 0.15s, background 0.15s;
+}
+
+.history-remove:hover {
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
+}
+
+.history-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.history-book {
+  font-size: 0.7rem;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.history-chapter {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.history-progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.progress-bar {
+  width: 60px;
+  height: 4px;
+  background: var(--border-color);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--accent-primary);
+  border-radius: 2px;
+  transition: width 0.2s;
+}
+
+.progress-text {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  min-width: 32px;
+  text-align: right;
+}
+
 /* Book list */
 .book-list {
   display: flex;
@@ -106,5 +228,30 @@
 @media (max-width: 768px) {
   .home-content {
     padding: 16px 16px 60px;
+  }
+
+  .reading-history {
+    padding: 12px;
+  }
+
+  .history-link {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 10px 12px;
+    padding-right: 36px;
+  }
+
+  .history-progress {
+    width: 100%;
+  }
+
+  .progress-bar {
+    flex: 1;
+  }
+
+  .history-remove {
+    right: 10px;
+    top: 10px;
   }
 }
