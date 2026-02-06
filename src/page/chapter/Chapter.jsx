@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
@@ -6,25 +6,29 @@ import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneLight, oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { FiArrowLeft, FiCalendar, FiEdit3, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+import { FiArrowLeft, FiCalendar, FiEdit3, FiChevronLeft, FiChevronRight, FiList } from 'react-icons/fi';
 import Giscus from '@giscus/react';
 import useBookStore from '../../store/useBookStore';
 import './Chapter.css';
 
+function extractHeadings(content) {
+  const headingRegex = /^(#{1,3})\s+(.+)$/gm;
+  const headings = [];
+  let match;
+  while ((match = headingRegex.exec(content)) !== null) {
+    const level = match[1].length;
+    const text = match[2].trim();
+    const id = text
+      .toLowerCase()
+      .replace(/[^\w\s가-힣-]/g, '')
+      .replace(/\s+/g, '-');
+    headings.push({ level, text, id });
+  }
+  return headings;
+}
+
 const GITHUB_RAW = `https://raw.githubusercontent.com/${import.meta.env.VITE_GITHUB_OWNER}/${import.meta.env.VITE_GITHUB_REPO}/master`;
 const BOOKS_PATH = import.meta.env.VITE_GITHUB_PATH || 'books';
-
-function resolveImageSrc(src, bookSlug, chapterPath) {
-  if (!src || /^https?:\/\//.test(src)) return src;
-  // 챕터 파일의 디렉토리 기준으로 상대경로 해석
-  const chapterDir = `${BOOKS_PATH}/${bookSlug}/${chapterPath}`.split('/').slice(0, -1);
-  const parts = src.split('/');
-  for (const part of parts) {
-    if (part === '..') chapterDir.pop();
-    else if (part !== '.') chapterDir.push(part);
-  }
-  return `${GITHUB_RAW}/${chapterDir.join('/')}`;
-}
 
 function Chapter() {
   const { bookSlug, '*': chapterPath } = useParams();
@@ -35,6 +39,94 @@ function Chapter() {
   const [giscusTheme, setGiscusTheme] = useState(
     () => document.documentElement.getAttribute('data-theme') || 'light'
   );
+  const [activeId, setActiveId] = useState('');
+  const [tocOpen, setTocOpen] = useState(false);
+
+  const headings = useMemo(() => {
+    if (!currentChapter?.content) return [];
+    return extractHeadings(currentChapter.content);
+  }, [currentChapter?.content]);
+
+  const markdownComponents = useMemo(() => ({
+    h1({ children, ...props }) {
+      const text = String(children);
+      const id = text.toLowerCase().replace(/[^\w\s가-힣-]/g, '').replace(/\s+/g, '-');
+      return <h1 id={id} {...props}>{children}</h1>;
+    },
+    h2({ children, ...props }) {
+      const text = String(children);
+      const id = text.toLowerCase().replace(/[^\w\s가-힣-]/g, '').replace(/\s+/g, '-');
+      return <h2 id={id} {...props}>{children}</h2>;
+    },
+    h3({ children, ...props }) {
+      const text = String(children);
+      const id = text.toLowerCase().replace(/[^\w\s가-힣-]/g, '').replace(/\s+/g, '-');
+      return <h3 id={id} {...props}>{children}</h3>;
+    },
+    img({ src, alt, ...props }) {
+      const resolvedSrc = (() => {
+        if (!src || /^https?:\/\//.test(src)) return src;
+        const chapterDir = `${BOOKS_PATH}/${bookSlug}/${chapterPath}`.split('/').slice(0, -1);
+        const parts = src.split('/');
+        for (const part of parts) {
+          if (part === '..') chapterDir.pop();
+          else if (part !== '.') chapterDir.push(part);
+        }
+        return `${GITHUB_RAW}/${chapterDir.join('/')}`;
+      })();
+      return <img src={resolvedSrc} alt={alt} {...props} />;
+    },
+    code({ inline, className, children, ...props }) {
+      const match = /language-(\w+)/.exec(className || '');
+      const theme = document.documentElement.getAttribute('data-theme') || 'light';
+      return !inline && match ? (
+        <SyntaxHighlighter
+          style={theme === 'dark' ? oneDark : oneLight}
+          language={match[1]}
+          PreTag="div"
+          customStyle={{
+            borderRadius: '6px',
+            fontSize: '0.85rem',
+            border: 'none',
+          }}
+          {...props}
+        >
+          {String(children).replace(/\n$/, '')}
+        </SyntaxHighlighter>
+      ) : (
+        <code className={className} {...props}>
+          {children}
+        </code>
+      );
+    },
+  }), [bookSlug, chapterPath]);
+
+  const handleScroll = useCallback(() => {
+    if (headings.length === 0) return;
+    const scrollY = window.scrollY + 100;
+    let current = '';
+    for (const heading of headings) {
+      const el = document.getElementById(heading.id);
+      if (el && el.offsetTop <= scrollY) {
+        current = heading.id;
+      }
+    }
+    setActiveId(current);
+  }, [headings]);
+
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [handleScroll]);
+
+  const scrollToHeading = (id) => {
+    const el = document.getElementById(id);
+    if (el) {
+      window.scrollTo({ top: el.offsetTop - 80, behavior: 'smooth' });
+      setTocOpen(false);
+    }
+  };
 
   useEffect(() => {
     if (chapterPath) {
@@ -90,6 +182,35 @@ function Chapter() {
 
   return (
     <main className="chapter-page">
+      {headings.length > 0 && (
+        <>
+          <aside className={`toc-sidebar${tocOpen ? ' open' : ''}`}>
+            <div className="toc-header">
+              <span className="toc-title">목차</span>
+            </div>
+            <nav className="toc-nav">
+              {headings.map((h) => (
+                <button
+                  key={h.id}
+                  className={`toc-item level-${h.level}${activeId === h.id ? ' active' : ''}`}
+                  onClick={() => scrollToHeading(h.id)}
+                >
+                  {h.text}
+                </button>
+              ))}
+            </nav>
+          </aside>
+          <button
+            className="toc-toggle"
+            onClick={() => setTocOpen(!tocOpen)}
+            aria-label="목차 열기"
+          >
+            <FiList size={20} />
+          </button>
+          {tocOpen && <div className="toc-overlay" onClick={() => setTocOpen(false)} />}
+        </>
+      )}
+
       <motion.div
         className="chapter-wrap"
         initial={{ opacity: 0 }}
@@ -130,39 +251,7 @@ function Chapter() {
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
               rehypePlugins={[rehypeRaw]}
-              components={{
-                img({ src, alt, ...props }) {
-                  return (
-                    <img
-                      src={resolveImageSrc(src, bookSlug, chapterPath)}
-                      alt={alt}
-                      {...props}
-                    />
-                  );
-                },
-                code({ inline, className, children, ...props }) {
-                  const match = /language-(\w+)/.exec(className || '');
-                  return !inline && match ? (
-                    <SyntaxHighlighter
-                      style={giscusTheme === 'dark' ? oneDark : oneLight}
-                      language={match[1]}
-                      PreTag="div"
-                      customStyle={{
-                        borderRadius: '6px',
-                        fontSize: '0.85rem',
-                        border: 'none',
-                      }}
-                      {...props}
-                    >
-                      {String(children).replace(/\n$/, '')}
-                    </SyntaxHighlighter>
-                  ) : (
-                    <code className={className} {...props}>
-                      {children}
-                    </code>
-                  );
-                },
-              }}
+              components={markdownComponents}
             >
               {currentChapter.content}
             </ReactMarkdown>
