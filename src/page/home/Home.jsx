@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { FiSearch, FiBookOpen, FiX } from 'react-icons/fi';
 import useBookStore from '../../store/useBookStore';
 import BookCard from './_components/BookCard';
@@ -43,6 +44,12 @@ function Home() {
 
   return (
     <main className="home">
+      <Helmet>
+        <title>차나니의 책방</title>
+        <meta name="description" content="개발 서적 독서 기록과 정리" />
+        <meta property="og:title" content="차나니의 책방" />
+        <meta property="og:description" content="개발 서적 독서 기록과 정리" />
+      </Helmet>
       <section className="home-content">
         <div className="search-wrap">
           <FiSearch size={18} className="search-icon" />

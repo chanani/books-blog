@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { FiArrowLeft, FiChevronRight, FiMessageSquare, FiSearch } from 'react-icons/fi';
 import useBookStore from '../../store/useBookStore';
@@ -98,6 +99,13 @@ function Book() {
 
   return (
     <main className="book-page">
+      <Helmet>
+        <title>{currentBook.title} - 차나니의 책방</title>
+        <meta name="description" content={`${currentBook.title} 독서 기록`} />
+        <meta property="og:title" content={`${currentBook.title} - 차나니의 책방`} />
+        <meta property="og:description" content={`${currentBook.title} 독서 기록`} />
+        {currentBook.cover && <meta property="og:image" content={currentBook.cover} />}
+      </Helmet>
       <motion.div
         className="book-wrap"
         initial={{ opacity: 0 }}

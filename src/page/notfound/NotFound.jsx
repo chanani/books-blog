@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { FiHome, FiArrowLeft } from 'react-icons/fi';
 import './NotFound.css';
 
@@ -7,6 +8,10 @@ function NotFound() {
 
   return (
     <main className="notfound-page">
+      <Helmet>
+        <title>404 - 차나니의 책방</title>
+        <meta name="description" content="페이지를 찾을 수 없습니다." />
+      </Helmet>
       <div className="notfound-content">
         <span className="notfound-code">404</span>
         <h1 className="notfound-title">페이지를 찾을 수 없습니다</h1>

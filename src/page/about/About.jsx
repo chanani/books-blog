@@ -1,3 +1,4 @@
+import { Helmet } from 'react-helmet-async';
 import { FiGithub, FiLinkedin } from 'react-icons/fi';
 import { SiTistory } from 'react-icons/si';
 import './About.css';
@@ -23,6 +24,12 @@ const SOCIAL_LINKS = [
 function About() {
   return (
     <main className="about">
+      <Helmet>
+        <title>소개 - 차나니의 책방</title>
+        <meta name="description" content="서버 개발자 이찬한입니다." />
+        <meta property="og:title" content="소개 - 차나니의 책방" />
+        <meta property="og:description" content="서버 개발자 이찬한입니다." />
+      </Helmet>
       <div className="about-card">
         <div className="about-profile">
           <img src="/profile.png" alt="이찬한" className="about-avatar" />

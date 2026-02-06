@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -272,6 +273,12 @@ function Chapter() {
 
   return (
     <main className="chapter-page">
+      <Helmet>
+        <title>{currentChapter.title} - 차나니의 책방</title>
+        <meta name="description" content={`${currentChapter.bookTitle} - ${currentChapter.title}`} />
+        <meta property="og:title" content={`${currentChapter.title} - 차나니의 책방`} />
+        <meta property="og:description" content={`${currentChapter.bookTitle} - ${currentChapter.title}`} />
+      </Helmet>
       <div className="read-progress-bar" style={{ width: `${readProgress}%` }} />
 
       {headings.length > 0 && (
