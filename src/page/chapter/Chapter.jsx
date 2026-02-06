@@ -6,7 +6,7 @@ import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneLight, oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { FiArrowLeft, FiCalendar, FiEdit3 } from 'react-icons/fi';
+import { FiArrowLeft, FiCalendar, FiEdit3, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import Giscus from '@giscus/react';
 import useBookStore from '../../store/useBookStore';
 import './Chapter.css';
@@ -29,8 +29,9 @@ function resolveImageSrc(src, bookSlug, chapterPath) {
 function Chapter() {
   const { bookSlug, '*': chapterPath } = useParams();
   const navigate = useNavigate();
-  const { currentChapter, loading, error, loadChapter, clearChapter } =
+  const { currentChapter, loading, error, loadChapter, clearChapter, getChapterNav } =
     useBookStore();
+  const { prev, next } = getChapterNav(chapterPath);
   const [giscusTheme, setGiscusTheme] = useState(
     () => document.documentElement.getAttribute('data-theme') || 'light'
   );
@@ -167,6 +168,35 @@ function Chapter() {
             </ReactMarkdown>
           </div>
         </article>
+
+        {(prev || next) && (
+          <nav className={`chapter-nav${prev && next ? ' has-both' : ''}`}>
+            {prev && (
+              <button
+                className="chapter-nav-btn prev"
+                onClick={() => navigate(`/book/${bookSlug}/read/${prev.path}`)}
+              >
+                <FiChevronLeft size={18} />
+                <div className="chapter-nav-text">
+                  <span className="chapter-nav-label">이전</span>
+                  <span className="chapter-nav-title">{prev.name}</span>
+                </div>
+              </button>
+            )}
+            {next && (
+              <button
+                className="chapter-nav-btn next"
+                onClick={() => navigate(`/book/${bookSlug}/read/${next.path}`)}
+              >
+                <div className="chapter-nav-text">
+                  <span className="chapter-nav-label">다음</span>
+                  <span className="chapter-nav-title">{next.name}</span>
+                </div>
+                <FiChevronRight size={18} />
+              </button>
+            )}
+          </nav>
+        )}
 
         <section className="chapter-comments">
           <Giscus
