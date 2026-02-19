@@ -1,0 +1,763 @@
+.reading-page {
+  flex: 1;
+}
+
+.reading-content {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 24px 24px 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ─── Stats Cards ─── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.stat-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 20px 12px 16px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, transform 0.15s;
+  overflow: hidden;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+[data-theme='dark'] .stat-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.stat-card.stat-all:hover { border-color: var(--accent-primary); }
+.stat-card.stat-완독:hover { border-color: #16a34a; }
+.stat-card.stat-독서중:hover { border-color: #ea580c; }
+.stat-card.stat-예정:hover { border-color: #ca8a04; }
+
+.stat-card.active::before {
+  opacity: 1;
+}
+
+/* Status-specific accent colors */
+.stat-card.stat-all::before { background: var(--accent-primary); }
+.stat-card.stat-완독::before { background: #16a34a; }
+.stat-card.stat-독서중::before { background: #ea580c; }
+.stat-card.stat-예정::before { background: #ca8a04; }
+
+.stat-card.stat-all.active { border-color: var(--accent-primary); background: var(--accent-light); }
+.stat-card.stat-완독.active { border-color: #16a34a; background: rgba(34, 197, 94, 0.08); }
+.stat-card.stat-독서중.active { border-color: #ea580c; background: rgba(249, 115, 22, 0.08); }
+.stat-card.stat-예정.active { border-color: #ca8a04; background: rgba(234, 179, 8, 0.08); }
+
+.stat-icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  transition: background 0.2s, color 0.2s;
+}
+
+.stat-card.stat-all.active .stat-icon-wrap { background: var(--accent-light); color: var(--accent-primary); }
+.stat-card.stat-완독.active .stat-icon-wrap { background: rgba(34, 197, 94, 0.15); color: #16a34a; }
+.stat-card.stat-독서중.active .stat-icon-wrap { background: rgba(249, 115, 22, 0.15); color: #ea580c; }
+.stat-card.stat-예정.active .stat-icon-wrap { background: rgba(234, 179, 8, 0.15); color: #ca8a04; }
+
+.stat-count {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-label {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* ─── Card Container (shared) ─── */
+.recent-card,
+.books-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  transition: box-shadow 0.2s;
+}
+
+.recent-card:hover,
+.books-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme='dark'] .recent-card:hover,
+[data-theme='dark'] .books-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.card-header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.card-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 7px;
+  border-radius: 11px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+}
+
+/* ─── View Toggle ─── */
+.view-toggle {
+  display: flex;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.view-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 26px;
+  color: var(--text-tertiary);
+  transition: background 0.15s, color 0.15s;
+}
+
+.view-btn:first-child {
+  border-right: 1px solid var(--border-color);
+}
+
+.view-btn:hover {
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
+}
+
+.view-btn.active {
+  color: var(--accent-primary);
+  background: var(--accent-light);
+}
+
+/* ─── Recent Reading History ─── */
+.recent-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.recent-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  color: inherit;
+  text-decoration: none;
+  transition: background 0.15s;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.recent-item:last-child {
+  border-bottom: none;
+}
+
+.recent-item:hover {
+  background: var(--bg-primary);
+}
+
+.recent-rank {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--bg-tertiary);
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.recent-item:nth-child(1) .recent-rank {
+  background: var(--accent-light);
+  color: var(--accent-primary);
+}
+
+.recent-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.recent-book {
+  font-size: 0.7rem;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.recent-chapter {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.2s;
+}
+
+.recent-item:hover .recent-chapter {
+  color: var(--accent-primary);
+}
+
+.recent-progress-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.recent-progress-bar {
+  width: 100px;
+  height: 4px;
+  background: var(--border-color);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.recent-progress-fill {
+  height: 100%;
+  background: var(--accent-primary);
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+.recent-progress-fill.complete {
+  background: var(--green);
+}
+
+.recent-progress-text {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--accent-primary);
+  min-width: 28px;
+}
+
+.recent-progress-text.complete {
+  color: var(--green);
+}
+
+.recent-time {
+  font-size: 0.65rem;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  padding: 1px 6px;
+  background: var(--bg-tertiary);
+  border-radius: 8px;
+}
+
+.recent-arrow {
+  flex-shrink: 0;
+  color: var(--text-tertiary);
+  transition: color 0.2s, transform 0.2s;
+}
+
+.recent-item:hover .recent-arrow {
+  color: var(--accent-primary);
+  transform: translateX(2px);
+}
+
+.recent-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.recent-empty .empty-icon {
+  color: var(--text-tertiary);
+  opacity: 0.5;
+}
+
+.recent-empty p {
+  font-size: 0.85rem;
+  color: var(--text-tertiary);
+}
+
+/* ─── Status Filter Tabs ─── */
+.status-tabs {
+  display: flex;
+  gap: 0;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-primary);
+  overflow-x: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.status-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.status-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  padding: 6px 14px;
+  border-radius: 20px;
+  white-space: nowrap;
+  transition: color 0.2s, background 0.15s;
+}
+
+.status-tab:hover {
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
+}
+
+.status-tab.active {
+  font-weight: 600;
+}
+
+.status-tab.status-tab-all.active { color: var(--accent-primary); background: var(--accent-light); }
+.status-tab.status-tab-완독.active { color: #16a34a; background: rgba(34, 197, 94, 0.1); }
+.status-tab.status-tab-독서중.active { color: #ea580c; background: rgba(249, 115, 22, 0.1); }
+.status-tab.status-tab-예정.active { color: #ca8a04; background: rgba(234, 179, 8, 0.1); }
+.status-tab.status-tab-중단.active { color: #dc2626; background: rgba(239, 68, 68, 0.1); }
+
+.tab-count {
+  font-size: 0.65rem;
+  font-weight: 600;
+  opacity: 0.7;
+}
+
+/* ─── Filtered Book List ─── */
+.filtered-list {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─── Grid View ─── */
+.filtered-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 16px;
+  padding: 16px 20px;
+}
+
+.grid-book-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: inherit;
+  text-decoration: none;
+  transition: transform 0.15s;
+}
+
+.grid-book-card:hover {
+  transform: translateY(-3px);
+}
+
+.grid-cover-wrap::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0);
+  transition: background 0.2s;
+  pointer-events: none;
+}
+
+.grid-book-card:hover .grid-cover-wrap::after {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.grid-cover-wrap {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  background: var(--bg-tertiary);
+  transition: border-color 0.2s;
+}
+
+.grid-book-card:hover .grid-cover-wrap {
+  border-color: var(--accent-primary);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+
+[data-theme='dark'] .grid-book-card:hover .grid-cover-wrap {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+}
+
+.grid-cover-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.grid-cover-fallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  opacity: 0.3;
+}
+
+.grid-status-badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 0.6rem;
+  font-weight: 600;
+  white-space: nowrap;
+  backdrop-filter: blur(4px);
+}
+
+.grid-status-badge.status-완독 {
+  background: rgba(34, 197, 94, 0.85);
+  color: #fff;
+}
+
+.grid-status-badge.status-독서중 {
+  background: rgba(249, 115, 22, 0.85);
+  color: #fff;
+}
+
+.grid-status-badge.status-예정 {
+  background: rgba(234, 179, 8, 0.85);
+  color: #fff;
+}
+
+.grid-status-badge.status-중단 {
+  background: rgba(239, 68, 68, 0.85);
+  color: #fff;
+}
+
+.grid-book-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0 2px;
+}
+
+.grid-book-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  transition: color 0.2s;
+}
+
+.grid-book-card:hover .grid-book-title {
+  color: var(--accent-primary);
+}
+
+.grid-book-author {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ─── Empty States ─── */
+.filtered-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 48px 20px;
+  text-align: center;
+}
+
+.filtered-empty .empty-icon {
+  color: var(--text-tertiary);
+  opacity: 0.5;
+}
+
+.filtered-empty p {
+  font-size: 0.85rem;
+  color: var(--text-tertiary);
+}
+
+/* ─── Skeleton Loading ─── */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton-line,
+.skeleton-circle,
+.skeleton-stat-card,
+.skeleton-tab,
+.skeleton-book-cover {
+  background: linear-gradient(
+    90deg,
+    var(--bg-tertiary) 25%,
+    var(--border-color) 50%,
+    var(--bg-tertiary) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--radius-sm);
+}
+
+.skeleton-stat-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 20px 12px 16px;
+  border: 1px solid var(--border-color);
+}
+
+.skeleton-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+}
+
+.skeleton-line {
+  height: 12px;
+}
+
+.skeleton-count {
+  width: 40px;
+  height: 20px;
+}
+
+.skeleton-label {
+  width: 32px;
+  height: 10px;
+}
+
+.skeleton-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.skeleton-card-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.skeleton-title {
+  width: 120px;
+  height: 16px;
+}
+
+.skeleton-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.skeleton-item:last-child {
+  border-bottom: none;
+}
+
+.skeleton-rank {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.skeleton-item-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.skeleton-short {
+  width: 60px;
+  height: 10px;
+}
+
+.skeleton-long {
+  width: 180px;
+  height: 14px;
+}
+
+.skeleton-bar {
+  width: 100px;
+  height: 4px;
+}
+
+.skeleton-tabs {
+  display: flex;
+  gap: 6px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-primary);
+}
+
+.skeleton-tab {
+  width: 52px;
+  height: 28px;
+  border-radius: 20px;
+}
+
+.skeleton-book-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.skeleton-book-item:last-child {
+  border-bottom: none;
+}
+
+.skeleton-book-cover {
+  width: 64px;
+  height: 72px;
+  flex-shrink: 0;
+  border-radius: 4px;
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 768px) {
+  .reading-content {
+    padding: 16px 16px 60px;
+    gap: 16px;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .stat-card {
+    padding: 16px 8px 12px;
+  }
+
+  .stat-count {
+    font-size: 1.25rem;
+  }
+
+  .stat-icon-wrap {
+    width: 28px;
+    height: 28px;
+  }
+
+  .card-header {
+    padding: 12px 16px;
+  }
+
+  .recent-item {
+    padding: 12px 16px;
+    gap: 10px;
+  }
+
+  .recent-progress-row {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .recent-progress-bar {
+    width: 60px;
+  }
+
+  .recent-rank {
+    width: 22px;
+    height: 22px;
+    font-size: 0.65rem;
+  }
+
+  .status-tabs {
+    padding: 6px 12px;
+  }
+
+  .status-tab {
+    font-size: 0.75rem;
+    padding: 5px 10px;
+  }
+
+  .filtered-grid {
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 12px;
+    padding: 12px 16px;
+  }
+
+  .grid-book-title {
+    font-size: 0.75rem;
+  }
+}

@@ -5,7 +5,8 @@ import './Header.css';
 function Header({ theme, toggleTheme }) {
   const { pathname } = useLocation();
   const isAbout = pathname === '/about';
-  const isBooks = !isAbout;
+  const isReading = pathname === '/reading';
+  const isBooks = !isAbout && !isReading;
 
   return (
     <header className="header">
@@ -19,6 +20,9 @@ function Header({ theme, toggleTheme }) {
           <nav className="header-nav">
             <Link to="/" className={`header-tab${isBooks ? ' active' : ''}`}>
               책방
+            </Link>
+            <Link to="/reading" className={`header-tab${isReading ? ' active' : ''}`}>
+              독서현황
             </Link>
             <Link to="/about" className={`header-tab${isAbout ? ' active' : ''}`}>
               소개
