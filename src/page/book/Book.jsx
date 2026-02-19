@@ -374,7 +374,14 @@ function Book() {
           </div>
 
           <div className="book-info-detail">
-            <h1 className="info-title">{currentBook.title}</h1>
+            <div className="info-title-row">
+              <h1 className="info-title">{currentBook.title}</h1>
+              {currentBook.status && (
+                <span className={`book-status-badge status-${currentBook.status}`}>
+                  {currentBook.status}
+                </span>
+              )}
+            </div>
             {currentBook.subtitle && (
               <p className="info-subtitle">{currentBook.subtitle}</p>
             )}

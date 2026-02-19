@@ -57,7 +57,14 @@ function BookCard({ book, index }) {
         </div>
 
         <div className="book-card-info">
-          <h3 className="book-title">{book.title}</h3>
+          <div className="book-title-row">
+            <h3 className="book-title">{book.title}</h3>
+            {book.status && (
+              <span className={`book-status-badge status-${book.status}`}>
+                {book.status}
+              </span>
+            )}
+          </div>
           {book.subtitle && (
             <p className="book-subtitle">{book.subtitle}</p>
           )}
