@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { FiBook, FiFileText } from 'react-icons/fi';
 import './SearchResults.css';
@@ -25,11 +26,17 @@ function SearchResults({
   contentResults,
   indexing,
   indexProgress,
+  focusIndex,
   onClose,
 }) {
   const hasBooks = bookResults.length > 0;
   const hasContent = contentResults.length > 0;
   const showEmpty = !hasBooks && !hasContent && !indexing;
+  const focusedRef = useRef(null);
+
+  useEffect(() => {
+    focusedRef.current?.scrollIntoView({ block: 'nearest' });
+  }, [focusIndex]);
 
   return (
     <div className="sr-dropdown">
@@ -40,11 +47,12 @@ function SearchResults({
             <FiBook size={14} />
             <span>책</span>
           </div>
-          {bookResults.map((book) => (
+          {bookResults.map((book, i) => (
             <Link
               key={book.slug}
+              ref={i === focusIndex ? focusedRef : null}
               to={`/book/${book.slug}`}
-              className="sr-item sr-book-item"
+              className={`sr-item sr-book-item${i === focusIndex ? ' sr-item-focused' : ''}`}
               onClick={onClose}
             >
               <span className="sr-book-title">
@@ -84,21 +92,25 @@ function SearchResults({
         )}
 
         {hasContent &&
-          contentResults.map((item, i) => (
-            <Link
-              key={`${item.bookSlug}-${item.chapterPath}-${i}`}
-              to={`/book/${item.bookSlug}/read/${item.chapterPath}`}
-              className="sr-item sr-content-item"
-              onClick={onClose}
-            >
-              <span className="sr-content-path">
-                {item.bookTitle} &gt; {item.chapterName}
-              </span>
-              <span className="sr-content-snippet">
-                <HighlightText text={item.snippet} query={query} />
-              </span>
-            </Link>
-          ))}
+          contentResults.map((item, i) => {
+            const flatIndex = bookResults.length + i;
+            return (
+              <Link
+                key={`${item.bookSlug}-${item.chapterPath}-${i}`}
+                ref={flatIndex === focusIndex ? focusedRef : null}
+                to={`/book/${item.bookSlug}/read/${item.chapterPath}`}
+                className={`sr-item sr-content-item${flatIndex === focusIndex ? ' sr-item-focused' : ''}`}
+                onClick={onClose}
+              >
+                <span className="sr-content-path">
+                  {item.bookTitle} &gt; {item.chapterName}
+                </span>
+                <span className="sr-content-snippet">
+                  <HighlightText text={item.snippet} query={query} />
+                </span>
+              </Link>
+            );
+          })}
 
         {!indexing && !hasContent && (
           <div className="sr-empty-content">

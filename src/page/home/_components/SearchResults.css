@@ -56,7 +56,8 @@
   transition: background 0.1s;
 }
 
-.sr-item:hover {
+.sr-item:hover,
+.sr-item-focused {
   background: var(--bg-tertiary);
 }
 
@@ -125,6 +126,38 @@
   font-size: 0.8rem;
   color: var(--text-tertiary);
   text-align: center;
+}
+
+/* Recent searches */
+.sr-recent-dropdown {
+  max-height: 260px;
+}
+
+.sr-recent-item {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  width: 100%;
+  text-align: left;
+}
+
+.sr-recent-icon {
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+}
+
+.sr-clear-recent {
+  margin-left: auto;
+  font-size: 0.65rem;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.sr-clear-recent:hover {
+  color: var(--text-primary);
 }
 
 /* Backdrop overlay */

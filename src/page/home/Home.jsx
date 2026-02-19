@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { FiSearch, FiBookOpen, FiX } from 'react-icons/fi';
+import { FiSearch, FiBookOpen, FiX, FiLoader } from 'react-icons/fi';
 import useBookStore from '../../store/useBookStore';
 import useSearchStore from '../../store/useSearchStore';
 import useDebounce from '../../hooks/useDebounce';
@@ -33,20 +33,36 @@ function Home() {
     searchContent,
   } = useSearchStore();
 
+  const navigate = useNavigate();
   const [readingHistory, setReadingHistory] = useState([]);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [recentSearches, setRecentSearches] = useState([]);
+  const [focusIndex, setFocusIndex] = useState(-1);
   const searchWrapRef = useRef(null);
+  const inputRef = useRef(null);
   const debouncedQuery = useDebounce(searchQuery, 300);
+  const isDebouncing = searchQuery !== debouncedQuery;
+
+  // Derived state
+  const books = useBookStore((s) => s.books);
+  const filteredBooks = getFilteredBooks();
+  const categories = getCategories();
+  const contentResults = debouncedQuery.length >= 2 ? searchContent(debouncedQuery) : [];
+  const showRecentPanel = dropdownOpen && searchQuery.length === 0 && recentSearches.length > 0;
+  const showSearchResults = dropdownOpen && debouncedQuery.length >= 2;
+
+  // --- Effects ---
 
   useEffect(() => {
     loadBooks();
     loadCachedIndex();
     const history = JSON.parse(localStorage.getItem('reading-history') || '[]');
     setReadingHistory(history);
-  }, [loadBooks, loadCachedIndex]);
+    const saved = JSON.parse(localStorage.getItem('recent-searches') || '[]');
+    setRecentSearches(saved);
+    return () => setSearchQuery('');
+  }, [loadBooks, loadCachedIndex, setSearchQuery]);
 
-  // Trigger index build when user types 2+ chars
-  const books = useBookStore((s) => s.books);
   useEffect(() => {
     if (debouncedQuery.length < 2) return;
     if (!indexReady && !indexing && books.length > 0) {
@@ -54,23 +70,126 @@ function Home() {
     }
   }, [debouncedQuery, indexReady, indexing, books, buildIndex]);
 
-  // Show/hide dropdown based on query
   useEffect(() => {
-    setDropdownOpen(debouncedQuery.length >= 2);
+    if (debouncedQuery.length >= 2) {
+      setDropdownOpen(true);
+    }
   }, [debouncedQuery]);
 
-  // Close dropdown on outside click
   useEffect(() => {
     function handleClick(e) {
       if (searchWrapRef.current && !searchWrapRef.current.contains(e.target)) {
         setDropdownOpen(false);
+        setFocusIndex(-1);
       }
     }
     document.addEventListener('mousedown', handleClick);
     return () => document.removeEventListener('mousedown', handleClick);
   }, []);
 
-  const contentResults = debouncedQuery.length >= 2 ? searchContent(debouncedQuery) : [];
+  // Reset focusIndex when results change
+  useEffect(() => {
+    setFocusIndex(-1);
+  }, [debouncedQuery]);
+
+  // --- Handlers ---
+
+  const saveRecentSearch = (query) => {
+    const q = query.trim();
+    if (q.length < 2) return;
+    const updated = [q, ...recentSearches.filter((s) => s !== q)].slice(0, 5);
+    setRecentSearches(updated);
+    localStorage.setItem('recent-searches', JSON.stringify(updated));
+  };
+
+  const clearRecentSearches = () => {
+    setRecentSearches([]);
+    localStorage.removeItem('recent-searches');
+  };
+
+  const handleSelectRecent = (query) => {
+    setSearchQuery(query);
+    setDropdownOpen(true);
+    setFocusIndex(-1);
+  };
+
+  const handleClearSearch = () => {
+    setSearchQuery('');
+    setDropdownOpen(false);
+    setFocusIndex(-1);
+    inputRef.current?.focus();
+  };
+
+  const handleResultClose = () => {
+    if (debouncedQuery.length >= 2) {
+      saveRecentSearch(debouncedQuery);
+    }
+    setDropdownOpen(false);
+    setFocusIndex(-1);
+  };
+
+  const handleFocus = () => {
+    if (searchQuery.length >= 2) {
+      setDropdownOpen(true);
+      return;
+    }
+    if (recentSearches.length > 0) {
+      setDropdownOpen(true);
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (!dropdownOpen) return;
+
+    if (e.key === 'Escape') {
+      setDropdownOpen(false);
+      setFocusIndex(-1);
+      return;
+    }
+
+    // Recent searches panel
+    if (showRecentPanel) {
+      const total = recentSearches.length;
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        setFocusIndex((prev) => (prev < total - 1 ? prev + 1 : 0));
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        setFocusIndex((prev) => (prev > 0 ? prev - 1 : total - 1));
+      } else if (e.key === 'Enter' && focusIndex >= 0) {
+        e.preventDefault();
+        handleSelectRecent(recentSearches[focusIndex]);
+      }
+      return;
+    }
+
+    // Search results panel
+    if (showSearchResults) {
+      const total = filteredBooks.length + contentResults.length;
+      if (total === 0) return;
+
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        setFocusIndex((prev) => (prev < total - 1 ? prev + 1 : 0));
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        setFocusIndex((prev) => (prev > 0 ? prev - 1 : total - 1));
+      } else if (e.key === 'Enter' && focusIndex >= 0) {
+        e.preventDefault();
+        if (focusIndex < filteredBooks.length) {
+          const book = filteredBooks[focusIndex];
+          saveRecentSearch(debouncedQuery);
+          navigate(`/book/${book.slug}`);
+        } else {
+          const item = contentResults[focusIndex - filteredBooks.length];
+          saveRecentSearch(debouncedQuery);
+          navigate(`/book/${item.bookSlug}/read/${item.chapterPath}`);
+        }
+        setDropdownOpen(false);
+        setFocusIndex(-1);
+      }
+    }
+  };
 
   const removeHistoryItem = (e, bookSlug, chapterPath) => {
     e.preventDefault();
@@ -81,9 +200,6 @@ function Home() {
     setReadingHistory(updated);
     localStorage.setItem('reading-history', JSON.stringify(updated));
   };
-
-  const filteredBooks = getFilteredBooks();
-  const categories = getCategories();
 
   return (
     <main className="home">
@@ -97,28 +213,65 @@ function Home() {
         <div className="search-wrap" ref={searchWrapRef}>
           <FiSearch size={18} className="search-icon" />
           <input
+            ref={inputRef}
             type="text"
             placeholder="제목, 저자, 태그, 본문으로 검색..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            onFocus={() => debouncedQuery.length >= 2 && setDropdownOpen(true)}
-            className="search-input"
+            onFocus={handleFocus}
+            onKeyDown={handleKeyDown}
+            className={`search-input${searchQuery ? ' has-value' : ''}`}
           />
+          {isDebouncing && searchQuery.length >= 2 && (
+            <FiLoader size={16} className="search-spinner" />
+          )}
+          {searchQuery && (
+            <button
+              className="search-clear"
+              onClick={handleClearSearch}
+              aria-label="검색 초기화"
+            >
+              <FiX size={16} />
+            </button>
+          )}
           {dropdownOpen && (
-            <>
-              <div
-                className="search-backdrop"
-                onMouseDown={() => setDropdownOpen(false)}
-              />
-              <SearchResults
-                query={debouncedQuery}
-                bookResults={filteredBooks}
-                contentResults={contentResults}
-                indexing={indexing}
-                indexProgress={indexProgress}
-                onClose={() => setDropdownOpen(false)}
-              />
-            </>
+            <div
+              className="search-backdrop"
+              onMouseDown={() => setDropdownOpen(false)}
+            />
+          )}
+          {showRecentPanel && (
+            <div className="sr-dropdown sr-recent-dropdown">
+              <div className="sr-section">
+                <div className="sr-section-header">
+                  <span>최근 검색어</span>
+                  <button className="sr-clear-recent" onClick={clearRecentSearches}>
+                    모두 삭제
+                  </button>
+                </div>
+                {recentSearches.map((q, i) => (
+                  <button
+                    key={q}
+                    className={`sr-item sr-recent-item${i === focusIndex ? ' sr-item-focused' : ''}`}
+                    onClick={() => handleSelectRecent(q)}
+                  >
+                    <FiSearch size={14} className="sr-recent-icon" />
+                    <span>{q}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+          {showSearchResults && (
+            <SearchResults
+              query={debouncedQuery}
+              bookResults={filteredBooks}
+              contentResults={contentResults}
+              indexing={indexing}
+              indexProgress={indexProgress}
+              focusIndex={focusIndex}
+              onClose={handleResultClose}
+            />
           )}
         </div>
 
