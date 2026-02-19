@@ -41,6 +41,129 @@ function getChapterOrder(filename) {
   return match ? parseInt(match[1], 10) : 999;
 }
 
+// Strip markdown syntax to get plain text
+export function stripMarkdown(content) {
+  return content
+    .replace(/```[\s\S]*?```/g, '')       // code blocks
+    .replace(/`[^`]+`/g, '')              // inline code
+    .replace(/!\[.*?\]\(.*?\)/g, '')       // images
+    .replace(/\[([^\]]+)\]\(.*?\)/g, '$1') // links → text
+    .replace(/#{1,6}\s+/g, '')             // headings
+    .replace(/[*_~]{1,3}(.*?)[*_~]{1,3}/g, '$1') // bold/italic/strikethrough
+    .replace(/^\s*[-*+]\s+/gm, '')         // unordered list markers
+    .replace(/^\s*\d+\.\s+/gm, '')         // ordered list markers
+    .replace(/^\s*>\s+/gm, '')             // blockquotes
+    .replace(/\|.*\|/g, '')                // tables
+    .replace(/[-=]{3,}/g, '')              // horizontal rules
+    .replace(/\n{2,}/g, '\n')             // collapse blank lines
+    .trim();
+}
+
+// Fetch all chapter contents with concurrency limit
+export async function fetchAllChapterContents(books, onProgress) {
+  const results = [];
+  let completed = 0;
+  const total = { value: 0 };
+
+  // First, gather all chapter entries per book
+  const bookChapterEntries = await Promise.all(
+    books.map(async (book) => {
+      try {
+        const basePath = `${BOOKS_PATH}/${book.slug}`;
+        const { data: entries } = await githubApi.get(
+          `/repos/${OWNER}/${REPO}/contents/${basePath}`,
+        );
+
+        const chapters = [];
+        const subDirs = [];
+
+        for (const entry of entries) {
+          if (entry.type === 'file' && entry.name.endsWith('.md') && entry.name !== 'index.md') {
+            chapters.push({
+              name: formatChapterName(entry.name),
+              path: entry.name.replace(/\.md$/, ''),
+              filePath: `${basePath}/${entry.name}`,
+            });
+          } else if (entry.type === 'dir') {
+            subDirs.push(entry.name);
+          }
+        }
+
+        // Fetch subdirectory chapters
+        const subResults = await Promise.all(
+          subDirs.map(async (folderName) => {
+            try {
+              const { data: subEntries } = await githubApi.get(
+                `/repos/${OWNER}/${REPO}/contents/${basePath}/${folderName}`,
+              );
+              return subEntries
+                .filter((e) => e.type === 'file' && e.name.endsWith('.md'))
+                .map((e) => ({
+                  name: formatChapterName(e.name),
+                  path: `${folderName}/${e.name.replace(/\.md$/, '')}`,
+                  filePath: `${basePath}/${folderName}/${e.name}`,
+                }));
+            } catch {
+              return [];
+            }
+          }),
+        );
+
+        subResults.forEach((sub) => chapters.push(...sub));
+
+        return { book, chapters };
+      } catch {
+        return { book, chapters: [] };
+      }
+    }),
+  );
+
+  // Count total chapters
+  const allTasks = [];
+  for (const { book, chapters } of bookChapterEntries) {
+    for (const ch of chapters) {
+      allTasks.push({ book, chapter: ch });
+    }
+  }
+  total.value = allTasks.length;
+  onProgress?.(0, total.value);
+
+  // Fetch content with concurrency limit of 5
+  const concurrency = 5;
+  let cursor = 0;
+
+  async function runNext() {
+    while (cursor < allTasks.length) {
+      const idx = cursor++;
+      const { book, chapter } = allTasks[idx];
+      try {
+        const { data } = await githubApi.get(
+          `/repos/${OWNER}/${REPO}/contents/${chapter.filePath}`,
+        );
+        const content = decodeBase64(data.content);
+        const plainText = stripMarkdown(content);
+
+        results.push({
+          bookSlug: book.slug,
+          bookTitle: book.title,
+          chapterPath: chapter.path,
+          chapterName: chapter.name,
+          plainText,
+        });
+      } catch {
+        // skip failed chapters
+      }
+      completed++;
+      onProgress?.(completed, total.value);
+    }
+  }
+
+  const workers = Array.from({ length: concurrency }, () => runNext());
+  await Promise.all(workers);
+
+  return results;
+}
+
 // Fetch all books
 export async function fetchBookList() {
   const { data: dirs } = await githubApi.get(

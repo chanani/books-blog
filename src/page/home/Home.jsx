@@ -1,10 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { FiSearch, FiBookOpen, FiX } from 'react-icons/fi';
 import useBookStore from '../../store/useBookStore';
+import useSearchStore from '../../store/useSearchStore';
+import useDebounce from '../../hooks/useDebounce';
 import BookCard from './_components/BookCard';
 import CategoryFilter from './_components/CategoryFilter';
+import SearchResults from './_components/SearchResults';
 import './Home.css';
 
 function Home() {
@@ -21,13 +24,53 @@ function Home() {
     refreshBooks,
   } = useBookStore();
 
+  const {
+    indexing,
+    indexReady,
+    indexProgress,
+    loadCachedIndex,
+    buildIndex,
+    searchContent,
+  } = useSearchStore();
+
   const [readingHistory, setReadingHistory] = useState([]);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const searchWrapRef = useRef(null);
+  const debouncedQuery = useDebounce(searchQuery, 300);
 
   useEffect(() => {
     loadBooks();
+    loadCachedIndex();
     const history = JSON.parse(localStorage.getItem('reading-history') || '[]');
     setReadingHistory(history);
-  }, [loadBooks]);
+  }, [loadBooks, loadCachedIndex]);
+
+  // Trigger index build when user types 2+ chars
+  const books = useBookStore((s) => s.books);
+  useEffect(() => {
+    if (debouncedQuery.length < 2) return;
+    if (!indexReady && !indexing && books.length > 0) {
+      buildIndex(books);
+    }
+  }, [debouncedQuery, indexReady, indexing, books, buildIndex]);
+
+  // Show/hide dropdown based on query
+  useEffect(() => {
+    setDropdownOpen(debouncedQuery.length >= 2);
+  }, [debouncedQuery]);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    function handleClick(e) {
+      if (searchWrapRef.current && !searchWrapRef.current.contains(e.target)) {
+        setDropdownOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
+
+  const contentResults = debouncedQuery.length >= 2 ? searchContent(debouncedQuery) : [];
 
   const removeHistoryItem = (e, bookSlug, chapterPath) => {
     e.preventDefault();
@@ -51,15 +94,32 @@ function Home() {
         <meta property="og:description" content="개발 서적 독서 기록과 정리" />
       </Helmet>
       <section className="home-content">
-        <div className="search-wrap">
+        <div className="search-wrap" ref={searchWrapRef}>
           <FiSearch size={18} className="search-icon" />
           <input
             type="text"
-            placeholder="제목, 저자, 태그로 검색..."
+            placeholder="제목, 저자, 태그, 본문으로 검색..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            onFocus={() => debouncedQuery.length >= 2 && setDropdownOpen(true)}
             className="search-input"
           />
+          {dropdownOpen && (
+            <>
+              <div
+                className="search-backdrop"
+                onMouseDown={() => setDropdownOpen(false)}
+              />
+              <SearchResults
+                query={debouncedQuery}
+                bookResults={filteredBooks}
+                contentResults={contentResults}
+                indexing={indexing}
+                indexProgress={indexProgress}
+                onClose={() => setDropdownOpen(false)}
+              />
+            </>
+          )}
         </div>
 
         {readingHistory.length > 0 && (

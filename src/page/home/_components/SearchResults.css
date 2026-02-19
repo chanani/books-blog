@@ -1,0 +1,135 @@
+/* Dropdown container */
+.sr-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 4px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  max-height: 400px;
+  overflow-y: auto;
+  z-index: 100;
+}
+
+[data-theme='dark'] .sr-dropdown {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+/* Section */
+.sr-section {
+  padding: 8px 0;
+}
+
+.sr-section + .sr-section {
+  border-top: 1px solid var(--border-color);
+}
+
+.sr-section-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px 6px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.sr-indexing-label {
+  margin-left: auto;
+  font-weight: 400;
+  font-size: 0.65rem;
+  color: var(--accent-primary);
+}
+
+/* Items */
+.sr-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.sr-item:hover {
+  background: var(--bg-tertiary);
+}
+
+/* Book items */
+.sr-book-item {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sr-book-title {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.sr-book-author {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+}
+
+/* Content items */
+.sr-content-path {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.sr-content-snippet {
+  font-size: 0.8rem;
+  color: var(--text-tertiary);
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Highlight */
+.sr-highlight {
+  background: var(--accent-light);
+  color: var(--accent-primary);
+  border-radius: 2px;
+  padding: 0 1px;
+}
+
+/* Progress bar */
+.sr-progress-wrap {
+  height: 3px;
+  margin: 0 12px 4px;
+  background: var(--bg-tertiary);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.sr-progress-bar {
+  height: 100%;
+  background: var(--accent-primary);
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+/* Empty */
+.sr-empty-content {
+  padding: 16px 12px;
+  font-size: 0.8rem;
+  color: var(--text-tertiary);
+  text-align: center;
+}
+
+/* Backdrop overlay */
+.search-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+}
