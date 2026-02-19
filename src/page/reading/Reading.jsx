@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
-import { FiBookOpen, FiCheck, FiClock, FiCalendar, FiXCircle, FiChevronRight, FiGrid, FiList } from 'react-icons/fi';
+import { FiBookOpen, FiCheck, FiClock, FiCalendar, FiXCircle, FiChevronRight, FiGrid, FiList, FiX, FiTrash2 } from 'react-icons/fi';
 import useBookStore from '../../store/useBookStore';
 import BookCard from '../home/_components/BookCard';
 import './Reading.css';
@@ -196,6 +196,19 @@ function Reading() {
     return counts;
   }, [books]);
 
+  const removeHistoryItem = (bookSlug, chapterPath) => {
+    const updated = readingHistory.filter(
+      (h) => !(h.bookSlug === bookSlug && h.chapterPath === chapterPath)
+    );
+    setReadingHistory(updated);
+    localStorage.setItem('reading-history', JSON.stringify(updated));
+  };
+
+  const clearAllHistory = () => {
+    setReadingHistory([]);
+    localStorage.removeItem('reading-history');
+  };
+
   const filteredBooks = useMemo(() => {
     if (statusFilter === 'all') return books;
     return books.filter((book) => book.status === statusFilter);
@@ -247,6 +260,12 @@ function Reading() {
               <FiClock size={15} />
               최근 읽은 기록
             </h2>
+            {readingHistory.length > 0 && (
+              <button className="clear-all-btn" onClick={clearAllHistory}>
+                <FiTrash2 size={13} />
+                전체 삭제
+              </button>
+            )}
           </div>
           {readingHistory.length === 0 && (
             <div className="recent-empty">
@@ -257,30 +276,41 @@ function Reading() {
           {readingHistory.length > 0 && (
             <div className="recent-list">
               {readingHistory.map((item, idx) => (
-                <Link
+                <div
                   key={`${item.bookSlug}-${item.chapterPath}`}
-                  to={`/book/${item.bookSlug}/read/${item.chapterPath}`}
-                  className="recent-item"
+                  className="recent-item-wrap"
                 >
-                  <span className="recent-rank">{idx + 1}</span>
-                  <div className="recent-info">
-                    <span className="recent-book">{item.bookTitle}</span>
-                    <span className="recent-chapter">{item.chapterTitle}</span>
-                    <div className="recent-progress-row">
-                      <div className="recent-progress-bar">
-                        <div
-                          className={`recent-progress-fill${item.progress >= 100 ? ' complete' : ''}`}
-                          style={{ width: `${item.progress}%` }}
-                        />
+                  <Link
+                    to={`/book/${item.bookSlug}/read/${item.chapterPath}`}
+                    className="recent-item"
+                  >
+                    <span className="recent-rank">{idx + 1}</span>
+                    <div className="recent-info">
+                      <span className="recent-book">{item.bookTitle}</span>
+                      <span className="recent-chapter">{item.chapterTitle}</span>
+                      <div className="recent-progress-row">
+                        <div className="recent-progress-bar">
+                          <div
+                            className={`recent-progress-fill${item.progress >= 100 ? ' complete' : ''}`}
+                            style={{ width: `${item.progress}%` }}
+                          />
+                        </div>
+                        <span className={`recent-progress-text${item.progress >= 100 ? ' complete' : ''}`}>
+                          {item.progress >= 100 ? '완독' : `${item.progress}%`}
+                        </span>
+                        <span className="recent-time">{formatRelativeTime(item.timestamp)}</span>
                       </div>
-                      <span className={`recent-progress-text${item.progress >= 100 ? ' complete' : ''}`}>
-                        {item.progress >= 100 ? '완독' : `${item.progress}%`}
-                      </span>
-                      <span className="recent-time">{formatRelativeTime(item.timestamp)}</span>
                     </div>
-                  </div>
-                  <FiChevronRight size={16} className="recent-arrow" />
-                </Link>
+                    <FiChevronRight size={16} className="recent-arrow" />
+                  </Link>
+                  <button
+                    className="recent-remove"
+                    onClick={() => removeHistoryItem(item.bookSlug, item.chapterPath)}
+                    aria-label="기록 삭제"
+                  >
+                    <FiX size={14} />
+                  </button>
+                </div>
               ))}
             </div>
           )}
