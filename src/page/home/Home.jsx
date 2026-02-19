@@ -205,9 +205,10 @@ function Home() {
     <main className="home">
       <Helmet>
         <title>차나니의 책방</title>
-        <meta name="description" content="개발 서적 독서 기록과 정리" />
+        <meta name="description" content="차나니의 책방 - 개발 서적 독서 기록과 정리. 클린코드, 오브젝트, 리팩터링 등 개발 서적을 읽고 챕터별로 정리합니다." />
         <meta property="og:title" content="차나니의 책방" />
         <meta property="og:description" content="개발 서적 독서 기록과 정리" />
+        <link rel="canonical" href="https://chanani-books.vercel.app/" />
       </Helmet>
       <section className="home-content">
         <div className="search-wrap" ref={searchWrapRef}>

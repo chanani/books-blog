@@ -341,10 +341,11 @@ function Book() {
     <main className="book-page">
       <Helmet>
         <title>{currentBook.title} - 차나니의 책방</title>
-        <meta name="description" content={`${currentBook.title} 독서 기록`} />
+        <meta name="description" content={`${currentBook.title} - ${currentBook.author || ''} 독서 기록과 챕터별 정리`} />
         <meta property="og:title" content={`${currentBook.title} - 차나니의 책방`} />
         <meta property="og:description" content={`${currentBook.title} 독서 기록`} />
         {currentBook.cover && <meta property="og:image" content={currentBook.cover} />}
+        <link rel="canonical" href={`https://chanani-books.vercel.app/book/${bookSlug}`} />
       </Helmet>
       <motion.div
         className="book-wrap"

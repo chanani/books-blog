@@ -527,9 +527,10 @@ function Chapter() {
     <main className="chapter-page">
       <Helmet>
         <title>{currentChapter.title} - 차나니의 책방</title>
-        <meta name="description" content={`${currentChapter.bookTitle} - ${currentChapter.title}`} />
+        <meta name="description" content={`${currentChapter.bookTitle} - ${currentChapter.title} 독서 정리`} />
         <meta property="og:title" content={`${currentChapter.title} - 차나니의 책방`} />
         <meta property="og:description" content={`${currentChapter.bookTitle} - ${currentChapter.title}`} />
+        <link rel="canonical" href={`https://chanani-books.vercel.app/book/${bookSlug}/read/${chapterPath}`} />
       </Helmet>
       <div className="read-progress-bar" style={{ width: `${readProgress}%` }} />
 

@@ -18,14 +18,34 @@
     <title>차나니의 책방</title>
 
     <!-- SEO -->
-    <meta name="description" content="차나니의 책방 - 개발 서적 독서 기록과 정리" />
+    <meta name="description" content="차나니의 책방 - 개발 서적 독서 기록과 정리. 클린코드, 오브젝트, 리팩터링 등 개발 서적을 읽고 챕터별로 정리합니다." />
     <meta name="author" content="이찬한" />
+    <meta name="keywords" content="차나니의 책방, 개발 서적, 독서 기록, 프로그래밍 책, 클린코드, 리팩터링, 개발자 독서" />
+    <link rel="canonical" href="https://chanani-books.vercel.app/" />
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "차나니의 책방",
+      "alternateName": "chanani books",
+      "url": "https://chanani-books.vercel.app",
+      "description": "개발 서적 독서 기록과 정리. 클린코드, 오브젝트, 리팩터링 등 개발 서적을 읽고 챕터별로 정리합니다.",
+      "author": {
+        "@type": "Person",
+        "name": "이찬한",
+        "alternateName": "차나니"
+      },
+      "inLanguage": "ko-KR"
+    }
+    </script>
 
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://chanani-books.vercel.app" />
     <meta property="og:title" content="차나니의 책방" />
-    <meta property="og:description" content="개발 서적 독서 기록과 정리" />
+    <meta property="og:description" content="개발 서적 독서 기록과 정리. 클린코드, 오브젝트, 리팩터링 등 개발 서적을 읽고 챕터별로 정리합니다." />
     <meta property="og:image" content="https://chanani-books.vercel.app/profile.png" />
     <meta property="og:image:type" content="image/png" />
     <meta property="og:image:width" content="1024" />
@@ -36,11 +56,16 @@
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content="차나니의 책방" />
-    <meta name="twitter:description" content="개발 서적 독서 기록과 정리" />
+    <meta name="twitter:description" content="개발 서적 독서 기록과 정리. 클린코드, 오브젝트, 리팩터링 등 개발 서적을 읽고 챕터별로 정리합니다." />
     <meta name="twitter:image" content="https://chanani-books.vercel.app/profile.png" />
   </head>
   <body>
     <div id="root"></div>
+    <noscript>
+      <h1>차나니의 책방</h1>
+      <p>개발 서적 독서 기록과 정리 - 클린코드, 오브젝트, 리팩터링 등 개발 서적을 읽고 챕터별로 정리합니다.</p>
+      <p>이 사이트는 JavaScript가 필요합니다.</p>
+    </noscript>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
