@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
-import { FiArrowLeft, FiChevronRight, FiMessageSquare, FiSearch, FiDownload } from 'react-icons/fi';
+import { FiArrowLeft, FiChevronRight, FiMessageSquare, FiSearch, FiDownload, FiShare2, FiLink, FiCheck } from 'react-icons/fi';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import useBookStore from '../../store/useBookStore';
@@ -17,6 +17,44 @@ function Book() {
   const [chapterSearch, setChapterSearch] = useState('');
   const [pdfLoading, setPdfLoading] = useState(false);
   const [pdfProgress, setPdfProgress] = useState({ current: 0, total: 0 });
+  const [shareOpen, setShareOpen] = useState(false);
+  const [shareToast, setShareToast] = useState(null);
+
+  const SITE_URL = 'https://chanani-books.vercel.app';
+
+  const showShareToast = (message) => {
+    setShareToast(message);
+    setTimeout(() => setShareToast(null), 2500);
+  };
+
+  const handleShare = async (channel) => {
+    const shareUrl = `${SITE_URL}/book/${bookSlug}`;
+    const shareTitle = `${currentBook?.title} - 차나니의 책방`;
+
+    if (channel === 'copy') {
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        showShareToast('URL이 복사되었습니다');
+      } catch {
+        showShareToast('복사에 실패했습니다');
+      }
+      setShareOpen(false);
+      return;
+    }
+
+    if (channel === 'x') {
+      const text = encodeURIComponent(shareTitle);
+      const url = encodeURIComponent(shareUrl);
+      window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank', 'noopener,noreferrer,width=550,height=420');
+    }
+
+    if (channel === 'facebook') {
+      const url = encodeURIComponent(shareUrl);
+      window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank', 'noopener,noreferrer,width=550,height=420');
+    }
+
+    setShareOpen(false);
+  };
 
   useEffect(() => {
     loadBook(bookSlug);
@@ -382,6 +420,34 @@ function Book() {
                   {currentBook.status}
                 </span>
               )}
+              <div className="book-share-wrapper">
+                <button
+                  className="book-share-btn"
+                  onClick={() => setShareOpen(!shareOpen)}
+                  aria-label="공유하기"
+                >
+                  <FiShare2 size={16} />
+                </button>
+                {shareOpen && (
+                  <>
+                    <div className="book-share-overlay" onClick={() => setShareOpen(false)} />
+                    <div className="book-share-dropdown">
+                      <button className="book-share-item" onClick={() => handleShare('copy')}>
+                        <FiLink size={14} />
+                        <span>URL 복사</span>
+                      </button>
+                      <button className="book-share-item" onClick={() => handleShare('x')}>
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                        <span>X</span>
+                      </button>
+                      <button className="book-share-item" onClick={() => handleShare('facebook')}>
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                        <span>Facebook</span>
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
             {currentBook.subtitle && (
               <p className="info-subtitle">{currentBook.subtitle}</p>
@@ -515,12 +581,20 @@ function Book() {
             <p className="no-chapters">검색 결과가 없습니다.</p>
           )}
         </section>
+
       </motion.div>
 
       {pdfLoading && (
         <div className="pdf-loading-toast">
           <div className="pdf-loading-spinner" />
           <span>PDF 생성 중... ({pdfProgress.current}/{pdfProgress.total})</span>
+        </div>
+      )}
+
+      {shareToast && (
+        <div className="book-share-toast">
+          <FiCheck size={14} />
+          <span>{shareToast}</span>
         </div>
       )}
     </main>

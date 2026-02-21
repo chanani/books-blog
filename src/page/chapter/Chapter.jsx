@@ -7,7 +7,7 @@ import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneLight, oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { FiArrowLeft, FiCalendar, FiEdit3, FiChevronLeft, FiChevronRight, FiList, FiMinus, FiPlus, FiSettings, FiLink, FiCheck, FiCopy, FiDownload } from 'react-icons/fi';
+import { FiArrowLeft, FiCalendar, FiEdit3, FiChevronLeft, FiChevronRight, FiList, FiMinus, FiPlus, FiSettings, FiLink, FiCheck, FiCopy, FiDownload, FiShare2 } from 'react-icons/fi';
 import Giscus from '@giscus/react';
 import useBookStore from '../../store/useBookStore';
 import './Chapter.css';
@@ -94,6 +94,14 @@ function Chapter() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [fontSelectOpen, setFontSelectOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [shareToast, setShareToast] = useState(null);
+
+  const SITE_URL = 'https://chanani-books.vercel.app';
+
+  const showShareToast = (message) => {
+    setShareToast(message);
+    setTimeout(() => setShareToast(null), 2500);
+  };
 
   const copyUrl = async () => {
     try {
@@ -102,6 +110,22 @@ function Chapter() {
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
       console.error('Failed to copy URL:', err);
+    }
+  };
+
+  const handleShare = async (channel) => {
+    const shareUrl = `${SITE_URL}/book/${bookSlug}/read/${chapterPath}`;
+    const shareTitle = `${currentChapter?.title} - 차나니의 책방`;
+
+    if (channel === 'x') {
+      const text = encodeURIComponent(shareTitle);
+      const url = encodeURIComponent(shareUrl);
+      window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank', 'noopener,noreferrer,width=550,height=420');
+    }
+
+    if (channel === 'facebook') {
+      const url = encodeURIComponent(shareUrl);
+      window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank', 'noopener,noreferrer,width=550,height=420');
     }
   };
 
@@ -673,6 +697,16 @@ function Chapter() {
                         <FiDownload size={14} />
                         <span>PDF 저장</span>
                       </button>
+                      <div className="settings-share-divider" />
+                      <p className="settings-share-label">공유하기</p>
+                      <div className="settings-share-row">
+                        <button className="settings-share-btn" onClick={() => handleShare('x')} aria-label="X 공유">
+                          <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                        </button>
+                        <button className="settings-share-btn" onClick={() => handleShare('facebook')} aria-label="Facebook 공유">
+                          <svg viewBox="0 0 24 24" width="16" height="16" fill="#1877F2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                        </button>
+                      </div>
                     </div>
                   </>
                 )}
@@ -753,6 +787,13 @@ function Chapter() {
           />
         </section>
       </motion.div>
+
+      {shareToast && (
+        <div className="chapter-share-toast">
+          <FiCheck size={14} />
+          <span>{shareToast}</span>
+        </div>
+      )}
     </main>
   );
 }
