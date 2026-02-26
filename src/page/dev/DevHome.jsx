@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
-import { FiSearch, FiX, FiCalendar, FiFolder, FiEye, FiMessageSquare } from 'react-icons/fi';
+import { FiSearch, FiX, FiCalendar, FiFolder, FiEye, FiMessageSquare, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import useDevStore from '../../store/useDevStore';
 import { fetchViewCount } from '../../api/goatcounter';
 import './DevHome.css';
@@ -84,13 +84,25 @@ function DevHome() {
     refreshPosts,
   } = useDevStore();
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const POSTS_PER_PAGE = 10;
+
   const filteredPosts = getFilteredPosts();
   const categories = getCategories();
+  const totalPages = Math.ceil(filteredPosts.length / POSTS_PER_PAGE);
+  const paginatedPosts = filteredPosts.slice(
+    (currentPage - 1) * POSTS_PER_PAGE,
+    currentPage * POSTS_PER_PAGE,
+  );
 
   useEffect(() => {
     loadPosts();
     return () => setSearchQuery('');
   }, [loadPosts, setSearchQuery]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedCategory, searchQuery]);
 
   return (
     <main className="dev-home">
@@ -167,11 +179,45 @@ function DevHome() {
         )}
 
         {!loading && filteredPosts.length > 0 && (
-          <div className="post-list">
-            {filteredPosts.map((post, index) => (
-              <PostCard key={`${post.category}/${post.slug}`} post={post} index={index} commentCount={commentCounts[`${post.category}/${post.slug}`] || 0} />
-            ))}
-          </div>
+          <>
+            <div className="post-list">
+              {paginatedPosts.map((post, index) => (
+                <PostCard key={`${post.category}/${post.slug}`} post={post} index={index} commentCount={commentCounts[`${post.category}/${post.slug}`] || 0} />
+              ))}
+            </div>
+
+            {totalPages > 1 && (
+              <div className="pagination">
+                <button
+                  className="pagination-btn"
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage(currentPage - 1)}
+                >
+                  <FiChevronLeft size={16} />
+                  이전
+                </button>
+                <div className="pagination-pages">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                    <button
+                      key={page}
+                      className={`pagination-page${currentPage === page ? ' active' : ''}`}
+                      onClick={() => setCurrentPage(page)}
+                    >
+                      {page}
+                    </button>
+                  ))}
+                </div>
+                <button
+                  className="pagination-btn"
+                  disabled={currentPage === totalPages}
+                  onClick={() => setCurrentPage(currentPage + 1)}
+                >
+                  다음
+                  <FiChevronRight size={16} />
+                </button>
+              </div>
+            )}
+          </>
         )}
       </section>
     </main>
