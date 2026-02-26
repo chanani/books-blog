@@ -3,6 +3,15 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
+  server: {
+    proxy: {
+      '/gc': {
+        target: 'https://chanani.goatcounter.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/gc/, ''),
+      },
+    },
+  },
   build: {
     rollupOptions: {
       output: {
