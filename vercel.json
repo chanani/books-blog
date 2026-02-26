@@ -1,6 +1,6 @@
 {
   "rewrites": [
-    { "source": "/gc/:path*", "destination": "https://chanani.goatcounter.com/:path*" },
+    { "source": "/gc/count", "destination": "https://chanani.goatcounter.com/count" },
     { "source": "/(.*)", "destination": "/" }
   ],
   "headers": [
