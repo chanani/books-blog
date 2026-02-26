@@ -364,6 +364,52 @@ export async function fetchDiscussionCounts(bookSlug) {
   }
 }
 
+// Fetch dev discussion comment counts from giscus (GitHub Discussions)
+export async function fetchDevDiscussionCounts() {
+  if (!TOKEN) return {};
+
+  try {
+    const query = `{
+      repository(owner: "${OWNER}", name: "${BLOG_REPO}") {
+        discussions(first: 100, categoryId: "${DISCUSSION_CATEGORY_ID}") {
+          nodes {
+            title
+            comments { totalCount }
+          }
+        }
+      }
+    }`;
+
+    const { data } = await axios.post(
+      'https://api.github.com/graphql',
+      { query },
+      { headers: { Authorization: `Bearer ${TOKEN}` } },
+    );
+
+    const discussions = data.data?.repository?.discussions?.nodes || [];
+    const counts = {};
+    const prefix = 'post/';
+
+    for (const d of discussions) {
+      let title;
+      try {
+        title = decodeURIComponent(d.title.replace(/^\//, ''));
+      } catch {
+        title = d.title.replace(/^\//, '');
+      }
+
+      if (title.startsWith(prefix)) {
+        const key = title.slice(prefix.length);
+        counts[key] = (counts[key] || 0) + d.comments.totalCount;
+      }
+    }
+
+    return counts;
+  } catch {
+    return {};
+  }
+}
+
 // Fetch commit dates (first = created, last = updated)
 async function fetchCommitDates(filePath) {
   try {

@@ -2,12 +2,12 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
-import { FiSearch, FiX, FiCalendar, FiFolder, FiEye } from 'react-icons/fi';
+import { FiSearch, FiX, FiCalendar, FiFolder, FiEye, FiMessageSquare } from 'react-icons/fi';
 import useDevStore from '../../store/useDevStore';
 import { fetchViewCount } from '../../api/goatcounter';
 import './DevHome.css';
 
-function PostCard({ post, index }) {
+function PostCard({ post, index, commentCount }) {
   const [imgError, setImgError] = useState(false);
   const [viewCount, setViewCount] = useState(null);
 
@@ -45,6 +45,12 @@ function PostCard({ post, index }) {
               <FiEye size={12} />
               {viewCount ?? 0}
             </span>
+            {commentCount > 0 && (
+              <span className="comment-count">
+                <FiMessageSquare size={12} />
+                {commentCount}
+              </span>
+            )}
           </div>
           <h3 className="post-title">{post.title}</h3>
           {post.description && (
@@ -69,6 +75,7 @@ function DevHome() {
     error,
     selectedCategory,
     searchQuery,
+    commentCounts,
     loadPosts,
     setCategory,
     setSearchQuery,
@@ -162,7 +169,7 @@ function DevHome() {
         {!loading && filteredPosts.length > 0 && (
           <div className="post-list">
             {filteredPosts.map((post, index) => (
-              <PostCard key={`${post.category}/${post.slug}`} post={post} index={index} />
+              <PostCard key={`${post.category}/${post.slug}`} post={post} index={index} commentCount={commentCounts[`${post.category}/${post.slug}`] || 0} />
             ))}
           </div>
         )}

@@ -206,6 +206,14 @@
   color: var(--text-secondary);
 }
 
+.comment-count {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.7rem;
+  color: var(--text-tertiary);
+}
+
 /* Status */
 .dev-status {
   display: flex;

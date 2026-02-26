@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { fetchDevPostList, fetchDevPost } from '../api/github';
+import { fetchDevPostList, fetchDevPost, fetchDevDiscussionCounts } from '../api/github';
 
 const useDevStore = create((set, get) => ({
   posts: [],
@@ -8,13 +8,17 @@ const useDevStore = create((set, get) => ({
   error: null,
   selectedCategory: 'all',
   searchQuery: '',
+  commentCounts: {},
 
   loadPosts: async () => {
     if (get().posts.length > 0) return;
     set({ loading: true, error: null });
     try {
-      const posts = await fetchDevPostList();
-      set({ posts, loading: false });
+      const [posts, commentCounts] = await Promise.all([
+        fetchDevPostList(),
+        fetchDevDiscussionCounts(),
+      ]);
+      set({ posts, commentCounts, loading: false });
     } catch (error) {
       set({ error: error.message, loading: false });
     }
