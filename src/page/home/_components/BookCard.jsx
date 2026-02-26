@@ -71,10 +71,8 @@ function BookCard({ book, index }) {
 
           <div className="book-meta">
             {book.author && <span>{book.author}</span>}
-            {book.author && book.date && <span className="dot">&middot;</span>}
             {book.category && (
               <>
-                <span className="dot">&middot;</span>
                 <span className="book-category">{book.category}</span>
               </>
             )}

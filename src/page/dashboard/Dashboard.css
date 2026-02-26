@@ -1,0 +1,269 @@
+.dashboard {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 24px 20px 64px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ── Visitor Stats Bar ── */
+.visitor-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  padding: 14px 24px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+}
+
+.visitor-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 24px;
+}
+
+.visitor-label {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--text-tertiary);
+}
+
+.visitor-count {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.visitor-divider {
+  width: 1px;
+  height: 24px;
+  background: var(--border-color);
+}
+
+/* ── Grid Layout ── */
+.dash-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* ── Card Base ── */
+.dash-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.dash-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+.dash-card-header h2 {
+  font-size: 0.88rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.dash-badge {
+  margin-left: auto;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--accent-primary);
+  background: var(--accent-light);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.dash-loading {
+  display: flex;
+  justify-content: center;
+  padding: 40px 0;
+}
+
+.dash-empty {
+  padding: 40px 20px;
+  text-align: center;
+  font-size: 0.82rem;
+  color: var(--text-tertiary);
+}
+
+/* ── Rank List (인기 글) ── */
+.rank-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.rank-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 20px;
+  border-bottom: 1px solid var(--border-color);
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.15s;
+}
+
+.rank-list li:last-child .rank-item {
+  border-bottom: none;
+}
+
+.rank-item:hover {
+  background: var(--bg-primary);
+}
+
+.rank-item:hover .rank-title {
+  color: var(--accent-primary);
+}
+
+.rank-num {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-tertiary);
+  background: var(--bg-tertiary);
+  border-radius: 50%;
+}
+
+.rank-num.top {
+  color: #fff;
+  background: var(--accent-primary);
+}
+
+.rank-title {
+  font-size: 0.84rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.15s;
+}
+
+/* ── Book Shelf (인기 도서) ── */
+.dash-book-shelf {
+  display: flex;
+  gap: 16px;
+  padding: 20px;
+}
+
+.dash-book-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.dash-book-cover {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  background: var(--bg-tertiary);
+  transition: border-color 0.2s, transform 0.2s;
+}
+
+.dash-book-card:hover .dash-book-cover {
+  border-color: var(--accent-primary);
+  transform: translateY(-4px);
+}
+
+.dash-book-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.dash-book-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-tertiary);
+}
+
+.dash-book-title {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  text-align: center;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  transition: color 0.15s;
+}
+
+.dash-book-card:hover .dash-book-title {
+  color: var(--accent-primary);
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .dashboard {
+    padding: 16px 12px 48px;
+  }
+
+  .dash-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .visitor-item {
+    padding: 0 16px;
+  }
+
+  .visitor-count {
+    font-size: 1rem;
+  }
+
+  .dash-book-shelf {
+    padding: 16px;
+    gap: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .visitor-item {
+    padding: 0 12px;
+    gap: 6px;
+  }
+
+  .visitor-label {
+    font-size: 0.72rem;
+  }
+
+  .visitor-count {
+    font-size: 0.9rem;
+  }
+
+  .rank-item {
+    padding: 10px 14px;
+  }
+
+  .rank-title {
+    font-size: 0.8rem;
+  }
+}

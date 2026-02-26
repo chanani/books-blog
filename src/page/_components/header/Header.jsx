@@ -4,7 +4,8 @@ import './Header.css';
 
 function Header({ theme, toggleTheme }) {
   const { pathname } = useLocation();
-  const isDev = pathname === '/' || pathname.startsWith('/post');
+  const isDashboard = pathname === '/';
+  const isDev = pathname === '/posts' || pathname.startsWith('/post');
   const isBooks = pathname === '/books' || pathname.startsWith('/book');
   const isAbout = pathname === '/about';
 
@@ -18,7 +19,7 @@ function Header({ theme, toggleTheme }) {
           </Link>
 
           <nav className="header-nav">
-            <Link to="/" className={`header-tab${isDev ? ' active' : ''}`}>
+            <Link to="/posts" className={`header-tab${isDev ? ' active' : ''}`}>
               개발
             </Link>
             <Link to="/books" className={`header-tab${isBooks ? ' active' : ''}`}>

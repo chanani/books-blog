@@ -1,7 +1,8 @@
 import { lazy, Suspense } from 'react';
 import { Routes, Route } from 'react-router-dom';
-import DevHome from '../page/dev/DevHome';
+import Dashboard from '../page/dashboard/Dashboard';
 
+const DevHome = lazy(() => import('../page/dev/DevHome'));
 const DevPost = lazy(() => import('../page/dev/DevPost'));
 const Home = lazy(() => import('../page/home/Home'));
 const Book = lazy(() => import('../page/book/Book'));
@@ -21,7 +22,8 @@ function Router() {
       }
     >
       <Routes>
-        <Route path="/" element={<DevHome />} />
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/posts" element={<DevHome />} />
         <Route path="/post/:category/:slug" element={<DevPost />} />
         <Route path="/books" element={<Home />} />
         <Route path="/books/reading" element={<Reading />} />
