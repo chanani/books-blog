@@ -3,6 +3,19 @@ import { BrowserRouter } from 'react-router-dom';
 import Router from './routes/Router';
 import Header from './page/_components/header/Header';
 import Footer from './page/_components/footer/Footer';
+import usePageView from './hooks/usePageView';
+
+function AppInner({ theme, toggleTheme }) {
+  usePageView();
+
+  return (
+    <div className="app">
+      <Header theme={theme} toggleTheme={toggleTheme} />
+      <Router />
+      <Footer />
+    </div>
+  );
+}
 
 function App() {
   const [theme, setTheme] = useState(() => {
@@ -20,11 +33,7 @@ function App() {
 
   return (
     <BrowserRouter>
-      <div className="app">
-        <Header theme={theme} toggleTheme={toggleTheme} />
-        <Router />
-        <Footer />
-      </div>
+      <AppInner theme={theme} toggleTheme={toggleTheme} />
     </BrowserRouter>
   );
 }

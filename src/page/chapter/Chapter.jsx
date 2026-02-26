@@ -7,9 +7,10 @@ import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneLight, oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { FiArrowLeft, FiCalendar, FiEdit3, FiChevronLeft, FiChevronRight, FiList, FiMinus, FiPlus, FiSettings, FiLink, FiCheck, FiCopy, FiDownload, FiShare2 } from 'react-icons/fi';
+import { FiArrowLeft, FiCalendar, FiEdit3, FiChevronLeft, FiChevronRight, FiList, FiMinus, FiPlus, FiSettings, FiLink, FiCheck, FiCopy, FiDownload, FiShare2, FiEye } from 'react-icons/fi';
 import Giscus from '@giscus/react';
 import useBookStore from '../../store/useBookStore';
+import { fetchViewCount } from '../../api/goatcounter';
 import './Chapter.css';
 
 function extractHeadings(content) {
@@ -95,6 +96,7 @@ function Chapter() {
   const [fontSelectOpen, setFontSelectOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [shareToast, setShareToast] = useState(null);
+  const [viewCount, setViewCount] = useState(null);
 
   const SITE_URL = 'https://chanani-books.vercel.app';
 
@@ -472,6 +474,7 @@ function Chapter() {
   useEffect(() => {
     if (chapterPath) {
       loadChapter(bookSlug, chapterPath);
+      fetchViewCount(`/book/${bookSlug}/read/${chapterPath}`).then(setViewCount);
     }
     return () => clearChapter();
   }, [bookSlug, chapterPath, loadChapter, clearChapter]);
@@ -725,6 +728,10 @@ function Chapter() {
                       수정 {currentChapter.updatedAt}
                     </span>
                   )}
+                <span className="chapter-date-item">
+                  <FiEye size={13} />
+                  조회 {viewCount ?? 0}
+                </span>
               </div>
             )}
           </header>

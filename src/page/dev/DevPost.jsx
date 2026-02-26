@@ -7,9 +7,10 @@ import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneLight, oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { FiArrowLeft, FiCalendar, FiEdit3, FiChevronLeft, FiChevronRight, FiList, FiMinus, FiPlus, FiSettings, FiLink, FiCheck, FiCopy, FiShare2 } from 'react-icons/fi';
+import { FiArrowLeft, FiCalendar, FiEdit3, FiChevronLeft, FiChevronRight, FiList, FiMinus, FiPlus, FiSettings, FiLink, FiCheck, FiCopy, FiShare2, FiEye } from 'react-icons/fi';
 import Giscus from '@giscus/react';
 import useDevStore from '../../store/useDevStore';
+import { fetchViewCount } from '../../api/goatcounter';
 import '../chapter/Chapter.css';
 import './DevPost.css';
 
@@ -93,6 +94,7 @@ function DevPost() {
   const [fontSelectOpen, setFontSelectOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [shareToast, setShareToast] = useState(null);
+  const [viewCount, setViewCount] = useState(null);
 
   const SITE_URL = 'https://chanani-books.vercel.app';
 
@@ -253,6 +255,7 @@ function DevPost() {
   useEffect(() => {
     if (category && slug) {
       loadPost(category, slug);
+      fetchViewCount(`/post/${category}/${slug}`).then(setViewCount);
     }
     return () => clearPost();
   }, [category, slug, loadPost, clearPost]);
@@ -373,6 +376,10 @@ function DevPost() {
                       수정 {currentPost.updatedAt}
                     </span>
                   )}
+                  <span className="devpost-date">
+                    <FiEye size={13} />
+                    조회 {viewCount ?? 0}
+                  </span>
                 </div>
                 <h1 className="devpost-title">{currentPost.title}</h1>
                 {currentPost.tags && currentPost.tags.length > 0 && (

@@ -112,6 +112,7 @@
 
 .post-card.has-cover {
   display: flex;
+  flex-direction: row-reverse;
   align-items: center;
   gap: 20px;
 }

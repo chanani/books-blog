@@ -2,12 +2,18 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
-import { FiSearch, FiX, FiCalendar, FiFolder } from 'react-icons/fi';
+import { FiSearch, FiX, FiCalendar, FiFolder, FiEye } from 'react-icons/fi';
 import useDevStore from '../../store/useDevStore';
+import { fetchViewCount } from '../../api/goatcounter';
 import './DevHome.css';
 
 function PostCard({ post, index }) {
   const [imgError, setImgError] = useState(false);
+  const [viewCount, setViewCount] = useState(null);
+
+  useEffect(() => {
+    fetchViewCount(`/post/${post.category}/${post.slug}`).then(setViewCount);
+  }, [post.category, post.slug]);
 
   return (
     <motion.div
@@ -35,6 +41,10 @@ function PostCard({ post, index }) {
                 {post.date}
               </span>
             )}
+            <span className="post-date">
+              <FiEye size={12} />
+              {viewCount ?? 0}
+            </span>
           </div>
           <h3 className="post-title">{post.title}</h3>
           {post.description && (
