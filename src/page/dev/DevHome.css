@@ -94,6 +94,21 @@
   font-weight: 600;
 }
 
+.category-count {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  background: var(--bg-primary);
+  padding: 0 6px;
+  border-radius: 10px;
+  line-height: 1.6;
+}
+
+.dev-category-chip.active .category-count {
+  color: var(--accent-primary);
+  background: var(--bg-secondary);
+}
+
 /* Post List */
 .post-list {
   background: var(--bg-secondary);

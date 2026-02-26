@@ -2,19 +2,14 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
-import { FiSearch, FiX, FiCalendar, FiFolder, FiEye, FiMessageSquare, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+import { FiSearch, FiX, FiCalendar, FiFolder, FiEye, FiMessageSquare, FiChevronLeft, FiChevronRight, FiArrowDown } from 'react-icons/fi';
 import useDevStore from '../../store/useDevStore';
 import { fetchViewCount } from '../../api/goatcounter';
 import defaultCover from '../../assets/images/default/default.png';
 import './DevHome.css';
 
-function PostCard({ post, index, commentCount }) {
+function PostCard({ post, index, commentCount, viewCount }) {
   const [imgError, setImgError] = useState(false);
-  const [viewCount, setViewCount] = useState(null);
-
-  useEffect(() => {
-    fetchViewCount(`/post/${post.category}/${post.slug}`).then(setViewCount);
-  }, [post.category, post.slug]);
 
   return (
     <motion.div
@@ -74,6 +69,7 @@ function DevHome() {
     error,
     selectedCategory,
     searchQuery,
+    posts,
     commentCounts,
     loadPosts,
     setCategory,
@@ -145,6 +141,11 @@ function DevHome() {
               >
                 {category === 'all' && <FiFolder size={13} />}
                 {category === 'all' ? '전체' : category}
+                <span className="category-count">
+                  {category === 'all'
+                    ? posts.length
+                    : posts.filter((p) => p.category === category).length}
+                </span>
               </motion.button>
             ))}
           </div>
