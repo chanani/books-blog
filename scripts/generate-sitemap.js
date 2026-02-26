@@ -9,6 +9,7 @@ const GITHUB_API = 'https://api.github.com';
 const OWNER = process.env.VITE_GITHUB_OWNER || 'chanani';
 const REPO = process.env.VITE_GITHUB_REPO || 'Books';
 const BOOKS_PATH = process.env.VITE_GITHUB_PATH || 'books';
+const DEV_PATH = 'dev';
 const TOKEN = process.env.VITE_GITHUB_TOKEN || '';
 
 const headers = {
@@ -33,9 +34,35 @@ async function generateSitemap() {
   // Static pages
   const urls = [
     { loc: '/', changefreq: 'weekly', priority: '1.0' },
-    { loc: '/reading', changefreq: 'weekly', priority: '0.8' },
+    { loc: '/books', changefreq: 'weekly', priority: '0.8' },
+    { loc: '/books/reading', changefreq: 'weekly', priority: '0.7' },
     { loc: '/about', changefreq: 'monthly', priority: '0.6' },
   ];
+
+  // Fetch dev post directories
+  const devDirs = await fetchJSON(
+    `${GITHUB_API}/repos/${OWNER}/${REPO}/contents/${DEV_PATH}`
+  );
+
+  if (devDirs && Array.isArray(devDirs)) {
+    for (const dir of devDirs) {
+      if (dir.type !== 'dir') continue;
+
+      const files = await fetchJSON(dir.url);
+      if (files && Array.isArray(files)) {
+        for (const file of files) {
+          if (file.type === 'file' && file.name.endsWith('.md')) {
+            const slug = file.name.replace(/\.md$/, '');
+            urls.push({
+              loc: `/post/${dir.name}/${slug}`,
+              changefreq: 'weekly',
+              priority: '0.8',
+            });
+          }
+        }
+      }
+    }
+  }
 
   // Fetch book directories
   const books = await fetchJSON(

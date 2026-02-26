@@ -25,9 +25,9 @@ function About() {
   return (
     <main className="about">
       <Helmet>
-        <title>소개 - 차나니의 책방</title>
-        <meta name="description" content="서버 개발자 이찬한입니다. 차나니의 책방 운영자 소개 페이지입니다." />
-        <meta property="og:title" content="소개 - 차나니의 책방" />
+        <title>소개 - 차나니의 블로그</title>
+        <meta name="description" content="서버 개발자 이찬한입니다. 차나니의 블로그 운영자 소개 페이지입니다." />
+        <meta property="og:title" content="소개 - 차나니의 블로그" />
         <meta property="og:description" content="서버 개발자 이찬한입니다." />
         <link rel="canonical" href="https://chanani-books.vercel.app/about" />
       </Helmet>

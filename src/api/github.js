@@ -4,6 +4,7 @@ const GITHUB_API = 'https://api.github.com';
 const OWNER = import.meta.env.VITE_GITHUB_OWNER;
 const REPO = import.meta.env.VITE_GITHUB_REPO;
 const BOOKS_PATH = import.meta.env.VITE_GITHUB_PATH || 'books';
+const DEV_PATH = 'dev';
 const TOKEN = import.meta.env.VITE_GITHUB_TOKEN;
 
 const githubApi = axios.create({
@@ -404,6 +405,179 @@ function formatDate(isoString) {
   const m = String(d.getMonth() + 1).padStart(2, '0');
   const day = String(d.getDate()).padStart(2, '0');
   return `${y}/${m}/${day}`;
+}
+
+// Parse YAML frontmatter from markdown content
+function parseFrontmatter(content) {
+  const match = content.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/);
+  if (!match) return { meta: {}, body: content };
+
+  const yamlBlock = match[1];
+  const body = match[2];
+  const meta = {};
+
+  for (const line of yamlBlock.split('\n')) {
+    const colonIdx = line.indexOf(':');
+    if (colonIdx === -1) continue;
+    const key = line.slice(0, colonIdx).trim();
+    let value = line.slice(colonIdx + 1).trim();
+
+    // Handle quoted strings
+    if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
+      value = value.slice(1, -1);
+    }
+
+    // Handle arrays like ["tag1", "tag2"]
+    if (value.startsWith('[') && value.endsWith(']')) {
+      value = value
+        .slice(1, -1)
+        .split(',')
+        .map((s) => s.trim().replace(/^["']|["']$/g, ''))
+        .filter(Boolean);
+    }
+
+    meta[key] = value;
+  }
+
+  return { meta, body };
+}
+
+// Find the first .md file in a list of GitHub entries
+function findMarkdown(files) {
+  return files.find((f) => f.type === 'file' && f.name.endsWith('.md'));
+}
+
+// Fetch dev post list from dev/ folder
+// Supports two formats:
+//   1. dev/category/post-name.md          (flat file, no cover)
+//   2. dev/category/post-name/any.md      (folder with any .md + optional cover image)
+export async function fetchDevPostList() {
+  try {
+    const { data: categories } = await githubApi.get(
+      `/repos/${OWNER}/${REPO}/contents/${DEV_PATH}`,
+    );
+
+    const categoryDirs = categories.filter((d) => d.type === 'dir');
+    const posts = [];
+
+    await Promise.all(
+      categoryDirs.map(async (dir) => {
+        try {
+          const { data: entries } = await githubApi.get(
+            `/repos/${OWNER}/${REPO}/contents/${DEV_PATH}/${dir.name}`,
+          );
+
+          const tasks = entries.map(async (entry) => {
+            try {
+              // Case 1: flat .md file
+              if (entry.type === 'file' && entry.name.endsWith('.md')) {
+                const { data: fileData } = await githubApi.get(entry.url);
+                const content = decodeBase64(fileData.content);
+                const { meta } = parseFrontmatter(content);
+
+                posts.push({
+                  slug: entry.name.replace(/\.md$/, ''),
+                  category: dir.name,
+                  title: meta.title || entry.name.replace(/\.md$/, ''),
+                  date: meta.date || '',
+                  tags: Array.isArray(meta.tags) ? meta.tags : [],
+                  description: meta.description || '',
+                  cover: '',
+                });
+                return;
+              }
+
+              // Case 2: folder with any .md + optional cover image
+              if (entry.type === 'dir') {
+                const { data: folderFiles } = await githubApi.get(
+                  `/repos/${OWNER}/${REPO}/contents/${DEV_PATH}/${dir.name}/${entry.name}`,
+                );
+
+                const mdFile = findMarkdown(folderFiles);
+                if (!mdFile) return;
+
+                const { data: fileData } = await githubApi.get(mdFile.url);
+                const content = decodeBase64(fileData.content);
+                const { meta } = parseFrontmatter(content);
+                const cover = findCover(folderFiles);
+
+                posts.push({
+                  slug: entry.name,
+                  category: dir.name,
+                  title: meta.title || entry.name,
+                  date: meta.date || '',
+                  tags: Array.isArray(meta.tags) ? meta.tags : [],
+                  description: meta.description || '',
+                  cover,
+                });
+              }
+            } catch {
+              // skip failed entries
+            }
+          });
+
+          await Promise.all(tasks);
+        } catch {
+          // skip failed directories
+        }
+      }),
+    );
+
+    return posts.sort((a, b) => {
+      if (a.date && b.date) return b.date.localeCompare(a.date);
+      return a.title.localeCompare(b.title);
+    });
+  } catch {
+    return [];
+  }
+}
+
+// Fetch a single dev post
+// Tries folder format first (finds any .md inside), falls back to flat file (slug.md)
+export async function fetchDevPost(category, slug) {
+  let rawContent;
+  let cover = '';
+  let mdFilePath;
+
+  try {
+    // Try folder format first: dev/category/slug/
+    const folderPath = `${DEV_PATH}/${category}/${slug}`;
+    const { data: folderFiles } = await githubApi.get(
+      `/repos/${OWNER}/${REPO}/contents/${folderPath}`,
+    );
+
+    const mdFile = findMarkdown(folderFiles);
+    if (!mdFile) throw new Error('No .md file found');
+
+    cover = findCover(folderFiles);
+    mdFilePath = `${folderPath}/${mdFile.name}`;
+
+    const { data: fileData } = await githubApi.get(mdFile.url);
+    rawContent = decodeBase64(fileData.content);
+  } catch {
+    // Fall back to flat file: dev/category/slug.md
+    mdFilePath = `${DEV_PATH}/${category}/${slug}.md`;
+    const { data: fileData } = await githubApi.get(
+      `/repos/${OWNER}/${REPO}/contents/${mdFilePath}`,
+    );
+    rawContent = decodeBase64(fileData.content);
+  }
+
+  const dates = await fetchCommitDates(mdFilePath);
+  const { meta, body } = parseFrontmatter(rawContent);
+
+  return {
+    slug,
+    category,
+    title: meta.title || slug,
+    date: meta.date || '',
+    tags: Array.isArray(meta.tags) ? meta.tags : [],
+    description: meta.description || '',
+    cover,
+    content: body,
+    createdAt: formatDate(dates.createdAt),
+    updatedAt: formatDate(dates.updatedAt),
+  };
 }
 
 // Fetch a single chapter

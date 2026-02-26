@@ -225,11 +225,11 @@ function Reading() {
   return (
     <main className="reading-page">
       <Helmet>
-        <title>독서 현황 - 차나니의 책방</title>
+        <title>독서 현황 - 차나니의 블로그</title>
         <meta name="description" content="차나니의 독서 현황 대시보드 - 완독, 독서중, 예정 도서 현황을 한눈에 확인하세요." />
-        <meta property="og:title" content="독서 현황 - 차나니의 책방" />
+        <meta property="og:title" content="독서 현황 - 차나니의 블로그" />
         <meta property="og:description" content="차나니의 독서 현황 대시보드" />
-        <link rel="canonical" href="https://chanani-books.vercel.app/reading" />
+        <link rel="canonical" href="https://chanani-books.vercel.app/books/reading" />
       </Helmet>
 
       <div className="reading-content">

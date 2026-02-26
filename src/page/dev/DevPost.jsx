@@ -7,10 +7,11 @@ import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneLight, oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { FiArrowLeft, FiCalendar, FiEdit3, FiChevronLeft, FiChevronRight, FiList, FiMinus, FiPlus, FiSettings, FiLink, FiCheck, FiCopy, FiDownload, FiShare2 } from 'react-icons/fi';
+import { FiArrowLeft, FiCalendar, FiEdit3, FiChevronLeft, FiChevronRight, FiList, FiMinus, FiPlus, FiSettings, FiLink, FiCheck, FiCopy, FiShare2 } from 'react-icons/fi';
 import Giscus from '@giscus/react';
-import useBookStore from '../../store/useBookStore';
-import './Chapter.css';
+import useDevStore from '../../store/useDevStore';
+import '../chapter/Chapter.css';
+import './DevPost.css';
 
 function extractHeadings(content) {
   const headingRegex = /^(#{1,3})\s+(.+)$/gm;
@@ -29,7 +30,6 @@ function extractHeadings(content) {
 }
 
 const GITHUB_RAW = `https://raw.githubusercontent.com/${import.meta.env.VITE_GITHUB_OWNER}/${import.meta.env.VITE_GITHUB_REPO}/master`;
-const BOOKS_PATH = import.meta.env.VITE_GITHUB_PATH || 'books';
 
 function CodeBlock({ language, children }) {
   const [copied, setCopied] = useState(false);
@@ -68,14 +68,13 @@ function CodeBlock({ language, children }) {
   );
 }
 
-function Chapter() {
-  const { bookSlug, '*': chapterPath } = useParams();
+function DevPost() {
+  const { category, slug } = useParams();
   const navigate = useNavigate();
-  const { currentChapter, loading, error, loadChapter, clearChapter, getChapterNav } =
-    useBookStore();
-  const { prev, next } = getChapterNav(chapterPath);
+  const { currentPost, loading, error, loadPost, clearPost, getPostNav } = useDevStore();
+  const { prev, next } = getPostNav(category, slug);
   const [giscusTheme, setGiscusTheme] = useState(
-    () => document.documentElement.getAttribute('data-theme') || 'light'
+    () => document.documentElement.getAttribute('data-theme') || 'light',
   );
   const [activeId, setActiveId] = useState('');
   const [tocOpen, setTocOpen] = useState(false);
@@ -90,7 +89,6 @@ function Chapter() {
   const [sepiaMode, setSepiaMode] = useState(() => {
     return localStorage.getItem('chapter-sepia-mode') === 'true';
   });
-  const [pdfLoading, setPdfLoading] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [fontSelectOpen, setFontSelectOpen] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -114,8 +112,8 @@ function Chapter() {
   };
 
   const handleShare = async (channel) => {
-    const shareUrl = `${SITE_URL}/book/${bookSlug}/read/${chapterPath}`;
-    const shareTitle = `${currentChapter?.title} - 차나니의 블로그`;
+    const shareUrl = `${SITE_URL}/post/${category}/${slug}`;
+    const shareTitle = `${currentPost?.title} - 차나니의 블로그`;
 
     if (channel === 'x') {
       const text = encodeURIComponent(shareTitle);
@@ -150,199 +148,6 @@ function Chapter() {
     });
   };
 
-  const downloadPdf = async () => {
-    setSettingsOpen(false);
-    setPdfLoading(true);
-
-    const element = document.querySelector('.chapter-body');
-    if (!element) {
-      setPdfLoading(false);
-      return;
-    }
-
-    const [domtoimage, { jsPDF }] = await Promise.all([
-      import('dom-to-image-more'),
-      import('jspdf'),
-    ]);
-
-    // 복제본 생성 (화면 밖에 배치, PC 사이즈 고정)
-    const clone = document.createElement('div');
-    clone.style.cssText = `
-      position: absolute;
-      left: -9999px;
-      top: 0;
-      width: 1400px;
-      background: #ffffff;
-      color: #1a1a1a;
-      padding: 60px;
-      font-size: 18px;
-      line-height: 1.8;
-    `;
-
-    // 제목 추가
-    const title = document.createElement('h1');
-    title.textContent = currentChapter?.title || '';
-    title.style.cssText = `
-      font-size: 32px;
-      font-weight: 700;
-      color: #1a1a1a;
-      margin: 0 0 12px 0;
-      padding-bottom: 20px;
-      border-bottom: 3px solid #6366f1;
-    `;
-    clone.appendChild(title);
-
-    // 본문 복제
-    const body = element.cloneNode(true);
-    body.style.cssText = 'background: transparent; color: #1a1a1a;';
-    clone.appendChild(body);
-
-    // 라이트 모드 스타일 적용
-    body.querySelectorAll('*').forEach((el) => {
-      el.style.color = '#1a1a1a';
-      el.style.backgroundColor = 'transparent';
-
-      if (el.tagName === 'P') {
-        if (!el.closest('blockquote')) {
-          el.style.marginBottom = '16px';
-        } else {
-          el.style.margin = '0';
-          el.style.padding = '0';
-        }
-        el.style.lineHeight = '1.8';
-      }
-      if (el.tagName === 'A') el.style.color = '#2563eb';
-      if (el.tagName === 'H1' || el.tagName === 'H2' || el.tagName === 'H3' || el.tagName === 'H4') {
-        el.style.marginTop = '24px';
-        el.style.marginBottom = '12px';
-      }
-      if (el.tagName === 'PRE') {
-        el.style.backgroundColor = '#f5f5f5';
-        el.style.color = '#333';
-        el.style.padding = '12px';
-        el.style.borderRadius = '6px';
-        el.style.marginBottom = '16px';
-      }
-      if (el.tagName === 'CODE') {
-        el.style.color = '#333';
-        if (!el.closest('pre')) {
-          el.style.backgroundColor = '#f0f0f0';
-          el.style.padding = '2px 6px';
-          el.style.borderRadius = '4px';
-        }
-      }
-      if (el.tagName === 'BLOCKQUOTE') {
-        el.style.borderLeft = '4px solid #6366f1';
-        el.style.padding = '12px 16px';
-        el.style.margin = '16px 0';
-        el.style.background = '#f5f5f5';
-        el.style.color = '#555';
-      }
-      if (el.tagName === 'UL') {
-        el.style.marginBottom = '16px';
-        el.style.paddingLeft = '24px';
-        el.style.listStyleType = 'disc';
-      }
-      if (el.tagName === 'OL') {
-        el.style.marginBottom = '16px';
-        el.style.paddingLeft = '24px';
-        el.style.listStyleType = 'decimal';
-      }
-      if (el.tagName === 'LI') {
-        el.style.marginBottom = '8px';
-        el.style.display = 'list-item';
-      }
-      if (el.tagName === 'STRONG' || el.tagName === 'B') {
-        el.style.backgroundColor = 'transparent';
-        el.style.fontWeight = '700';
-      }
-      if (el.tagName === 'HR') {
-        el.style.border = 'none';
-        el.style.borderTop = '1px solid #ddd';
-        el.style.margin = '24px 0';
-      }
-      if (el.tagName === 'TABLE') {
-        el.style.width = '100%';
-        el.style.borderCollapse = 'collapse';
-        el.style.marginBottom = '16px';
-      }
-      if (el.tagName === 'TH' || el.tagName === 'TD') {
-        el.style.border = '1px solid #ddd';
-        el.style.padding = '8px 12px';
-      }
-      if (el.tagName === 'TH') {
-        el.style.backgroundColor = '#f5f5f5';
-        el.style.fontWeight = '600';
-      }
-      if (el.tagName === 'IMG') {
-        el.style.maxWidth = '100%';
-      }
-    });
-
-    document.body.appendChild(clone);
-
-    // 렌더링 대기
-    await new Promise((r) => setTimeout(r, 200));
-
-    try {
-      const scale = 4;
-      const dataUrl = await domtoimage.toPng(clone, {
-        quality: 1,
-        bgcolor: '#ffffff',
-        width: clone.offsetWidth * scale,
-        height: clone.offsetHeight * scale,
-        style: {
-          transform: `scale(${scale})`,
-          transformOrigin: 'top left',
-        },
-      });
-
-      const img = new Image();
-      img.src = dataUrl;
-      await new Promise((resolve) => { img.onload = resolve; });
-
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const margin = 15;
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-      const contentWidth = pdfWidth - margin * 2;
-      const contentHeight = pdfHeight - margin * 2;
-
-      const ratio = contentWidth / clone.offsetWidth;
-      const scaledHeight = clone.offsetHeight * ratio;
-      const totalPages = Math.ceil(scaledHeight / contentHeight);
-
-      for (let page = 0; page < totalPages; page++) {
-        if (page > 0) pdf.addPage();
-
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        const sourceY = page * (contentHeight / ratio) * scale;
-        const sourceHeight = (contentHeight / ratio) * scale;
-
-        canvas.width = img.width;
-        canvas.height = sourceHeight;
-
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(
-          img,
-          0, sourceY, img.width, Math.min(sourceHeight, img.height - sourceY),
-          0, 0, img.width, Math.min(sourceHeight, img.height - sourceY)
-        );
-
-        const pageData = canvas.toDataURL('image/png', 1.0);
-        pdf.addImage(pageData, 'PNG', margin, margin, contentWidth, contentHeight);
-      }
-
-      pdf.save(`${currentChapter?.title || 'chapter'}.pdf`);
-    } finally {
-      document.body.removeChild(clone);
-      setPdfLoading(false);
-    }
-  };
-
-
   const fontFamilyOptions = [
     { value: 'default', label: '시스템 기본' },
     { value: 'pretendard', label: 'Pretendard' },
@@ -355,87 +160,70 @@ function Chapter() {
   ];
 
   const headings = useMemo(() => {
-    if (!currentChapter?.content) return [];
-    return extractHeadings(currentChapter.content);
-  }, [currentChapter?.content]);
+    if (!currentPost?.content) return [];
+    return extractHeadings(currentPost.content);
+  }, [currentPost?.content]);
 
-  const markdownComponents = useMemo(() => ({
-    h1({ children, ...props }) {
-      const text = String(children);
-      const id = text.toLowerCase().replace(/[^\w\s가-힣-]/g, '').replace(/\s+/g, '-');
-      return <h1 id={id} {...props}>{children}</h1>;
-    },
-    h2({ children, ...props }) {
-      const text = String(children);
-      const id = text.toLowerCase().replace(/[^\w\s가-힣-]/g, '').replace(/\s+/g, '-');
-      return <h2 id={id} {...props}>{children}</h2>;
-    },
-    h3({ children, ...props }) {
-      const text = String(children);
-      const id = text.toLowerCase().replace(/[^\w\s가-힣-]/g, '').replace(/\s+/g, '-');
-      return <h3 id={id} {...props}>{children}</h3>;
-    },
-    img({ src, alt, ...props }) {
-      const resolvedSrc = (() => {
-        if (!src || /^https?:\/\//.test(src)) return src;
-        const chapterDir = `${BOOKS_PATH}/${bookSlug}/${chapterPath}`.split('/').slice(0, -1);
-        const parts = src.split('/');
-        for (const part of parts) {
-          if (part === '..') chapterDir.pop();
-          else if (part !== '.') chapterDir.push(part);
-        }
-        return `${GITHUB_RAW}/${chapterDir.join('/')}`;
-      })();
-      return <img src={resolvedSrc} alt={alt} {...props} />;
-    },
-    code({ inline, className, children, ...props }) {
-      const match = /language-(\w+)/.exec(className || '');
-      return !inline && match ? (
-        <CodeBlock language={match[1]}>{children}</CodeBlock>
-      ) : (
-        <code className={className} {...props}>
-          {children}
-        </code>
-      );
-    },
-  }), [bookSlug, chapterPath]);
-
-  const saveReadingHistory = useCallback((progress) => {
-    if (!currentChapter) return;
-    const historyKey = 'reading-history';
-    const history = JSON.parse(localStorage.getItem(historyKey) || '[]');
-    const entry = {
-      bookSlug,
-      chapterPath,
-      chapterTitle: currentChapter.title,
-      bookTitle: currentChapter.bookTitle || bookSlug,
-      progress: Math.round(progress),
-      timestamp: Date.now(),
-    };
-    const filtered = history.filter(
-      (h) => !(h.bookSlug === bookSlug && h.chapterPath === chapterPath)
-    );
-    filtered.unshift(entry);
-    localStorage.setItem(historyKey, JSON.stringify(filtered.slice(0, 10)));
-  }, [bookSlug, chapterPath, currentChapter]);
+  const markdownComponents = useMemo(
+    () => ({
+      h1({ children, ...props }) {
+        const text = String(children);
+        const id = text.toLowerCase().replace(/[^\w\s가-힣-]/g, '').replace(/\s+/g, '-');
+        return <h1 id={id} {...props}>{children}</h1>;
+      },
+      h2({ children, ...props }) {
+        const text = String(children);
+        const id = text.toLowerCase().replace(/[^\w\s가-힣-]/g, '').replace(/\s+/g, '-');
+        return <h2 id={id} {...props}>{children}</h2>;
+      },
+      h3({ children, ...props }) {
+        const text = String(children);
+        const id = text.toLowerCase().replace(/[^\w\s가-힣-]/g, '').replace(/\s+/g, '-');
+        return <h3 id={id} {...props}>{children}</h3>;
+      },
+      img({ src, alt, ...props }) {
+        const resolvedSrc = (() => {
+          if (!src || /^https?:\/\//.test(src)) return src;
+          const postDir = `dev/${category}`;
+          const parts = src.split('/');
+          const resolved = postDir.split('/');
+          for (const part of parts) {
+            if (part === '..') resolved.pop();
+            else if (part !== '.') resolved.push(part);
+          }
+          return `${GITHUB_RAW}/${resolved.join('/')}`;
+        })();
+        return <img src={resolvedSrc} alt={alt} {...props} />;
+      },
+      code({ inline, className, children, ...props }) {
+        const match = /language-(\w+)/.exec(className || '');
+        return !inline && match ? (
+          <CodeBlock language={match[1]}>{children}</CodeBlock>
+        ) : (
+          <code className={className} {...props}>
+            {children}
+          </code>
+        );
+      },
+    }),
+    [category],
+  );
 
   const handleScroll = useCallback(() => {
-    // 읽기 진행률 계산 (chapter-article 기준)
-    const article = document.querySelector('.chapter-article');
-    let progress = 0;
+    const article = document.querySelector('.devpost-article');
     if (article) {
       const articleTop = article.offsetTop;
       const articleHeight = article.offsetHeight;
       const scrollTop = window.scrollY;
       const viewportHeight = window.innerHeight;
       const articleEnd = articleTop + articleHeight - viewportHeight;
-      progress = articleEnd > articleTop
-        ? Math.min(Math.max((scrollTop - articleTop) / (articleEnd - articleTop) * 100, 0), 100)
-        : 100;
+      const progress =
+        articleEnd > articleTop
+          ? Math.min(Math.max(((scrollTop - articleTop) / (articleEnd - articleTop)) * 100, 0), 100)
+          : 100;
       setReadProgress(progress);
     }
 
-    // 목차 활성 항목 계산
     if (headings.length === 0) return;
     const scrollY = window.scrollY + 100;
     let current = '';
@@ -454,13 +242,6 @@ function Chapter() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [handleScroll]);
 
-  // 읽기 기록 저장 (진행률 변경 시)
-  useEffect(() => {
-    if (currentChapter && readProgress > 0) {
-      saveReadingHistory(readProgress);
-    }
-  }, [currentChapter, readProgress, saveReadingHistory]);
-
   const scrollToHeading = (id) => {
     const el = document.getElementById(id);
     if (el) {
@@ -470,36 +251,11 @@ function Chapter() {
   };
 
   useEffect(() => {
-    if (chapterPath) {
-      loadChapter(bookSlug, chapterPath);
+    if (category && slug) {
+      loadPost(category, slug);
     }
-    return () => clearChapter();
-  }, [bookSlug, chapterPath, loadChapter, clearChapter]);
-
-  // 저장된 읽기 위치로 스크롤 복원
-  useEffect(() => {
-    if (!currentChapter || loading) return;
-
-    const history = JSON.parse(localStorage.getItem('reading-history') || '[]');
-    const saved = history.find(
-      (h) => h.bookSlug === bookSlug && h.chapterPath === chapterPath
-    );
-
-    if (saved && saved.progress > 0 && saved.progress < 100) {
-      setTimeout(() => {
-        const article = document.querySelector('.chapter-article');
-        if (!article) return;
-
-        const articleTop = article.offsetTop;
-        const articleHeight = article.scrollHeight;
-        const viewportHeight = window.innerHeight;
-        const articleEnd = articleTop + articleHeight - viewportHeight;
-        const scrollTarget = articleTop + ((articleEnd - articleTop) * saved.progress) / 100;
-
-        window.scrollTo({ top: scrollTarget, behavior: 'auto' });
-      }, 100);
-    }
-  }, [currentChapter, loading, bookSlug, chapterPath]);
+    return () => clearPost();
+  }, [category, slug, loadPost, clearPost]);
 
   useEffect(() => {
     const observer = new MutationObserver(() => {
@@ -515,7 +271,7 @@ function Chapter() {
 
   if (loading) {
     return (
-      <main className="chapter-page">
+      <main className="devpost-page">
         <div className="page-loading">
           <div className="loader-lg" />
           <p className="loading-text">글을 불러오는 중...</p>
@@ -526,16 +282,13 @@ function Chapter() {
 
   if (error) {
     return (
-      <main className="chapter-page">
-        <div className="chapter-wrap">
+      <main className="devpost-page">
+        <div className="devpost-wrap">
           <div className="chapter-status">
-            <p className="status-msg">챕터를 불러오지 못했습니다</p>
+            <p className="status-msg">글을 불러오지 못했습니다</p>
             <p className="status-detail">{error}</p>
-            <button
-              className="status-btn"
-              onClick={() => navigate(`/book/${bookSlug}`)}
-            >
-              책으로 돌아가기
+            <button className="status-btn" onClick={() => navigate('/')}>
+              목록으로 돌아가기
             </button>
           </div>
         </div>
@@ -543,25 +296,19 @@ function Chapter() {
     );
   }
 
-  if (!currentChapter) return null;
+  if (!currentPost) return null;
 
   return (
-    <main className="chapter-page">
+    <main className="devpost-page">
       <Helmet>
-        <title>{currentChapter.title} - 차나니의 블로그</title>
-        <meta name="description" content={`${currentChapter.bookTitle} - ${currentChapter.title} 독서 정리`} />
-        <meta property="og:title" content={`${currentChapter.title} - 차나니의 블로그`} />
-        <meta property="og:description" content={`${currentChapter.bookTitle} - ${currentChapter.title}`} />
-        <link rel="canonical" href={`https://chanani-books.vercel.app/book/${bookSlug}/read/${chapterPath}`} />
+        <title>{currentPost.title} - 차나니의 블로그</title>
+        <meta name="description" content={currentPost.description || `${currentPost.title} - 차나니의 블로그`} />
+        <meta property="og:title" content={`${currentPost.title} - 차나니의 블로그`} />
+        <meta property="og:description" content={currentPost.description || currentPost.title} />
+        {currentPost.cover && <meta property="og:image" content={currentPost.cover} />}
+        <link rel="canonical" href={`https://chanani-books.vercel.app/post/${category}/${slug}`} />
       </Helmet>
       <div className="read-progress-bar" style={{ width: `${readProgress}%` }} />
-
-      {pdfLoading && (
-        <div className="pdf-loading-toast">
-          <div className="pdf-loading-spinner" />
-          <span>PDF 생성 중...</span>
-        </div>
-      )}
 
       {headings.length > 0 && (
         <>
@@ -593,23 +340,49 @@ function Chapter() {
       )}
 
       <motion.div
-        className="chapter-wrap"
+        className="devpost-wrap"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.3 }}
       >
-        <button
-          className="back-link"
-          onClick={() => navigate(`/book/${bookSlug}`)}
-        >
+        <button className="back-link" onClick={() => navigate('/')}>
           <FiArrowLeft size={16} />
-          <span>책으로 돌아가기</span>
+          <span>목록으로 돌아가기</span>
         </button>
 
-        <article className="chapter-article">
-          <header className="chapter-header">
-            <div className="chapter-header-top">
-              <h1 className="chapter-title">{currentChapter.title}</h1>
+        <article className="devpost-article">
+          {currentPost.cover && (
+            <div className="devpost-cover">
+              <img src={currentPost.cover} alt={currentPost.title} />
+            </div>
+          )}
+          <header className="devpost-header">
+            <div className="devpost-header-top">
+              <div className="devpost-meta-area">
+                <div className="devpost-meta-row">
+                  <span className="post-category-badge">{currentPost.category}</span>
+                  {currentPost.date && (
+                    <span className="devpost-date">
+                      <FiCalendar size={13} />
+                      {currentPost.date}
+                    </span>
+                  )}
+                  {currentPost.updatedAt && currentPost.updatedAt !== currentPost.createdAt && (
+                    <span className="devpost-date">
+                      <FiEdit3 size={13} />
+                      수정 {currentPost.updatedAt}
+                    </span>
+                  )}
+                </div>
+                <h1 className="devpost-title">{currentPost.title}</h1>
+                {currentPost.tags && currentPost.tags.length > 0 && (
+                  <div className="devpost-tags">
+                    {currentPost.tags.map((tag) => (
+                      <span key={tag} className="devpost-tag">#{tag}</span>
+                    ))}
+                  </div>
+                )}
+              </div>
               <div className="chapter-settings">
                 <button
                   className="settings-btn"
@@ -651,7 +424,7 @@ function Chapter() {
                             className="font-select-btn"
                             onClick={() => setFontSelectOpen(!fontSelectOpen)}
                           >
-                            <span>{fontFamilyOptions.find(f => f.value === fontFamily)?.label}</span>
+                            <span>{fontFamilyOptions.find((f) => f.value === fontFamily)?.label}</span>
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                               <polyline points="6 9 12 15 18 9" />
                             </svg>
@@ -691,18 +464,14 @@ function Chapter() {
                         {copied ? <FiCheck size={14} /> : <FiLink size={14} />}
                         <span>{copied ? '복사됨' : 'URL 복사'}</span>
                       </button>
-                      <button className="settings-copy-btn" onClick={downloadPdf}>
-                        <FiDownload size={14} />
-                        <span>PDF 저장</span>
-                      </button>
                       <div className="settings-share-divider" />
                       <p className="settings-share-label">공유하기</p>
                       <div className="settings-share-row">
                         <button className="settings-share-btn" onClick={() => handleShare('x')} aria-label="X 공유">
-                          <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                          <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" /></svg>
                         </button>
                         <button className="settings-share-btn" onClick={() => handleShare('facebook')} aria-label="Facebook 공유">
-                          <svg viewBox="0 0 24 24" width="16" height="16" fill="#1877F2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                          <svg viewBox="0 0 24 24" width="16" height="16" fill="#1877F2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" /></svg>
                         </button>
                       </div>
                     </div>
@@ -710,23 +479,6 @@ function Chapter() {
                 )}
               </div>
             </div>
-            {(currentChapter.createdAt || currentChapter.updatedAt) && (
-              <div className="chapter-dates">
-                {currentChapter.createdAt && (
-                  <span className="chapter-date-item">
-                    <FiCalendar size={13} />
-                    작성 {currentChapter.createdAt}
-                  </span>
-                )}
-                {currentChapter.updatedAt &&
-                  currentChapter.updatedAt !== currentChapter.createdAt && (
-                    <span className="chapter-date-item">
-                      <FiEdit3 size={13} />
-                      수정 {currentChapter.updatedAt}
-                    </span>
-                  )}
-              </div>
-            )}
           </header>
 
           <div className={`chapter-body font-${fontFamily}${sepiaMode ? ' sepia' : ''}`} style={{ fontSize: `${fontSize}px` }}>
@@ -735,7 +487,7 @@ function Chapter() {
               rehypePlugins={[rehypeRaw]}
               components={markdownComponents}
             >
-              {currentChapter.content}
+              {currentPost.content}
             </ReactMarkdown>
           </div>
         </article>
@@ -745,23 +497,23 @@ function Chapter() {
             {prev && (
               <button
                 className="chapter-nav-btn prev"
-                onClick={() => navigate(`/book/${bookSlug}/read/${prev.path}`)}
+                onClick={() => navigate(`/post/${prev.category}/${prev.slug}`)}
               >
                 <FiChevronLeft size={18} />
                 <div className="chapter-nav-text">
                   <span className="chapter-nav-label">이전</span>
-                  <span className="chapter-nav-title">{prev.name}</span>
+                  <span className="chapter-nav-title">{prev.title}</span>
                 </div>
               </button>
             )}
             {next && (
               <button
                 className="chapter-nav-btn next"
-                onClick={() => navigate(`/book/${bookSlug}/read/${next.path}`)}
+                onClick={() => navigate(`/post/${next.category}/${next.slug}`)}
               >
                 <div className="chapter-nav-text">
                   <span className="chapter-nav-label">다음</span>
-                  <span className="chapter-nav-title">{next.name}</span>
+                  <span className="chapter-nav-title">{next.title}</span>
                 </div>
                 <FiChevronRight size={18} />
               </button>
@@ -776,7 +528,7 @@ function Chapter() {
             category="Announcements"
             categoryId="DIC_kwDORI3Ks84C15da"
             mapping="specific"
-            term={`book/${bookSlug}/read/${chapterPath}`}
+            term={`post/${category}/${slug}`}
             reactionsEnabled="1"
             emitMetadata="0"
             inputPosition="top"
@@ -796,4 +548,4 @@ function Chapter() {
   );
 }
 
-export default Chapter;
+export default DevPost;

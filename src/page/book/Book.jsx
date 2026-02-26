@@ -24,7 +24,7 @@ function Book() {
 
   const handleShare = async (channel) => {
     const shareUrl = `${SITE_URL}/book/${bookSlug}`;
-    const shareTitle = `${currentBook?.title} - 차나니의 책방`;
+    const shareTitle = `${currentBook?.title} - 차나니의 블로그`;
 
     if (channel === 'copy') {
       try {
@@ -101,8 +101,8 @@ function Book() {
           <div className="book-status">
             <p className="status-msg">책 정보를 불러오지 못했습니다</p>
             <p className="status-detail">{error}</p>
-            <button className="status-btn" onClick={() => navigate('/')}>
-              홈으로 돌아가기
+            <button className="status-btn" onClick={() => navigate('/books')}>
+              책방으로 돌아가기
             </button>
           </div>
         </div>
@@ -138,9 +138,9 @@ function Book() {
   return (
     <main className="book-page">
       <Helmet>
-        <title>{currentBook.title} - 차나니의 책방</title>
+        <title>{currentBook.title} - 차나니의 블로그</title>
         <meta name="description" content={`${currentBook.title} - ${currentBook.author || ''} 독서 기록과 챕터별 정리`} />
-        <meta property="og:title" content={`${currentBook.title} - 차나니의 책방`} />
+        <meta property="og:title" content={`${currentBook.title} - 차나니의 블로그`} />
         <meta property="og:description" content={`${currentBook.title} 독서 기록`} />
         {currentBook.cover && <meta property="og:image" content={currentBook.cover} />}
         <link rel="canonical" href={`https://chanani-books.vercel.app/book/${bookSlug}`} />
@@ -151,9 +151,9 @@ function Book() {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.3 }}
       >
-        <button className="back-link" onClick={() => navigate('/')}>
+        <button className="back-link" onClick={() => navigate('/books')}>
           <FiArrowLeft size={16} />
-          <span>돌아가기</span>
+          <span>책방으로 돌아가기</span>
         </button>
 
         {/* Book Info Section */}
