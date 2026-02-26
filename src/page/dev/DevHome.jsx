@@ -1,12 +1,49 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
-import { FiSearch, FiX, FiCalendar, FiFolder, FiEye, FiMessageSquare, FiChevronLeft, FiChevronRight, FiArrowDown } from 'react-icons/fi';
+import { FiSearch, FiX, FiCalendar, FiEye, FiMessageSquare, FiChevronLeft, FiChevronRight, FiChevronDown } from 'react-icons/fi';
 import useDevStore from '../../store/useDevStore';
 import { fetchViewCount } from '../../api/goatcounter';
 import defaultCover from '../../assets/images/default/default.png';
 import './DevHome.css';
+
+function Dropdown({ value, options, onChange }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+  const selected = options.find((o) => o.value === value);
+
+  useEffect(() => {
+    const handleClick = (e) => {
+      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
+
+  return (
+    <div className="dropdown" ref={ref}>
+      <button className="dropdown-trigger" onClick={() => setOpen(!open)}>
+        {selected?.label}
+        <FiChevronDown size={14} className={`dropdown-arrow${open ? ' open' : ''}`} />
+      </button>
+      {open && (
+        <ul className="dropdown-menu">
+          {options.map((opt) => (
+            <li key={opt.value}>
+              <button
+                className={`dropdown-item${opt.value === value ? ' active' : ''}`}
+                onClick={() => { onChange(opt.value); setOpen(false); }}
+              >
+                {opt.label}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
 
 function PostCard({ post, index, commentCount, viewCount }) {
   const [imgError, setImgError] = useState(false);
@@ -80,12 +117,31 @@ function DevHome() {
   } = useDevStore();
 
   const [currentPage, setCurrentPage] = useState(1);
+  const [sortOrder, setSortOrder] = useState('latest');
+  const [viewCounts, setViewCounts] = useState({});
   const POSTS_PER_PAGE = 5;
+
+  const SORT_OPTIONS = [
+    { value: 'latest', label: '최신순' },
+    { value: 'oldest', label: '오래된순' },
+    { value: 'views', label: '조회순' },
+    { value: 'comments', label: '댓글순' },
+  ];
 
   const filteredPosts = getFilteredPosts();
   const categories = getCategories();
-  const totalPages = Math.ceil(filteredPosts.length / POSTS_PER_PAGE);
-  const paginatedPosts = filteredPosts.slice(
+
+  const sortedPosts = [...filteredPosts].sort((a, b) => {
+    const keyA = `${a.category}/${a.slug}`;
+    const keyB = `${b.category}/${b.slug}`;
+    if (sortOrder === 'oldest') return (a.date || '').localeCompare(b.date || '');
+    if (sortOrder === 'views') return (Number(viewCounts[keyB]) || 0) - (Number(viewCounts[keyA]) || 0);
+    if (sortOrder === 'comments') return (commentCounts[keyB] || 0) - (commentCounts[keyA] || 0);
+    return (b.date || '').localeCompare(a.date || '');
+  });
+
+  const totalPages = Math.ceil(sortedPosts.length / POSTS_PER_PAGE);
+  const paginatedPosts = sortedPosts.slice(
     (currentPage - 1) * POSTS_PER_PAGE,
     currentPage * POSTS_PER_PAGE,
   );
@@ -96,8 +152,22 @@ function DevHome() {
   }, [loadPosts, setSearchQuery]);
 
   useEffect(() => {
+    if (posts.length === 0) return;
+    Promise.all(
+      posts.map((p) =>
+        fetchViewCount(`/post/${p.category}/${p.slug}`).then((count) => [
+          `${p.category}/${p.slug}`,
+          count,
+        ]),
+      ),
+    ).then((results) => {
+      setViewCounts(Object.fromEntries(results));
+    });
+  }, [posts]);
+
+  useEffect(() => {
     setCurrentPage(1);
-  }, [selectedCategory, searchQuery]);
+  }, [selectedCategory, searchQuery, sortOrder]);
 
   return (
     <main className="dev-home">
@@ -130,26 +200,21 @@ function DevHome() {
           )}
         </div>
 
-        {categories.length > 1 && (
-          <div className="dev-category-filter">
-            {categories.map((category) => (
-              <motion.button
-                key={category}
-                className={`dev-category-chip${selectedCategory === category ? ' active' : ''}`}
-                onClick={() => setCategory(category)}
-                whileTap={{ scale: 0.95 }}
-              >
-                {category === 'all' && <FiFolder size={13} />}
-                {category === 'all' ? '전체' : category}
-                <span className="category-count">
-                  {category === 'all'
-                    ? posts.length
-                    : posts.filter((p) => p.category === category).length}
-                </span>
-              </motion.button>
-            ))}
-          </div>
-        )}
+        <div className="dev-filter-row">
+          <Dropdown
+            value={selectedCategory}
+            options={categories.map((c) => ({
+              value: c,
+              label: `${c === 'all' ? '전체' : c} (${c === 'all' ? posts.length : posts.filter((p) => p.category === c).length})`,
+            }))}
+            onChange={setCategory}
+          />
+          <Dropdown
+            value={sortOrder}
+            options={SORT_OPTIONS}
+            onChange={setSortOrder}
+          />
+        </div>
 
         {loading && (
           <div className="page-loading">
@@ -182,7 +247,7 @@ function DevHome() {
           <>
             <div className="post-list">
               {paginatedPosts.map((post, index) => (
-                <PostCard key={`${post.category}/${post.slug}`} post={post} index={index} commentCount={commentCounts[`${post.category}/${post.slug}`] || 0} />
+                <PostCard key={`${post.category}/${post.slug}`} post={post} index={index} commentCount={commentCounts[`${post.category}/${post.slug}`] || 0} viewCount={viewCounts[`${post.category}/${post.slug}`] ?? 0} />
               ))}
             </div>
 

@@ -62,51 +62,81 @@
   background: var(--bg-tertiary);
 }
 
-/* Category Filter */
-.dev-category-filter {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.dev-category-chip {
+/* Filter Row */
+.dev-filter-row {
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px 12px;
-  border-radius: 20px;
+  gap: 8px;
+}
+
+/* Custom Dropdown */
+.dropdown {
+  position: relative;
+}
+
+.dropdown-trigger {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
   font-size: 0.8rem;
   font-weight: 500;
   color: var(--text-secondary);
-  background: var(--bg-tertiary);
-  border: 1px solid transparent;
-  transition: all 0.15s;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+  white-space: nowrap;
 }
 
-.dev-category-chip:hover {
+.dropdown-trigger:hover {
+  color: var(--text-primary);
+  border-color: var(--accent-primary);
+}
+
+.dropdown-arrow {
+  transition: transform 0.2s;
+}
+
+.dropdown-arrow.open {
+  transform: rotate(180deg);
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  min-width: 100%;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  padding: 4px;
+  list-style: none;
+}
+
+.dropdown-item {
+  display: block;
+  width: 100%;
+  padding: 6px 10px;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  text-align: left;
+  border-radius: 4px;
+  white-space: nowrap;
+  transition: background 0.1s, color 0.1s;
+}
+
+.dropdown-item:hover {
+  background: var(--bg-tertiary);
   color: var(--text-primary);
 }
 
-.dev-category-chip.active {
-  background: var(--accent-light);
+.dropdown-item.active {
   color: var(--accent-primary);
-  border-color: var(--accent-primary);
   font-weight: 600;
-}
-
-.category-count {
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: var(--text-tertiary);
-  background: var(--bg-primary);
-  padding: 0 6px;
-  border-radius: 10px;
-  line-height: 1.6;
-}
-
-.dev-category-chip.active .category-count {
-  color: var(--accent-primary);
-  background: var(--bg-secondary);
 }
 
 /* Post List */
