@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { FiSearch, FiX, FiCalendar, FiFolder, FiEye, FiMessageSquare, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import useDevStore from '../../store/useDevStore';
 import { fetchViewCount } from '../../api/goatcounter';
+import defaultCover from '../../assets/images/default/default.png';
 import './DevHome.css';
 
 function PostCard({ post, index, commentCount }) {
@@ -21,17 +22,15 @@ function PostCard({ post, index, commentCount }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25, delay: index * 0.04 }}
     >
-      <Link to={`/post/${post.category}/${post.slug}`} className={`post-card${post.cover ? ' has-cover' : ''}`}>
-        {post.cover && !imgError && (
-          <div className="post-cover-wrap">
-            <img
-              src={post.cover}
-              alt={post.title}
-              className="post-cover-img"
-              onError={() => setImgError(true)}
-            />
-          </div>
-        )}
+      <Link to={`/post/${post.category}/${post.slug}`} className="post-card has-cover">
+        <div className="post-cover-wrap">
+          <img
+            src={!imgError && post.cover ? post.cover : defaultCover}
+            alt={post.title}
+            className="post-cover-img"
+            onError={() => setImgError(true)}
+          />
+        </div>
         <div className="post-card-body">
           <div className="post-card-meta">
             <span className="post-category-badge">{post.category}</span>
@@ -85,7 +84,7 @@ function DevHome() {
   } = useDevStore();
 
   const [currentPage, setCurrentPage] = useState(1);
-  const POSTS_PER_PAGE = 10;
+  const POSTS_PER_PAGE = 5;
 
   const filteredPosts = getFilteredPosts();
   const categories = getCategories();
