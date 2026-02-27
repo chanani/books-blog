@@ -787,7 +787,7 @@ function Chapter() {
             reactionsEnabled="1"
             emitMetadata="0"
             inputPosition="top"
-            theme={`https://chanani-books.vercel.app/giscus-comment-${giscusTheme}.css`}
+            theme={`https://chanani-books.vercel.app/giscus-comment-${giscusTheme}.css?v=2`}
             lang="ko"
           />
         </section>
