@@ -190,7 +190,7 @@ function Chapter() {
       color: #1a1a1a;
       margin: 0 0 12px 0;
       padding-bottom: 20px;
-      border-bottom: 3px solid #6366f1;
+      border-bottom: 3px solid #e8735a;
     `;
     clone.appendChild(title);
 
@@ -234,7 +234,7 @@ function Chapter() {
         }
       }
       if (el.tagName === 'BLOCKQUOTE') {
-        el.style.borderLeft = '4px solid #6366f1';
+        el.style.borderLeft = '4px solid #e8735a';
         el.style.padding = '12px 16px';
         el.style.margin = '16px 0';
         el.style.background = '#f5f5f5';

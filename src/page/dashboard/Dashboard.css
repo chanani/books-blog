@@ -347,7 +347,7 @@
 
 .post-gallery-card:hover {
   border-color: var(--accent-primary);
-  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.08);
+  box-shadow: 0 4px 14px rgba(232, 115, 90, 0.08);
   transform: translateY(-3px);
 }
 
@@ -414,7 +414,7 @@
 
 .dash-book-card:hover {
   border-color: var(--accent-primary);
-  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.08);
+  box-shadow: 0 6px 20px rgba(232, 115, 90, 0.08);
   transform: translateY(-4px);
 }
 

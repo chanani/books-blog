@@ -371,7 +371,7 @@
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
   z-index: 100;
   min-width: 160px;
   padding: 4px;
@@ -428,7 +428,7 @@
   align-items: center;
   gap: 6px;
   z-index: 1000;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
   animation: bookToastIn 0.25s ease, bookToastOut 0.3s ease 2.2s forwards;
   white-space: nowrap;
 }
@@ -574,7 +574,7 @@
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   z-index: 9999;
   font-size: 0.875rem;
   color: var(--text-primary);
