@@ -115,6 +115,11 @@ a[href*="giscus.app"] {
   max-width: 100% !important;
 }
 
+/* Hide comment list, keep only input box */
+.gsc-timeline {
+  display: none !important;
+}
+
 .gsc-comment-box {
   max-width: 100% !important;
 }

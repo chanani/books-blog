@@ -34,13 +34,112 @@
   line-height: 1.5;
 }
 
-.guestbook-comments {
-  min-height: 300px;
+.guestbook-input {
+  min-height: 100px;
 }
 
-.guestbook-comments .giscus,
-.guestbook-comments .giscus-frame {
+.guestbook-input .giscus,
+.guestbook-input .giscus-frame {
   width: 100% !important;
+}
+
+/* ── Comment List ── */
+.guestbook-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.gb-status {
+  text-align: center;
+  padding: 40px 20px;
+  font-size: 0.85rem;
+  color: var(--text-tertiary);
+}
+
+.gb-comment {
+  display: flex;
+  gap: 12px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.gb-comment:last-of-type {
+  border-bottom: none;
+}
+
+.gb-comment-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.gb-comment-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.gb-comment-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.gb-comment-author {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.gb-comment-date {
+  font-size: 0.72rem;
+  color: var(--text-tertiary);
+}
+
+.gb-comment-body {
+  font-size: 0.84rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* ── Pagination ── */
+.gb-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 20px 0 0;
+  margin-top: 8px;
+}
+
+.gb-page-btn {
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.gb-page-btn:hover:not(:disabled) {
+  color: var(--accent-primary);
+  border-color: var(--accent-primary);
+}
+
+.gb-page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.gb-page-info {
+  font-size: 0.8rem;
+  color: var(--text-tertiary);
 }
 
 @media (max-width: 768px) {
@@ -50,5 +149,10 @@
 
   .guestbook-intro {
     padding: 14px 20px;
+  }
+
+  .gb-comment-avatar {
+    width: 30px;
+    height: 30px;
   }
 }

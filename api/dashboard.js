@@ -152,12 +152,14 @@ export default async function handler(req, res) {
       const discussions = guestbookRes?.data?.repository?.discussions?.nodes || [];
       const guestbook = discussions.find((d) => d.title === 'guestbook');
       if (guestbook) {
-        recentGuestbook = (guestbook.comments?.nodes || []).map((c) => ({
-          author: c.author?.login || 'anonymous',
-          avatar: c.author?.avatarUrl || '',
-          body: c.body?.length > 50 ? c.body.slice(0, 50) + '…' : c.body || '',
-          createdAt: c.createdAt,
-        }));
+        recentGuestbook = (guestbook.comments?.nodes || [])
+          .map((c) => ({
+            author: c.author?.login || 'anonymous',
+            avatar: c.author?.avatarUrl || '',
+            body: c.body?.length > 50 ? c.body.slice(0, 50) + '…' : c.body || '',
+            createdAt: c.createdAt,
+          }))
+          .reverse();
       }
     } catch {}
 
