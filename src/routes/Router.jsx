@@ -17,8 +17,9 @@ function Router() {
     <Suspense
       fallback={
         <div className="page-loading">
-          <div className="loader-lg" />
+          <img src="/profile.jpg" alt="이찬한" className="loading-avatar" />
           <p className="loading-text">페이지를 불러오는 중...</p>
+          <span className="loading-dots"><span className="dot" /><span className="dot" /><span className="dot" /></span>
         </div>
       }
     >

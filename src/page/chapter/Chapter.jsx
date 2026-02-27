@@ -520,8 +520,9 @@ function Chapter() {
     return (
       <main className="chapter-page">
         <div className="page-loading">
-          <div className="loader-lg" />
+          <img src="/profile.jpg" alt="이찬한" className="loading-avatar" />
           <p className="loading-text">글을 불러오는 중...</p>
+          <span className="loading-dots"><span className="dot" /><span className="dot" /><span className="dot" /></span>
         </div>
       </main>
     );
@@ -561,7 +562,7 @@ function Chapter() {
 
       {pdfLoading && (
         <div className="pdf-loading-toast">
-          <div className="pdf-loading-spinner" />
+          <span className="loading-dots"><span className="dot" /><span className="dot" /><span className="dot" /></span>
           <span>PDF 생성 중...</span>
         </div>
       )}

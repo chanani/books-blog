@@ -144,18 +144,19 @@
 
 /* Post List */
 .post-list {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
-  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 /* Post Card */
 .post-card {
   display: block;
   padding: 20px 24px;
-  border-bottom: 1px solid var(--border-color);
-  transition: background 0.2s;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
 }
 
 .post-card.has-cover {
@@ -165,12 +166,13 @@
   gap: 20px;
 }
 
-.post-card:last-child {
-  border-bottom: none;
+.post-card:hover {
+  border-color: var(--accent-primary);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
-.post-card:hover {
-  background: var(--bg-primary);
+[data-theme='dark'] .post-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 }
 
 /* Cover Image */
@@ -364,6 +366,10 @@
 @media (max-width: 768px) {
   .dev-content {
     padding: 16px 16px 60px;
+  }
+
+  .post-list {
+    gap: 10px;
   }
 
   .post-card {

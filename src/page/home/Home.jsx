@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { FiSearch, FiBookOpen, FiX, FiLoader } from 'react-icons/fi';
+import { FiSearch, FiBookOpen, FiX } from 'react-icons/fi';
 import useBookStore from '../../store/useBookStore';
 import useSearchStore from '../../store/useSearchStore';
 import useDebounce from '../../hooks/useDebounce';
@@ -224,7 +224,9 @@ function Home() {
             className={`search-input${searchQuery ? ' has-value' : ''}`}
           />
           {isDebouncing && searchQuery.length >= 2 && (
-            <FiLoader size={16} className="search-spinner" />
+            <span className="search-dots">
+              <span className="dot" /><span className="dot" /><span className="dot" />
+            </span>
           )}
           {searchQuery && (
             <button
@@ -326,8 +328,9 @@ function Home() {
 
         {loading && (
           <div className="page-loading">
-            <div className="loader-lg" />
+            <img src="/profile.jpg" alt="이찬한" className="loading-avatar" />
             <p className="loading-text">책 목록을 불러오는 중...</p>
+            <span className="loading-dots"><span className="dot" /><span className="dot" /><span className="dot" /></span>
           </div>
         )}
 

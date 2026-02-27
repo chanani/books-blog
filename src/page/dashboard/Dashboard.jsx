@@ -34,9 +34,9 @@ function Dashboard() {
 
       {loading && (
         <div className="home-greeting">
-          <img src="/profile.jpg" alt="이찬한" className="greeting-avatar" />
+          <img src="/profile.jpg" alt="이찬한" className="loading-avatar" />
           <p className="greeting-text">잠시만 기다려주세요</p>
-          <span className="greeting-dots">
+          <span className="loading-dots">
             <span className="dot" />
             <span className="dot" />
             <span className="dot" />

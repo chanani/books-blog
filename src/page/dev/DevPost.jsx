@@ -276,8 +276,9 @@ function DevPost() {
     return (
       <main className="devpost-page">
         <div className="page-loading">
-          <div className="loader-lg" />
+          <img src="/profile.jpg" alt="이찬한" className="loading-avatar" />
           <p className="loading-text">글을 불러오는 중...</p>
+          <span className="loading-dots"><span className="dot" /><span className="dot" /><span className="dot" /></span>
         </div>
       </main>
     );
