@@ -131,7 +131,7 @@ export default async function handler(req, res) {
     // Post paths from GoatCounter
     const rawPosts = (hits?.hits || [])
       .filter((h) => h.path && decodeURIComponent(h.path).startsWith('/post/'))
-      .slice(0, 5);
+      .slice(0, 4);
 
     // Book slugs from GoatCounter
     const bookMap = {};

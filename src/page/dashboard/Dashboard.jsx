@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
-import { FiBookOpen, FiEye, FiAward, FiEdit3, FiBook } from 'react-icons/fi';
+import { FiBookOpen, FiEye, FiAward, FiEdit3, FiBook, FiGithub, FiLinkedin } from 'react-icons/fi';
 import { fetchDashboardStats } from '../../api/dashboard';
 import defaultCover from '../../assets/images/default/default.png';
 import './Dashboard.css';
@@ -55,12 +55,23 @@ function Dashboard() {
           {/* ── Sidebar ── */}
           <aside className="home-sidebar">
             <motion.div className="sidebar-profile" {...fade(0)}>
-              <span className="profile-emoji">👨‍💻</span>
+              <img src="/profile.png" alt="이찬한" className="profile-avatar" />
               <span className="profile-name">차나니</span>
-              <span className="profile-desc">개발 & 독서 기록</span>
+              <span className="profile-desc">안녕하세요,<br />서버 개발자 이찬한입니다👋</span>
             </motion.div>
 
-            <motion.div className="sidebar-visitors" {...fade(0.04)}>
+            <motion.div className="sidebar-socials" {...fade(0.04)}>
+              <a href="https://github.com/chanani" target="_blank" rel="noopener noreferrer" className="social-btn">
+                <FiGithub size={15} />
+                GitHub
+              </a>
+              <a href="https://www.linkedin.com/in/%EC%B0%AC%ED%95%9C-%EC%9D%B4-1648a6294/?skipRedirect=true" target="_blank" rel="noopener noreferrer" className="social-btn">
+                <FiLinkedin size={15} />
+                LinkedIn
+              </a>
+            </motion.div>
+
+            <motion.div className="sidebar-visitors" {...fade(0.06)}>
               <div className="sidebar-visitors-title">방문자</div>
               <div className="visitor-rows">
                 <div className="visitor-row">
@@ -78,7 +89,7 @@ function Dashboard() {
               </div>
             </motion.div>
 
-            <motion.div className="sidebar-links" {...fade(0.08)}>
+            <motion.div className="sidebar-links" {...fade(0.1)}>
               <Link to="/posts" className="sidebar-link">
                 <FiEdit3 size={14} />
                 개발 글
