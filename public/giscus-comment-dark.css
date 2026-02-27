@@ -1,4 +1,4 @@
-/*! Custom Giscus theme - Dark (matching blog design) */
+/*! Custom Giscus theme - Dark - Comment (matching blog design) */
 main {
   --color-prettylights-syntax-comment: #7a6f63;
   --color-prettylights-syntax-constant: #79c0ff;
@@ -94,27 +94,9 @@ main .gsc-loading-image {
   background-image: url(https://github.githubassets.com/images/mona-loading-dark.gif);
 }
 
-/* Hide entire header and footer */
-.gsc-header {
-  display: none !important;
-}
-
+/* Hide powered-by giscus */
 .gsc-footer,
 .powered-by,
 a[href*="giscus.app"] {
   display: none !important;
-}
-
-/* Full width */
-.gsc-main {
-  max-width: 100% !important;
-  width: 100% !important;
-}
-
-.gsc-comments {
-  max-width: 100% !important;
-}
-
-.gsc-comment-box {
-  max-width: 100% !important;
 }

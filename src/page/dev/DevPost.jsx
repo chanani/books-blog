@@ -539,7 +539,7 @@ function DevPost() {
             reactionsEnabled="1"
             emitMetadata="0"
             inputPosition="top"
-            theme={giscusTheme}
+            theme={`https://chanani-books.vercel.app/giscus-comment-${giscusTheme}.css`}
             lang="ko"
           />
         </section>
