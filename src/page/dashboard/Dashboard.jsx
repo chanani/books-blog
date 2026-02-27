@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
-import { FiBookOpen, FiEye, FiAward, FiEdit3, FiBook, FiGithub, FiLinkedin } from 'react-icons/fi';
+import { FiBookOpen, FiEye, FiAward, FiEdit3, FiBook, FiGithub, FiLinkedin, FiMail } from 'react-icons/fi';
 import { fetchDashboardStats } from '../../api/dashboard';
 import defaultCover from '../../assets/images/default/default.png';
 import './Dashboard.css';
@@ -61,13 +61,14 @@ function Dashboard() {
             </motion.div>
 
             <motion.div className="sidebar-socials" {...fade(0.04)}>
-              <a href="https://github.com/chanani" target="_blank" rel="noopener noreferrer" className="social-btn">
-                <FiGithub size={15} />
-                GitHub
+              <a href="https://github.com/chanani" target="_blank" rel="noopener noreferrer" className="social-btn" aria-label="GitHub">
+                <FiGithub size={20} />
               </a>
-              <a href="https://www.linkedin.com/in/%EC%B0%AC%ED%95%9C-%EC%9D%B4-1648a6294/?skipRedirect=true" target="_blank" rel="noopener noreferrer" className="social-btn">
-                <FiLinkedin size={15} />
-                LinkedIn
+              <a href="https://www.linkedin.com/in/%EC%B0%AC%ED%95%9C-%EC%9D%B4-1648a6294/?skipRedirect=true" target="_blank" rel="noopener noreferrer" className="social-btn" aria-label="LinkedIn">
+                <FiLinkedin size={20} />
+              </a>
+              <a href="mailto:theholidaynight@gmail.com" className="social-btn" aria-label="Mail">
+                <FiMail size={20} />
               </a>
             </motion.div>
 
@@ -108,7 +109,7 @@ function Dashboard() {
               <motion.section {...fade(0.06)}>
                 <div className="section-head">
                   <h2 className="section-title">
-                    <FiAward size={16} />
+                    <FiEdit3 size={15} />
                     인기 글
                   </h2>
                   <Link to="/posts" className="section-more">더보기 →</Link>
@@ -159,7 +160,7 @@ function Dashboard() {
               <motion.section {...fade(0.12)}>
                 <div className="section-head">
                   <h2 className="section-title">
-                    <FiBookOpen size={16} />
+                    <FiBook size={15} />
                     인기 도서
                   </h2>
                   <Link to="/books" className="section-more">더보기 →</Link>
