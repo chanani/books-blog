@@ -122,3 +122,17 @@ a.Link--secondary[href="https://giscus.app"] {
 .gsc-right-header {
   display: none !important;
 }
+
+/* Full width */
+.gsc-main {
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+.gsc-comments {
+  max-width: 100% !important;
+}
+
+.gsc-comment-box {
+  max-width: 100% !important;
+}
