@@ -94,10 +94,15 @@ main .gsc-loading-image {
   background-image: url(https://github.githubassets.com/images/mona-loading-default.gif);
 }
 
-/* Hide footer only, keep header for sort toggle */
+/* Hide footer & powered-by */
 .gsc-footer,
 .powered-by,
 a[href*="giscus.app"] {
+  display: none !important;
+}
+
+/* Hide comment/reply count, keep sort toggle */
+.gsc-left-header {
   display: none !important;
 }
 
