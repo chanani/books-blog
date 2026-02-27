@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { FiLock, FiChevronDown, FiChevronUp } from 'react-icons/fi';
+import { FiLock, FiChevronDown, FiChevronUp, FiMessageCircle, FiMessageSquare } from 'react-icons/fi';
 import './Admin.css';
 
 function VisitorCard({ visitors }) {
@@ -192,6 +193,104 @@ function StatBarCard({ title, data }) {
   );
 }
 
+function formatRelativeDate(dateStr) {
+  const now = new Date();
+  const date = new Date(dateStr);
+  const diff = Math.floor((now - date) / 1000);
+  if (diff < 60) return '방금 전';
+  if (diff < 3600) return `${Math.floor(diff / 60)}분 전`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}시간 전`;
+  if (diff < 2592000) return `${Math.floor(diff / 86400)}일 전`;
+  return date.toLocaleDateString('ko-KR', { year: 'numeric', month: 'short', day: 'numeric' });
+}
+
+function CommentsCard({ comments }) {
+  const [expanded, setExpanded] = useState(false);
+  const top = comments.slice(0, 5);
+  const rest = comments.slice(5);
+  const hasMore = rest.length > 0;
+
+  return (
+    <div className="admin-card full-width">
+      <div className="admin-card-header">
+        <div className="admin-card-title"><FiMessageCircle size={14} /> 댓글 목록</div>
+        {hasMore && (
+          <button className="expand-toggle" onClick={() => setExpanded(!expanded)}>
+            {expanded ? '접기' : `더 보기 (${rest.length})`}
+            {expanded ? <FiChevronUp size={13} /> : <FiChevronDown size={13} />}
+          </button>
+        )}
+      </div>
+      {top.length === 0 && <p className="stat-empty">댓글이 없습니다.</p>}
+      <div className="admin-discussion-list">
+        {top.map((c, i) => (
+          <Link key={i} to={c.path} className="admin-discussion-item">
+            <img src={c.avatar} alt={c.author} className="admin-discussion-avatar" />
+            <div className="admin-discussion-content">
+              <div className="admin-discussion-meta">
+                <span className="admin-discussion-author">{c.author}</span>
+                <span className="admin-discussion-date">{formatRelativeDate(c.createdAt)}</span>
+              </div>
+              <span className="admin-discussion-post">{c.postTitle}</span>
+              <span className="admin-discussion-body">{c.body}</span>
+            </div>
+          </Link>
+        ))}
+      </div>
+      <div className={`accordion-body${expanded ? ' open' : ''}`}>
+        <div className="accordion-inner">
+          <div className="admin-discussion-list">
+            {rest.map((c, i) => (
+              <Link key={i} to={c.path} className="admin-discussion-item">
+                <img src={c.avatar} alt={c.author} className="admin-discussion-avatar" />
+                <div className="admin-discussion-content">
+                  <div className="admin-discussion-meta">
+                    <span className="admin-discussion-author">{c.author}</span>
+                    <span className="admin-discussion-date">{formatRelativeDate(c.createdAt)}</span>
+                  </div>
+                  <span className="admin-discussion-post">{c.postTitle}</span>
+                  <span className="admin-discussion-body">{c.body}</span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function GuestbookCard({ guestbook }) {
+  const items = guestbook.slice(0, 5);
+
+  return (
+    <div className="admin-card full-width">
+      <div className="admin-card-header">
+        <div className="admin-card-title"><FiMessageSquare size={14} /> 방명록 목록</div>
+        <Link to="/guestbook" className="expand-toggle">
+          더보기
+          <FiChevronDown size={13} />
+        </Link>
+      </div>
+      {items.length === 0 && <p className="stat-empty">방명록이 없습니다.</p>}
+      <div className="admin-discussion-list">
+        {items.map((c, i) => (
+          <div key={i} className="admin-discussion-item">
+            <img src={c.avatar} alt={c.author} className="admin-discussion-avatar" />
+            <div className="admin-discussion-content">
+              <div className="admin-discussion-meta">
+                <span className="admin-discussion-author">{c.author}</span>
+                <span className="admin-discussion-date">{formatRelativeDate(c.createdAt)}</span>
+              </div>
+              <span className="admin-discussion-body">{c.body}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function RateLimitCard({ rateLimit }) {
   if (!rateLimit) return null;
 
@@ -318,6 +417,8 @@ function Admin() {
           <StatBarCard title="브라우저" data={stats.browsers} />
           <StatBarCard title="운영체제" data={stats.systems} />
           <StatBarCard title="지역" data={stats.locations} />
+          <CommentsCard comments={stats.allComments || []} />
+          <GuestbookCard guestbook={stats.allGuestbook || []} />
         </div>
       </div>
     </main>

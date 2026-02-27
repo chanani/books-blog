@@ -130,6 +130,9 @@
   margin-bottom: 12px;
   padding-bottom: 8px;
   border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .admin-card-header {
@@ -314,6 +317,7 @@
   border: none;
   cursor: pointer;
   padding: 0;
+  text-decoration: none;
   transition: color 0.15s;
 }
 
@@ -434,6 +438,87 @@
 .rate-limit-reset {
   font-size: 0.72rem;
   color: var(--text-tertiary);
+}
+
+/* ── Discussion List (댓글/방명록) ── */
+.admin-discussion-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-discussion-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border-color);
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.15s;
+}
+
+.admin-discussion-item:last-child {
+  border-bottom: none;
+}
+
+a.admin-discussion-item {
+  margin: 0 -20px;
+  padding: 12px 20px;
+  border-radius: 0;
+}
+
+a.admin-discussion-item:hover {
+  background: var(--bg-tertiary);
+}
+
+.admin-discussion-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.admin-discussion-content {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  flex: 1;
+}
+
+.admin-discussion-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.admin-discussion-author {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.admin-discussion-date {
+  font-size: 0.72rem;
+  color: var(--text-tertiary);
+}
+
+.admin-discussion-post {
+  font-size: 0.74rem;
+  color: var(--accent-primary);
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-discussion-body {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  word-break: break-word;
 }
 
 /* ── Loading ── */

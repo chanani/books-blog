@@ -69,14 +69,94 @@ export default async function handler(req, res) {
       gcToken ? gcFetch(`/api/v0/stats/toprefs/?${longRange}&limit=10`, gcToken) : null,
     ]);
 
-    // Batch 3: GitHub (별도 서비스)
+    // Batch 3: GitHub (별도 서비스) — rate limit + discussions
+    const ghOwner = process.env.VITE_GITHUB_OWNER;
+    const booksPath = process.env.VITE_GITHUB_PATH || 'books';
     let rateLimit = null;
+    let allComments = [];
+    let allGuestbook = [];
+
     if (ghToken) {
-      try {
-        const r = await fetch('https://api.github.com/rate_limit', {
+      const ghHeaders = { Authorization: `Bearer ${ghToken}`, 'Content-Type': 'application/json' };
+      const discussionQuery = `{
+        repository(owner: "${ghOwner}", name: "books-blog") {
+          discussions(first: 30, orderBy: {field: UPDATED_AT, direction: DESC}, categoryId: "DIC_kwDORI3Ks84C15da") {
+            nodes {
+              title
+              comments(last: 20) {
+                nodes {
+                  author { login avatarUrl }
+                  body
+                  createdAt
+                }
+              }
+            }
+          }
+        }
+      }`;
+
+      const [rateLimitRes, discussionRes] = await Promise.all([
+        fetch('https://api.github.com/rate_limit', {
           headers: { Authorization: `Bearer ${ghToken}`, Accept: 'application/vnd.github.v3+json' },
+        }).then((r) => (r.ok ? r.json() : null)).catch(() => null),
+        fetch('https://api.github.com/graphql', {
+          method: 'POST',
+          headers: ghHeaders,
+          body: JSON.stringify({ query: discussionQuery }),
+        }).then((r) => (r.ok ? r.json() : null)).catch(() => null),
+      ]);
+
+      rateLimit = rateLimitRes;
+
+      try {
+        const discussions = discussionRes?.data?.repository?.discussions?.nodes || [];
+
+        const guestbook = discussions.find((d) => d.title === 'guestbook');
+        if (guestbook) {
+          allGuestbook = (guestbook.comments?.nodes || [])
+            .map((c) => ({
+              author: c.author?.login || 'anonymous',
+              avatar: c.author?.avatarUrl || '',
+              body: c.body?.length > 100 ? c.body.slice(0, 100) + '…' : c.body || '',
+              createdAt: c.createdAt,
+            }))
+            .reverse();
+        }
+
+        const nonGuestbook = discussions.filter((d) => d.title !== 'guestbook');
+        const restHeaders = { Accept: 'application/vnd.github.v3+json', Authorization: `Bearer ${ghToken}` };
+        const ghRepo = process.env.VITE_GITHUB_REPO;
+
+        const validated = await Promise.all(
+          nonGuestbook.map(async (d) => {
+            const bookMatch = d.title.match(/^book\/([^/]+)\/read\/(.+)$/);
+            if (!bookMatch) return d;
+            const [, slug, chapterPath] = bookMatch;
+            const encodedPath = `${booksPath}/${encodeURIComponent(slug)}/${chapterPath.split('/').map(encodeURIComponent).join('/')}.md`;
+            try {
+              const r = await fetch(`https://api.github.com/repos/${ghOwner}/${ghRepo}/contents/${encodedPath}`, { method: 'HEAD', headers: restHeaders });
+              return r.ok ? d : null;
+            } catch {
+              return null;
+            }
+          }),
+        );
+
+        const collected = [];
+        validated.filter(Boolean).forEach((d) => {
+          const path = '/' + d.title;
+          (d.comments?.nodes || []).forEach((c) => {
+            collected.push({
+              author: c.author?.login || 'anonymous',
+              avatar: c.author?.avatarUrl || '',
+              body: c.body?.length > 100 ? c.body.slice(0, 100) + '…' : c.body || '',
+              createdAt: c.createdAt,
+              path,
+              postTitle: d.title.split('/').pop().replace(/_/g, ' '),
+            });
+          });
         });
-        if (r.ok) rateLimit = await r.json();
+        allComments = collected.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
       } catch {}
     }
 
@@ -98,6 +178,8 @@ export default async function handler(req, res) {
       locations: locations?.stats || [],
       referrers: toprefs?.stats || [],
       rateLimit: rateLimit?.resources?.core || null,
+      allComments,
+      allGuestbook,
     }));
   } catch {
     res.writeHead(500, { 'Content-Type': 'application/json' });
