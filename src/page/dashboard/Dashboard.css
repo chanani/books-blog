@@ -1,192 +1,350 @@
 .dashboard {
   max-width: var(--max-width);
   margin: 0 auto;
-  padding: 24px 20px 64px;
+  padding: 32px 20px 80px;
+}
+
+/* ── Loading / Empty ── */
+.home-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 120px 0;
+}
+
+.home-empty {
+  text-align: center;
+  padding: 80px 20px;
+  font-size: 0.85rem;
+  color: var(--text-tertiary);
+}
+
+/* ── 2-column Layout ── */
+.home-layout {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+/* ── Sidebar ── */
+.home-sidebar {
+  position: sticky;
+  top: calc(var(--header-height) + 20px);
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
-/* ── Visitor Stats Bar ── */
-.visitor-bar {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0;
-  padding: 14px 24px;
+/* Profile Card */
+.sidebar-profile {
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
 }
 
-.visitor-item {
+.profile-emoji {
+  font-size: 2.4rem;
+  line-height: 1;
+}
+
+.profile-name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.profile-desc {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  line-height: 1.4;
+}
+
+/* Visitor Card */
+.sidebar-visitors {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.sidebar-visitors-title {
+  padding: 12px 16px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  border-bottom: 1px solid var(--border-color);
+  letter-spacing: 0.03em;
+}
+
+.visitor-rows {
+  padding: 4px 0;
+}
+
+.visitor-row {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 0 24px;
+  justify-content: space-between;
+  padding: 8px 16px;
 }
 
-.visitor-label {
-  font-size: 0.78rem;
-  font-weight: 500;
-  color: var(--text-tertiary);
+.visitor-row-label {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
 }
 
-.visitor-count {
-  font-size: 1.1rem;
+.visitor-row-num {
+  font-size: 0.9rem;
   font-weight: 700;
   color: var(--text-primary);
   font-variant-numeric: tabular-nums;
 }
 
-.visitor-divider {
-  width: 1px;
-  height: 24px;
-  background: var(--border-color);
-}
-
-/* ── Grid Layout ── */
-.dash-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-
-/* ── Card Base ── */
-.dash-card {
+/* Quick Links */
+.sidebar-links {
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
   overflow: hidden;
 }
 
-.dash-card-header {
+.sidebar-link {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 14px 20px;
-  border-bottom: 1px solid var(--border-color);
-  color: var(--text-primary);
-}
-
-.dash-card-header h2 {
-  font-size: 0.88rem;
-  font-weight: 600;
-  margin: 0;
-}
-
-.dash-badge {
-  margin-left: auto;
-  font-size: 0.65rem;
-  font-weight: 600;
-  color: var(--accent-primary);
-  background: var(--accent-light);
-  padding: 2px 8px;
-  border-radius: 10px;
-}
-
-.dash-loading {
-  display: flex;
-  justify-content: center;
-  padding: 40px 0;
-}
-
-.dash-empty {
-  padding: 40px 20px;
-  text-align: center;
-  font-size: 0.82rem;
-  color: var(--text-tertiary);
-}
-
-/* ── Rank List (인기 글) ── */
-.rank-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.rank-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 11px 20px;
-  border-bottom: 1px solid var(--border-color);
+  padding: 10px 16px;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
   text-decoration: none;
-  color: inherit;
-  transition: background 0.15s;
+  border-bottom: 1px solid var(--border-color);
+  transition: background 0.15s, color 0.15s;
 }
 
-.rank-list li:last-child .rank-item {
+.sidebar-link:last-child {
   border-bottom: none;
 }
 
-.rank-item:hover {
+.sidebar-link:hover {
   background: var(--bg-primary);
-}
-
-.rank-item:hover .rank-title {
   color: var(--accent-primary);
 }
 
-.rank-num {
-  flex-shrink: 0;
-  width: 22px;
-  height: 22px;
+/* ── Main Content ── */
+.home-main {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: var(--text-tertiary);
-  background: var(--bg-tertiary);
-  border-radius: 50%;
+  flex-direction: column;
+  gap: 32px;
 }
 
-.rank-num.top {
+/* ── Section Header ── */
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.section-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-more {
+  font-size: 0.78rem;
+  color: var(--text-tertiary);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.section-more:hover {
+  color: var(--accent-primary);
+}
+
+/* ── Featured Post (1위) ── */
+.featured-post {
+  display: block;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 28px 24px;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.featured-post::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--accent-primary);
+}
+
+.featured-post:hover {
+  border-color: var(--accent-primary);
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.08);
+}
+
+[data-theme='dark'] .featured-post:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.featured-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--accent-primary);
+  background: var(--accent-light);
+  padding: 3px 10px;
+  border-radius: 20px;
+  margin-bottom: 12px;
+}
+
+.featured-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.4;
+  margin-bottom: 10px;
+  transition: color 0.2s;
+}
+
+.featured-post:hover .featured-title {
+  color: var(--accent-primary);
+}
+
+.featured-views {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.78rem;
+  color: var(--text-tertiary);
+}
+
+/* ── Post Card Grid (2~5위) ── */
+.post-card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.post-card-item {
+  display: block;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 18px 16px;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.post-card-item:hover {
+  border-color: var(--accent-primary);
+  box-shadow: 0 2px 10px rgba(99, 102, 241, 0.06);
+}
+
+[data-theme='dark'] .post-card-item:hover {
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+}
+
+.post-card-rank {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  border-radius: 50%;
+  margin-bottom: 8px;
+}
+
+.post-card-rank.accent {
   color: #fff;
   background: var(--accent-primary);
 }
 
-.rank-title {
-  font-size: 0.84rem;
-  font-weight: 500;
+.post-card-rank.muted {
+  color: var(--text-tertiary);
+  background: var(--bg-tertiary);
+}
+
+.post-card-name {
+  font-size: 0.88rem;
+  font-weight: 600;
   color: var(--text-primary);
-  white-space: nowrap;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
+  margin-bottom: 8px;
   transition: color 0.15s;
 }
 
-/* ── Book Shelf (인기 도서) ── */
-.dash-book-shelf {
+.post-card-item:hover .post-card-name {
+  color: var(--accent-primary);
+}
+
+.post-card-count {
   display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.73rem;
+  color: var(--text-tertiary);
+}
+
+/* ── Book Card Grid ── */
+.dash-book-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 16px;
-  padding: 20px;
 }
 
 .dash-book-card {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
+  display: block;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
   text-decoration: none;
   color: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.25s;
+}
+
+.dash-book-card:hover {
+  border-color: var(--accent-primary);
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.08);
+  transform: translateY(-4px);
+}
+
+[data-theme='dark'] .dash-book-card:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
 }
 
 .dash-book-cover {
   width: 100%;
   aspect-ratio: 3 / 4;
-  border-radius: var(--radius-sm);
-  overflow: hidden;
-  border: 1px solid var(--border-color);
   background: var(--bg-tertiary);
-  transition: border-color 0.2s, transform 0.2s;
-}
-
-.dash-book-card:hover .dash-book-cover {
-  border-color: var(--accent-primary);
-  transform: translateY(-4px);
+  overflow: hidden;
 }
 
 .dash-book-img {
@@ -204,12 +362,15 @@
   color: var(--text-tertiary);
 }
 
+.dash-book-info {
+  padding: 12px 14px;
+}
+
 .dash-book-title {
-  font-size: 0.78rem;
-  font-weight: 500;
+  font-size: 0.84rem;
+  font-weight: 600;
   color: var(--text-primary);
-  text-align: center;
-  line-height: 1.3;
+  line-height: 1.35;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -224,46 +385,111 @@
 /* ── Responsive ── */
 @media (max-width: 768px) {
   .dashboard {
-    padding: 16px 12px 48px;
+    padding: 16px 12px 60px;
   }
 
-  .dash-grid {
+  .home-layout {
     grid-template-columns: 1fr;
+    gap: 20px;
   }
 
-  .visitor-item {
-    padding: 0 16px;
+  .home-sidebar {
+    position: static;
+    flex-direction: row;
+    gap: 12px;
   }
 
-  .visitor-count {
-    font-size: 1rem;
+  .sidebar-profile {
+    display: none;
   }
 
-  .dash-book-shelf {
-    padding: 16px;
+  .sidebar-visitors {
+    flex: 1;
+  }
+
+  .sidebar-links {
+    flex: 1;
+  }
+
+  .home-main {
+    gap: 28px;
+  }
+
+  .featured-post {
+    padding: 22px 18px;
+  }
+
+  .featured-title {
+    font-size: 1.1rem;
+  }
+
+  .post-card-grid {
+    gap: 10px;
+  }
+
+  .post-card-item {
+    padding: 14px 14px;
+  }
+
+  .dash-book-grid {
     gap: 12px;
   }
 }
 
 @media (max-width: 480px) {
-  .visitor-item {
-    padding: 0 12px;
-    gap: 6px;
+  .home-sidebar {
+    flex-direction: column;
   }
 
-  .visitor-label {
-    font-size: 0.72rem;
+  .sidebar-visitors .sidebar-visitors-title {
+    display: none;
   }
 
-  .visitor-count {
-    font-size: 0.9rem;
+  .visitor-rows {
+    display: flex;
+    padding: 12px 16px;
+    gap: 0;
+    justify-content: space-around;
   }
 
-  .rank-item {
-    padding: 10px 14px;
+  .visitor-row {
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 0;
   }
 
-  .rank-title {
+  .visitor-row-label {
+    font-size: 0.7rem;
+    order: 2;
+  }
+
+  .visitor-row-num {
+    order: 1;
+  }
+
+  .sidebar-links {
+    display: none;
+  }
+
+  .featured-post {
+    padding: 18px 14px;
+  }
+
+  .featured-title {
+    font-size: 1rem;
+    margin-bottom: 8px;
+  }
+
+  .post-card-name {
+    font-size: 0.82rem;
+  }
+
+  .dash-book-info {
+    padding: 10px 12px;
+  }
+
+  .dash-book-title {
     font-size: 0.8rem;
   }
 }

@@ -21,6 +21,22 @@ function decodeBase64(encoded) {
   return new TextDecoder('utf-8').decode(bytes);
 }
 
+// Git quotes non-ASCII paths: "\NNN\NNN..." (octal escape in double quotes)
+function decodeGitQuotedName(name) {
+  if (!name.startsWith('"') || !name.endsWith('"')) return name;
+  const inner = name.slice(1, -1);
+  const bytes = [];
+  for (let i = 0; i < inner.length; i++) {
+    if (inner[i] === '\\' && i + 3 < inner.length && /^[0-7]{3}$/.test(inner.substring(i + 1, i + 4))) {
+      bytes.push(parseInt(inner.substring(i + 1, i + 4), 8));
+      i += 3;
+      continue;
+    }
+    bytes.push(inner.charCodeAt(i));
+  }
+  return new TextDecoder('utf-8').decode(new Uint8Array(bytes));
+}
+
 function findCover(files) {
   const cover = files.find(
     (f) => f.type === 'file' && /^cover\.(png|jpe?g|webp|gif|svg)$/i.test(f.name),
@@ -70,7 +86,7 @@ export async function fetchAllChapterContents(books, onProgress) {
   const bookChapterEntries = await Promise.all(
     books.map(async (book) => {
       try {
-        const basePath = `${BOOKS_PATH}/${book.slug}`;
+        const basePath = `${BOOKS_PATH}/${encodeURIComponent(book.slug)}`;
         const { data: entries } = await githubApi.get(
           `/repos/${OWNER}/${REPO}/contents/${basePath}`,
         );
@@ -79,14 +95,15 @@ export async function fetchAllChapterContents(books, onProgress) {
         const subDirs = [];
 
         for (const entry of entries) {
-          if (entry.type === 'file' && entry.name.endsWith('.md') && entry.name !== 'index.md') {
+          const eName = decodeGitQuotedName(entry.name);
+          if (entry.type === 'file' && eName.endsWith('.md') && eName !== 'index.md') {
             chapters.push({
-              name: formatChapterName(entry.name),
-              path: entry.name.replace(/\.md$/, ''),
-              filePath: `${basePath}/${entry.name}`,
+              name: formatChapterName(eName),
+              path: eName.replace(/\.md$/, ''),
+              filePath: `${BOOKS_PATH}/${book.slug}/${eName}`,
             });
           } else if (entry.type === 'dir') {
-            subDirs.push(entry.name);
+            subDirs.push(eName);
           }
         }
 
@@ -95,15 +112,18 @@ export async function fetchAllChapterContents(books, onProgress) {
           subDirs.map(async (folderName) => {
             try {
               const { data: subEntries } = await githubApi.get(
-                `/repos/${OWNER}/${REPO}/contents/${basePath}/${folderName}`,
+                `/repos/${OWNER}/${REPO}/contents/${basePath}/${encodeURIComponent(folderName)}`,
               );
               return subEntries
-                .filter((e) => e.type === 'file' && e.name.endsWith('.md'))
-                .map((e) => ({
-                  name: formatChapterName(e.name),
-                  path: `${folderName}/${e.name.replace(/\.md$/, '')}`,
-                  filePath: `${basePath}/${folderName}/${e.name}`,
-                }));
+                .filter((e) => e.type === 'file' && decodeGitQuotedName(e.name).endsWith('.md'))
+                .map((e) => {
+                  const seName = decodeGitQuotedName(e.name);
+                  return {
+                    name: formatChapterName(seName),
+                    path: `${folderName}/${seName.replace(/\.md$/, '')}`,
+                    filePath: `${BOOKS_PATH}/${book.slug}/${folderName}/${seName}`,
+                  };
+                });
             } catch {
               return [];
             }
@@ -175,26 +195,29 @@ export async function fetchBookList() {
 
   const books = await Promise.all(
     bookDirs.map(async (dir) => {
+      const decodedName = decodeGitQuotedName(dir.name);
       try {
         // List book folder to find info.json + cover image
-        const { data: files } = await githubApi.get(dir.url);
+        const { data: files } = await githubApi.get(
+          `/repos/${OWNER}/${REPO}/contents/${BOOKS_PATH}/${encodeURIComponent(decodedName)}`,
+        );
 
         const infoEntry = files.find((f) => f.name === 'info.json');
-        let info = { title: dir.name.replace(/[-_]/g, ' ') };
+        let info = { title: decodedName.replace(/[-_]/g, ' ') };
         if (infoEntry) {
           const { data: infoData } = await githubApi.get(infoEntry.url);
           info = JSON.parse(decodeBase64(infoData.content));
         }
 
         return {
-          slug: dir.name,
+          slug: decodedName,
           cover: findCover(files),
           ...info,
         };
       } catch {
         return {
-          slug: dir.name,
-          title: dir.name.replace(/[-_]/g, ' '),
+          slug: decodedName,
+          title: decodedName.replace(/[-_]/g, ' '),
           cover: '',
         };
       }
@@ -209,42 +232,47 @@ export async function fetchBookList() {
 
 // Fetch book detail: info + chapter list
 export async function fetchBookDetail(bookSlug) {
-  const basePath = `${BOOKS_PATH}/${bookSlug}`;
+  const encodedSlug = encodeURIComponent(bookSlug);
+  const basePath = `${BOOKS_PATH}/${encodedSlug}`;
 
   const { data: entries } = await githubApi.get(
     `/repos/${OWNER}/${REPO}/contents/${basePath}`,
   );
 
   // info.json
-  const infoEntry = entries.find((e) => e.name === 'info.json');
+  const infoEntry = entries.find((e) => decodeGitQuotedName(e.name) === 'info.json');
   let info = { title: bookSlug };
   if (infoEntry) {
-    const { data: infoData } = await githubApi.get(infoEntry.url);
+    const { data: infoData } = await githubApi.get(
+      `/repos/${OWNER}/${REPO}/contents/${basePath}/info.json`,
+    );
     info = JSON.parse(decodeBase64(infoData.content));
   }
 
   // Cover
-  const cover = findCover(entries);
+  const decodedEntries = entries.map((e) => ({ ...e, name: decodeGitQuotedName(e.name) }));
+  const cover = findCover(decodedEntries);
 
   // Chapters
   const chapters = [];
   const subDirs = [];
 
   for (const entry of entries) {
+    const eName = decodeGitQuotedName(entry.name);
     if (
       entry.type === 'file' &&
-      entry.name.endsWith('.md') &&
-      entry.name !== 'index.md'
+      eName.endsWith('.md') &&
+      eName !== 'index.md'
     ) {
       chapters.push({
-        name: formatChapterName(entry.name),
-        fileName: entry.name,
-        path: entry.name.replace(/\.md$/, ''),
-        order: getChapterOrder(entry.name),
+        name: formatChapterName(eName),
+        fileName: eName,
+        path: eName.replace(/\.md$/, ''),
+        order: getChapterOrder(eName),
         folder: null,
       });
     } else if (entry.type === 'dir') {
-      subDirs.push(entry.name);
+      subDirs.push(eName);
     }
   }
 
@@ -253,19 +281,22 @@ export async function fetchBookDetail(bookSlug) {
     subDirs.map(async (folderName) => {
       try {
         const { data: subEntries } = await githubApi.get(
-          `/repos/${OWNER}/${REPO}/contents/${basePath}/${folderName}`,
+          `/repos/${OWNER}/${REPO}/contents/${basePath}/${encodeURIComponent(folderName)}`,
         );
         return subEntries
-          .filter((e) => e.type === 'file' && e.name.endsWith('.md'))
-          .map((e) => ({
-            name: formatChapterName(e.name),
-            fileName: e.name,
-            path: `${folderName}/${e.name.replace(/\.md$/, '')}`,
-            order: getChapterOrder(e.name),
-            folder: folderName
-              .replace(/[-_]/g, ' ')
-              .replace(/\b\w/g, (c) => c.toUpperCase()),
-          }));
+          .filter((e) => e.type === 'file' && decodeGitQuotedName(e.name).endsWith('.md'))
+          .map((e) => {
+            const seName = decodeGitQuotedName(e.name);
+            return {
+              name: formatChapterName(seName),
+              fileName: seName,
+              path: `${folderName}/${seName.replace(/\.md$/, '')}`,
+              order: getChapterOrder(seName),
+              folder: folderName
+                .replace(/[-_]/g, ' ')
+                .replace(/\b\w/g, (c) => c.toUpperCase()),
+            };
+          });
       } catch {
         return [];
       }
@@ -278,7 +309,7 @@ export async function fetchBookDetail(bookSlug) {
   await Promise.all(
     chapters.map(async (ch) => {
       try {
-        const filePath = `${basePath}/${ch.path}.md`;
+        const filePath = `${BOOKS_PATH}/${bookSlug}/${ch.path}.md`;
         const { data: commits } = await githubApi.get(
           `/repos/${OWNER}/${REPO}/commits`,
           { params: { path: filePath, per_page: 1 } },
@@ -508,23 +539,27 @@ export async function fetchDevPostList() {
 
     await Promise.all(
       categoryDirs.map(async (dir) => {
+        const catName = decodeGitQuotedName(dir.name);
         try {
           const { data: entries } = await githubApi.get(
-            `/repos/${OWNER}/${REPO}/contents/${DEV_PATH}/${dir.name}`,
+            `/repos/${OWNER}/${REPO}/contents/${DEV_PATH}/${encodeURIComponent(catName)}`,
           );
 
           const tasks = entries.map(async (entry) => {
+            const entryName = decodeGitQuotedName(entry.name);
             try {
               // Case 1: flat .md file
-              if (entry.type === 'file' && entry.name.endsWith('.md')) {
-                const { data: fileData } = await githubApi.get(entry.url);
+              if (entry.type === 'file' && entryName.endsWith('.md')) {
+                const { data: fileData } = await githubApi.get(
+                  `/repos/${OWNER}/${REPO}/contents/${DEV_PATH}/${encodeURIComponent(catName)}/${encodeURIComponent(entryName)}`,
+                );
                 const content = decodeBase64(fileData.content);
                 const { meta } = parseFrontmatter(content);
 
                 posts.push({
-                  slug: entry.name.replace(/\.md$/, ''),
-                  category: dir.name,
-                  title: meta.title || entry.name.replace(/\.md$/, ''),
+                  slug: entryName.replace(/\.md$/, ''),
+                  category: catName,
+                  title: meta.title || entryName.replace(/\.md$/, ''),
                   date: meta.date || '',
                   tags: Array.isArray(meta.tags) ? meta.tags : [],
                   description: meta.description || '',
@@ -536,21 +571,24 @@ export async function fetchDevPostList() {
               // Case 2: folder with any .md + optional cover image
               if (entry.type === 'dir') {
                 const { data: folderFiles } = await githubApi.get(
-                  `/repos/${OWNER}/${REPO}/contents/${DEV_PATH}/${dir.name}/${entry.name}`,
+                  `/repos/${OWNER}/${REPO}/contents/${DEV_PATH}/${encodeURIComponent(catName)}/${encodeURIComponent(entryName)}`,
                 );
 
                 const mdFile = findMarkdown(folderFiles);
                 if (!mdFile) return;
 
-                const { data: fileData } = await githubApi.get(mdFile.url);
+                const mdName = decodeGitQuotedName(mdFile.name);
+                const { data: fileData } = await githubApi.get(
+                  `/repos/${OWNER}/${REPO}/contents/${DEV_PATH}/${encodeURIComponent(catName)}/${encodeURIComponent(entryName)}/${encodeURIComponent(mdName)}`,
+                );
                 const content = decodeBase64(fileData.content);
                 const { meta } = parseFrontmatter(content);
                 const cover = findCover(folderFiles);
 
                 posts.push({
-                  slug: entry.name,
-                  category: dir.name,
-                  title: meta.title || entry.name,
+                  slug: entryName,
+                  category: catName,
+                  title: meta.title || entryName,
                   date: meta.date || '',
                   tags: Array.isArray(meta.tags) ? meta.tags : [],
                   description: meta.description || '',
@@ -585,26 +623,32 @@ export async function fetchDevPost(category, slug) {
   let cover = '';
   let mdFilePath;
 
+  const encCat = encodeURIComponent(category);
+  const encSlug = encodeURIComponent(slug);
+
   try {
     // Try folder format first: dev/category/slug/
     const folderPath = `${DEV_PATH}/${category}/${slug}`;
     const { data: folderFiles } = await githubApi.get(
-      `/repos/${OWNER}/${REPO}/contents/${folderPath}`,
+      `/repos/${OWNER}/${REPO}/contents/${DEV_PATH}/${encCat}/${encSlug}`,
     );
 
-    const mdFile = findMarkdown(folderFiles);
+    const decodedFiles = folderFiles.map((f) => ({ ...f, name: decodeGitQuotedName(f.name) }));
+    const mdFile = findMarkdown(decodedFiles);
     if (!mdFile) throw new Error('No .md file found');
 
-    cover = findCover(folderFiles);
+    cover = findCover(decodedFiles);
     mdFilePath = `${folderPath}/${mdFile.name}`;
 
-    const { data: fileData } = await githubApi.get(mdFile.url);
+    const { data: fileData } = await githubApi.get(
+      `/repos/${OWNER}/${REPO}/contents/${DEV_PATH}/${encCat}/${encSlug}/${encodeURIComponent(mdFile.name)}`,
+    );
     rawContent = decodeBase64(fileData.content);
   } catch {
     // Fall back to flat file: dev/category/slug.md
     mdFilePath = `${DEV_PATH}/${category}/${slug}.md`;
     const { data: fileData } = await githubApi.get(
-      `/repos/${OWNER}/${REPO}/contents/${mdFilePath}`,
+      `/repos/${OWNER}/${REPO}/contents/${DEV_PATH}/${encCat}/${encSlug}.md`,
     );
     rawContent = decodeBase64(fileData.content);
   }
@@ -629,14 +673,15 @@ export async function fetchDevPost(category, slug) {
 // Fetch a single chapter
 export async function fetchChapter(bookSlug, chapterPath) {
   const filePath = `${BOOKS_PATH}/${bookSlug}/${chapterPath}.md`;
+  const encodedPath = filePath.split('/').map(encodeURIComponent).join('/');
 
   const [fileRes, dates] = await Promise.all([
-    githubApi.get(`/repos/${OWNER}/${REPO}/contents/${filePath}`),
+    githubApi.get(`/repos/${OWNER}/${REPO}/contents/${encodedPath}`),
     fetchCommitDates(filePath),
   ]);
 
   const content = decodeBase64(fileRes.data.content);
-  const fileName = fileRes.data.name;
+  const fileName = decodeGitQuotedName(fileRes.data.name);
 
   return {
     bookSlug,
