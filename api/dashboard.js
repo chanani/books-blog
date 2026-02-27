@@ -13,12 +13,19 @@ async function gcFetch(path, token) {
   return res.ok ? res.json() : null;
 }
 
-async function resolvePostTitle(category, slug, owner, repo, token) {
+function findCoverUrl(files) {
+  if (!Array.isArray(files)) return '';
+  const cover = files.find((f) => f.type === 'file' && /^cover\.(png|jpe?g|webp|gif|svg)$/i.test(f.name));
+  return cover?.download_url || '';
+}
+
+async function resolvePostInfo(category, slug, owner, repo, token) {
   const headers = ghHeaders(token);
   try {
     const dirRes = await fetch(`${GH_API}/repos/${owner}/${repo}/contents/dev/${encodeURIComponent(category)}/${encodeURIComponent(slug)}`, { headers });
     if (dirRes.ok) {
       const files = await dirRes.json();
+      const cover = findCoverUrl(files);
       const md = Array.isArray(files) && files.find((f) => f.type === 'file' && f.name.endsWith('.md'));
       if (md) {
         const fileRes = await fetch(md.url, { headers });
@@ -26,19 +33,20 @@ async function resolvePostTitle(category, slug, owner, repo, token) {
           const data = await fileRes.json();
           const content = Buffer.from(data.content, 'base64').toString('utf-8');
           const m = content.match(/title:\s*["']?(.+?)["']?\s*$/m);
-          if (m) return m[1];
+          if (m) return { title: m[1], cover };
         }
       }
+      return { title: slug.replace(/_/g, ' '), cover };
     }
     const flatRes = await fetch(`${GH_API}/repos/${owner}/${repo}/contents/dev/${encodeURIComponent(category)}/${encodeURIComponent(slug)}.md`, { headers });
     if (flatRes.ok) {
       const data = await flatRes.json();
       const content = Buffer.from(data.content, 'base64').toString('utf-8');
       const m = content.match(/title:\s*["']?(.+?)["']?\s*$/m);
-      if (m) return m[1];
+      if (m) return { title: m[1], cover: '' };
     }
   } catch {}
-  return slug.replace(/_/g, ' ');
+  return { title: slug.replace(/_/g, ' '), cover: '' };
 }
 
 async function resolveBookInfo(slug, owner, repo, booksPath, token) {
@@ -118,8 +126,8 @@ export default async function handler(req, res) {
           const decoded = decodeURIComponent(h.path);
           const m = decoded.match(/^\/post\/([^/]+)\/([^/]+)$/);
           if (!m) return null;
-          const title = await resolvePostTitle(m[1], m[2], ghOwner, ghRepo, ghToken);
-          return { path: decoded, title, count: h.count };
+          const info = await resolvePostInfo(m[1], m[2], ghOwner, ghRepo, ghToken);
+          return { path: decoded, title: info.title, cover: info.cover, count: h.count };
         }),
       ),
       Promise.all(

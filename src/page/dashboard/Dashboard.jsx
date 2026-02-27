@@ -4,6 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { FiBookOpen, FiEye, FiAward, FiEdit3, FiBook } from 'react-icons/fi';
 import { fetchDashboardStats } from '../../api/dashboard';
+import defaultCover from '../../assets/images/default/default.png';
 import './Dashboard.css';
 
 const fade = (delay = 0) => ({
@@ -102,32 +103,39 @@ function Dashboard() {
                   <Link to="/posts" className="section-more">더보기 →</Link>
                 </div>
 
+                {/* Hero: TOP 1 with blurred image bg */}
                 {heroPost && (
-                  <Link to={heroPost.path} className="featured-post">
-                    <span className="featured-badge">
-                      <FiAward size={11} />
-                      TOP 1
-                    </span>
-                    <h3 className="featured-title">{heroPost.title}</h3>
-                    <span className="featured-views">
-                      <FiEye size={13} />
-                      {heroPost.count?.toLocaleString() || 0} views
-                    </span>
+                  <Link to={heroPost.path} className="hero-post">
+                    <div
+                      className="hero-post-bg"
+                      style={{ backgroundImage: `url(${heroPost.cover || defaultCover})` }}
+                    />
+                    <div className="hero-post-overlay" />
+                    <div className="hero-post-content">
+                      <span className="hero-badge">
+                        <FiAward size={11} />
+                        TOP 1
+                      </span>
+                      <h3 className="hero-post-title">{heroPost.title}</h3>
+                      <span className="hero-post-views">
+                        <FiEye size={13} />
+                        {heroPost.count?.toLocaleString() || 0} views
+                      </span>
+                    </div>
                   </Link>
                 )}
 
+                {/* Posts 2~5: Gallery cards (image top, title bottom) */}
                 {restPosts.length > 0 && (
-                  <div className="post-card-grid">
-                    {restPosts.map((post, i) => (
-                      <Link key={post.path} to={post.path} className="post-card-item">
-                        <span className={`post-card-rank ${i < 2 ? 'accent' : 'muted'}`}>
-                          {i + 2}
-                        </span>
-                        <p className="post-card-name">{post.title}</p>
-                        <span className="post-card-count">
-                          <FiEye size={11} />
-                          {post.count?.toLocaleString() || 0}
-                        </span>
+                  <div className="post-gallery">
+                    {restPosts.map((post) => (
+                      <Link key={post.path} to={post.path} className="post-gallery-card">
+                        <div className="post-gallery-thumb">
+                          <img src={post.cover || defaultCover} alt={post.title} />
+                        </div>
+                        <div className="post-gallery-body">
+                          <span className="post-gallery-name">{post.title}</span>
+                        </div>
                       </Link>
                     ))}
                   </div>
