@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
-import { FiBookOpen, FiEye, FiAward, FiEdit3, FiBook, FiGithub, FiLinkedin, FiMail, FiMessageSquare } from 'react-icons/fi';
+import { FiBookOpen, FiEye, FiAward, FiEdit3, FiBook, FiGithub, FiLinkedin, FiMail, FiMessageSquare, FiMessageCircle } from 'react-icons/fi';
 import { useDashboardStats } from '../../context/DashboardContext';
 import defaultCover from '../../assets/images/default/default.png';
 import './Dashboard.css';
@@ -19,6 +19,7 @@ function Dashboard() {
   const topPosts = stats?.topPosts || [];
   const topBooks = stats?.topBooks || [];
   const recentGuestbook = stats?.recentGuestbook || [];
+  const recentComments = stats?.recentComments || [];
   const heroPost = topPosts[0];
   const restPosts = topPosts.slice(1);
 
@@ -88,10 +89,35 @@ function Dashboard() {
               </div>
             </motion.div>
 
+            <motion.div className="sidebar-comments" {...fade(0.08)}>
+              <div className="sidebar-comments-title">
+                <FiMessageCircle size={13} />
+                최근 댓글
+              </div>
+              <div className="comment-items">
+                {recentComments.length === 0 && (
+                  <p className="comment-empty">아직 댓글이 없습니다.</p>
+                )}
+                {recentComments.map((item, i) => (
+                  <Link key={i} to={item.path} className="comment-item">
+                    <img src={item.avatar} alt={item.author} className="comment-avatar" />
+                    <div className="comment-text">
+                      <span className="comment-post-title">{item.postTitle}</span>
+                      <span className="comment-author">{item.author}</span>
+                      <span className="comment-body">{item.body}</span>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </motion.div>
+
             <motion.div className="sidebar-guestbook" {...fade(0.1)}>
               <div className="sidebar-guestbook-title">
-                <FiMessageSquare size={13} />
-                최근 방명록
+                <span className="sidebar-guestbook-label">
+                  <FiMessageSquare size={13} />
+                  최근 방명록
+                </span>
+                <Link to="/guestbook" className="guestbook-more">더보기 →</Link>
               </div>
               <div className="guestbook-items">
                 {recentGuestbook.length === 0 && (
@@ -107,7 +133,6 @@ function Dashboard() {
                   </div>
                 ))}
               </div>
-              <Link to="/guestbook" className="guestbook-more">더보기 →</Link>
             </motion.div>
           </aside>
 

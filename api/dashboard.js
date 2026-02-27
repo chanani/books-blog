@@ -106,7 +106,7 @@ export default async function handler(req, res) {
   const ghOwner = process.env.VITE_GITHUB_OWNER;
   const ghRepo = process.env.VITE_GITHUB_REPO;
   const booksPath = process.env.VITE_GITHUB_PATH || 'books';
-  const empty = { visitors: { today: 0, yesterday: 0, total: 0 }, topPosts: [], topBooks: [], recentGuestbook: [] };
+  const empty = { visitors: { today: 0, yesterday: 0, total: 0 }, topPosts: [], topBooks: [], recentComments: [], recentGuestbook: [] };
 
   if (!gcToken) return res.json(empty);
 
@@ -119,10 +119,10 @@ export default async function handler(req, res) {
   try {
     const guestbookQuery = `{
       repository(owner: "${ghOwner}", name: "books-blog") {
-        discussions(first: 10, categoryId: "DIC_kwDORI3Ks84C15da") {
+        discussions(first: 20, orderBy: {field: UPDATED_AT, direction: DESC}, categoryId: "DIC_kwDORI3Ks84C15da") {
           nodes {
             title
-            comments(last: 3) {
+            comments(last: 20) {
               nodes {
                 author { login avatarUrl }
                 body
@@ -148,6 +148,7 @@ export default async function handler(req, res) {
     ]);
 
     let recentGuestbook = [];
+    let recentComments = [];
     try {
       const discussions = guestbookRes?.data?.repository?.discussions?.nodes || [];
       const guestbook = discussions.find((d) => d.title === 'guestbook');
@@ -159,8 +160,45 @@ export default async function handler(req, res) {
             body: c.body?.length > 50 ? c.body.slice(0, 50) + '…' : c.body || '',
             createdAt: c.createdAt,
           }))
-          .reverse();
+          .reverse()
+          .slice(0, 3);
       }
+
+      const nonGuestbook = discussions.filter((d) => d.title !== 'guestbook');
+      const headers = ghHeaders(ghToken);
+
+      const validated = await Promise.all(
+        nonGuestbook.map(async (d) => {
+          const bookMatch = d.title.match(/^book\/([^/]+)\/read\/(.+)$/);
+          if (!bookMatch) return d;
+          const [, slug, chapterPath] = bookMatch;
+          const encodedPath = `${booksPath}/${encodeURIComponent(slug)}/${chapterPath.split('/').map(encodeURIComponent).join('/')}.md`;
+          try {
+            const r = await fetch(`${GH_API}/repos/${ghOwner}/${ghRepo}/contents/${encodedPath}`, { method: 'HEAD', headers });
+            return r.ok ? d : null;
+          } catch {
+            return null;
+          }
+        }),
+      );
+
+      const allComments = [];
+      validated.filter(Boolean).forEach((d) => {
+        const path = '/' + d.title;
+        (d.comments?.nodes || []).forEach((c) => {
+          allComments.push({
+            author: c.author?.login || 'anonymous',
+            avatar: c.author?.avatarUrl || '',
+            body: c.body?.length > 50 ? c.body.slice(0, 50) + '…' : c.body || '',
+            createdAt: c.createdAt,
+            path,
+            postTitle: d.title.split('/').pop().replace(/_/g, ' '),
+          });
+        });
+      });
+      recentComments = allComments
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        .slice(0, 3);
     } catch {}
 
 
@@ -214,6 +252,7 @@ export default async function handler(req, res) {
       },
       topPosts: topPosts.filter(Boolean),
       topBooks,
+      recentComments,
       recentGuestbook,
     });
   } catch {
