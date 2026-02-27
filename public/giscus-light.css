@@ -94,32 +94,14 @@ main .gsc-loading-image {
   background-image: url(https://github.githubassets.com/images/mona-loading-default.gif);
 }
 
-/* "댓글" → "방명록" 텍스트 교체 */
-.gsc-comments-count {
-  font-size: 0 !important;
-}
-
-.gsc-comments-count::before {
-  font-size: 1.125rem;
-  font-weight: 600;
-  content: "방명록";
-}
-
-/* Hide powered-by giscus */
-.powered-by {
+/* Hide entire header and footer */
+.gsc-header {
   display: none !important;
 }
 
-.gsc-footer {
-  display: none !important;
-}
-
-a.Link--secondary[href="https://giscus.app"] {
-  display: none !important;
-}
-
-/* Hide sort buttons (not needed for guestbook) */
-.gsc-right-header {
+.gsc-footer,
+.powered-by,
+a[href*="giscus.app"] {
   display: none !important;
 }
 
