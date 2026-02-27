@@ -1,7 +1,5 @@
 .guestbook {
-  max-width: var(--max-width);
-  margin: 0 auto;
-  padding: 24px 24px;
+  padding: 24px 48px;
 }
 
 .guestbook-container {
@@ -45,6 +43,7 @@
 @media (max-width: 768px) {
   .guestbook {
     padding: 20px 16px;
+    max-width: none;
   }
 
   .guestbook-intro {
