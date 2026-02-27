@@ -94,11 +94,11 @@
 }
 
 .admin-login-btn:hover {
-  opacity: 0.85;
+  opacity: 0.9;
 }
 
 .admin-login-btn:disabled {
-  opacity: 0.5;
+  opacity: 0.55;
   cursor: not-allowed;
 }
 
