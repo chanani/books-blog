@@ -1,16 +1,27 @@
 const GC_BASE = 'https://chanani.goatcounter.com';
 
 async function gcFetch(path, token) {
-  try {
-    const res = await fetch(`${GC_BASE}${path}`, {
-      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-      redirect: 'follow',
-    });
-    if (!res.ok) return null;
-    return await res.json();
-  } catch {
-    return null;
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const res = await fetch(`${GC_BASE}${path}`, {
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        redirect: 'follow',
+      });
+      if (res.ok) return await res.json();
+      if (res.status === 429 && attempt === 0) {
+        await new Promise((r) => setTimeout(r, 1000));
+        continue;
+      }
+      return null;
+    } catch {
+      if (attempt === 0) {
+        await new Promise((r) => setTimeout(r, 500));
+        continue;
+      }
+      return null;
+    }
   }
+  return null;
 }
 
 function verifyPassword(authHeader) {
@@ -43,20 +54,31 @@ export default async function handler(req, res) {
   const longRange = qs(threeMonthsAgo, now);
 
   try {
-    const [recent, allTime, hits, browsers, systems, locations, languages, rateLimit] = await Promise.all([
+    // Batch 1: 핵심 방문자 데이터 (GC 3개)
+    const [recent, allTime, hits] = await Promise.all([
       gcToken ? gcFetch(`/api/v0/stats/total/?${recentRange}`, gcToken) : null,
       gcToken ? gcFetch(`/api/v0/stats/total/?start=2020-01-01T00:00:00Z&end=${now.toISOString()}`, gcToken) : null,
       gcToken ? gcFetch(`/api/v0/stats/hits/?${longRange}&limit=20&daily=true`, gcToken) : null,
+    ]);
+
+    // Batch 2: 상세 통계 (GC 4개)
+    const [browsers, systems, locations, languages] = await Promise.all([
       gcToken ? gcFetch(`/api/v0/stats/browsers/?${longRange}&limit=10`, gcToken) : null,
       gcToken ? gcFetch(`/api/v0/stats/systems/?${longRange}&limit=10`, gcToken) : null,
       gcToken ? gcFetch(`/api/v0/stats/locations/?${longRange}&limit=10`, gcToken) : null,
       gcToken ? gcFetch(`/api/v0/stats/languages/?${longRange}&limit=10`, gcToken) : null,
-      ghToken
-        ? fetch('https://api.github.com/rate_limit', {
-            headers: { Authorization: `Bearer ${ghToken}`, Accept: 'application/vnd.github.v3+json' },
-          }).then((r) => (r.ok ? r.json() : null)).catch(() => null)
-        : null,
     ]);
+
+    // Batch 3: GitHub (별도 서비스)
+    let rateLimit = null;
+    if (ghToken) {
+      try {
+        const r = await fetch('https://api.github.com/rate_limit', {
+          headers: { Authorization: `Bearer ${ghToken}`, Accept: 'application/vnd.github.v3+json' },
+        });
+        if (r.ok) rateLimit = await r.json();
+      } catch {}
+    }
 
     const todayStr = todayStart.toISOString().split('T')[0];
     const yd = new Date(todayStart);
