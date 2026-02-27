@@ -55,6 +55,7 @@ function Guestbook() {
             reactionsEnabled="0"
             emitMetadata="0"
             inputPosition="bottom"
+            data-sort="newest"
             theme={`https://chanani-books.vercel.app/giscus-${giscusTheme}.css?v=4`}
             lang="ko"
           />
