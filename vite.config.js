@@ -2,6 +2,8 @@ import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import dashboardHandler from './api/dashboard.js';
 import guestbookHandler from './api/guestbook.js';
+import adminLoginHandler from './api/admin/login.js';
+import adminStatsHandler from './api/admin/stats.js';
 
 function dashboardPlugin(env) {
   return {
@@ -72,11 +74,50 @@ function goatcounterPlugin() {
   };
 }
 
+function adminLoginPlugin(env) {
+  return {
+    name: 'admin-login-api',
+    configureServer(server) {
+      Object.assign(process.env, env);
+      server.middlewares.use('/api/admin/login', (req, res) => {
+        res.json = (data) => {
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify(data));
+        };
+        adminLoginHandler(req, res);
+      });
+    },
+  };
+}
+
+function adminStatsPlugin(env) {
+  return {
+    name: 'admin-stats-api',
+    configureServer(server) {
+      Object.assign(process.env, env);
+      server.middlewares.use('/api/admin/stats', (req, res) => {
+        res.json = (data) => {
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify(data));
+        };
+        adminStatsHandler(req, res);
+      });
+    },
+  };
+}
+
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
 
   return {
-    plugins: [react(), dashboardPlugin(env), guestbookPlugin(env), goatcounterPlugin()],
+    plugins: [
+      react(),
+      dashboardPlugin(env),
+      guestbookPlugin(env),
+      goatcounterPlugin(),
+      adminLoginPlugin(env),
+      adminStatsPlugin(env),
+    ],
     server: {
       proxy: {
         '/gc/count': {

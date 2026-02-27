@@ -10,6 +10,7 @@ const Chapter = lazy(() => import('../page/chapter/Chapter'));
 const Reading = lazy(() => import('../page/reading/Reading'));
 const About = lazy(() => import('../page/about/About'));
 const Guestbook = lazy(() => import('../page/guestbook/Guestbook'));
+const Admin = lazy(() => import('../page/admin/Admin'));
 const NotFound = lazy(() => import('../page/notfound/NotFound'));
 
 function Router() {
@@ -33,6 +34,7 @@ function Router() {
         <Route path="/guestbook" element={<Guestbook />} />
         <Route path="/book/:bookSlug" element={<Book />} />
         <Route path="/book/:bookSlug/read/*" element={<Chapter />} />
+        <Route path="/admin" element={<Admin />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Suspense>

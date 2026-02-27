@@ -4,6 +4,7 @@ import Router from './routes/Router';
 import Header from './page/_components/header/Header';
 import Footer from './page/_components/footer/Footer';
 import { DashboardProvider } from './context/DashboardContext';
+import { AuthProvider } from './context/AuthContext';
 import usePageView from './hooks/usePageView';
 
 function AppInner({ theme, toggleTheme }) {
@@ -34,9 +35,11 @@ function App() {
 
   return (
     <BrowserRouter>
-      <DashboardProvider>
-        <AppInner theme={theme} toggleTheme={toggleTheme} />
-      </DashboardProvider>
+      <AuthProvider>
+        <DashboardProvider>
+          <AppInner theme={theme} toggleTheme={toggleTheme} />
+        </DashboardProvider>
+      </AuthProvider>
     </BrowserRouter>
   );
 }
