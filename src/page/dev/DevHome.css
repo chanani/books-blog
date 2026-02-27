@@ -1,11 +1,11 @@
 .dev-home {
   flex: 1;
-  padding: 24px 20px 80px;
 }
 
 .dev-content {
-  max-width: none;
+  max-width: var(--max-width);
   margin: 0 auto;
+  padding: 24px 24px 80px;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -20,20 +20,22 @@
 
 .dev-search-icon {
   position: absolute;
-  left: 14px;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
   color: var(--text-tertiary);
   pointer-events: none;
 }
 
 .dev-search-input {
   width: 100%;
-  padding: 10px 40px 10px 40px;
-  font-size: 0.9rem;
+  padding: 8px 12px 8px 36px;
+  font-size: 0.875rem;
   color: var(--text-primary);
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
-  transition: border-color 0.2s;
+  transition: border-color 0.15s;
 }
 
 .dev-search-input::placeholder {
@@ -42,6 +44,7 @@
 
 .dev-search-input:focus {
   border-color: var(--accent-primary);
+  outline: none;
 }
 
 .dev-search-clear {
@@ -359,8 +362,8 @@
 }
 
 @media (max-width: 768px) {
-  .dev-home {
-    padding: 16px 8px 60px;
+  .dev-content {
+    padding: 16px 16px 60px;
   }
 
   .post-card {

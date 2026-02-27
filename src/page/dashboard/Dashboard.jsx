@@ -1,9 +1,8 @@
-import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { FiBookOpen, FiEye, FiAward, FiEdit3, FiBook, FiGithub, FiLinkedin, FiMail } from 'react-icons/fi';
-import { fetchDashboardStats } from '../../api/dashboard';
+import { useDashboardStats } from '../../context/DashboardContext';
 import defaultCover from '../../assets/images/default/default.png';
 import './Dashboard.css';
 
@@ -14,15 +13,7 @@ const fade = (delay = 0) => ({
 });
 
 function Dashboard() {
-  const [stats, setStats] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchDashboardStats().then((data) => {
-      setStats(data);
-      setLoading(false);
-    });
-  }, []);
+  const { stats, loading } = useDashboardStats();
 
   const v = stats?.visitors || { today: 0, yesterday: 0, total: 0 };
   const topPosts = stats?.topPosts || [];
@@ -41,8 +32,14 @@ function Dashboard() {
       </Helmet>
 
       {loading && (
-        <div className="home-loading">
-          <div className="loader-lg" />
+        <div className="home-greeting">
+          <img src="/profile.jpg" alt="이찬한" className="greeting-avatar" />
+          <p className="greeting-text">잠시만 기다려주세요</p>
+          <span className="greeting-dots">
+            <span className="dot" />
+            <span className="dot" />
+            <span className="dot" />
+          </span>
         </div>
       )}
 
@@ -55,7 +52,7 @@ function Dashboard() {
           {/* ── Sidebar ── */}
           <aside className="home-sidebar">
             <motion.div className="sidebar-profile" {...fade(0)}>
-              <img src="/profile.png" alt="이찬한" className="profile-avatar" />
+              <img src="/profile.jpg" alt="이찬한" className="profile-avatar" />
               <span className="profile-name">차나니</span>
               <span className="profile-desc">안녕하세요,<br />서버 개발자 이찬한입니다👋</span>
             </motion.div>
@@ -143,7 +140,7 @@ function Dashboard() {
                     {restPosts.map((post) => (
                       <Link key={post.path} to={post.path} className="post-gallery-card">
                         <div className="post-gallery-thumb">
-                          <img src={post.cover || defaultCover} alt={post.title} />
+                          <img src={post.cover || defaultCover} alt={post.title} loading="lazy" />
                         </div>
                         <div className="post-gallery-body">
                           <span className="post-gallery-name">{post.title}</span>
@@ -175,7 +172,7 @@ function Dashboard() {
                     >
                       <div className="dash-book-cover">
                         {book.cover ? (
-                          <img src={book.cover} alt={book.title} className="dash-book-img" />
+                          <img src={book.cover} alt={book.title} className="dash-book-img" loading="lazy" />
                         ) : (
                           <div className="dash-book-placeholder">
                             <FiBookOpen size={28} />

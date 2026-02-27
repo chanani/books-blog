@@ -1,23 +1,19 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { FiSun, FiMoon, FiCode, FiMenu, FiX, FiGithub, FiLinkedin, FiMail } from 'react-icons/fi';
-import { fetchDashboardStats } from '../../../api/dashboard';
+import { useDashboardStats } from '../../../context/DashboardContext';
 import './Header.css';
 
 function Header({ theme, toggleTheme }) {
   const { pathname } = useLocation();
   const isDev = pathname === '/posts' || pathname.startsWith('/post');
   const isBooks = pathname === '/books' || pathname.startsWith('/book');
-  const isAbout = pathname === '/about';
+
+
+  const { stats } = useDashboardStats();
+  const visitors = stats?.visitors || { today: 0, yesterday: 0, total: 0 };
 
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [visitors, setVisitors] = useState({ today: 0, yesterday: 0, total: 0 });
-
-  useEffect(() => {
-    fetchDashboardStats().then((data) => {
-      if (data?.visitors) setVisitors(data.visitors);
-    });
-  }, []);
 
   useEffect(() => {
     if (drawerOpen) {
@@ -43,9 +39,6 @@ function Header({ theme, toggleTheme }) {
             </Link>
             <Link to="/books" className={`header-tab${isBooks ? ' active' : ''}`}>
               책방
-            </Link>
-            <Link to="/about" className={`header-tab${isAbout ? ' active' : ''}`}>
-              소개
             </Link>
           </nav>
         </div>
@@ -81,7 +74,7 @@ function Header({ theme, toggleTheme }) {
         </button>
 
         <div className="drawer-profile">
-          <img src="/profile.png" alt="이찬한" className="drawer-avatar" />
+          <img src="/profile.jpg" alt="이찬한" className="drawer-avatar" />
           <span className="drawer-name">차나니</span>
           <span className="drawer-desc">안녕하세요,<br />서버 개발자 이찬한입니다👋</span>
         </div>

@@ -4,12 +4,60 @@
   padding: 32px 20px 80px;
 }
 
-/* ── Loading / Empty ── */
-.home-loading {
+/* ── Greeting Loading ── */
+.home-greeting {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 120px 0;
+  min-height: calc(100vh - var(--header-height) - 64px);
+  gap: 16px;
+}
+
+.greeting-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--border-color);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.greeting-text {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.greeting-dots {
+  display: flex;
+  gap: 6px;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-tertiary);
+  animation: bounce 1.2s ease-in-out infinite;
+}
+
+.dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+@keyframes bounce {
+  0%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-6px); }
 }
 
 .home-empty {
@@ -327,9 +375,11 @@
 
 .post-gallery-body {
   padding: 12px;
+  min-width: 0;
 }
 
 .post-gallery-name {
+  display: block;
   font-size: 0.84rem;
   font-weight: 600;
   color: var(--text-primary);
@@ -396,9 +446,11 @@
 
 .dash-book-info {
   padding: 12px 14px;
+  min-width: 0;
 }
 
 .dash-book-title {
+  display: block;
   font-size: 0.84rem;
   font-weight: 600;
   color: var(--text-primary);
@@ -430,6 +482,10 @@
 
   .home-main {
     gap: 28px;
+  }
+
+  .hero-post {
+    min-height: 200px;
   }
 
   .hero-post-content {

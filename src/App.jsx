@@ -3,6 +3,7 @@ import { BrowserRouter } from 'react-router-dom';
 import Router from './routes/Router';
 import Header from './page/_components/header/Header';
 import Footer from './page/_components/footer/Footer';
+import { DashboardProvider } from './context/DashboardContext';
 import usePageView from './hooks/usePageView';
 
 function AppInner({ theme, toggleTheme }) {
@@ -33,7 +34,9 @@ function App() {
 
   return (
     <BrowserRouter>
-      <AppInner theme={theme} toggleTheme={toggleTheme} />
+      <DashboardProvider>
+        <AppInner theme={theme} toggleTheme={toggleTheme} />
+      </DashboardProvider>
     </BrowserRouter>
   );
 }

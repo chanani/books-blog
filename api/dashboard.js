@@ -164,6 +164,7 @@ export default async function handler(req, res) {
       ),
     ]);
 
+    res.setHeader('Cache-Control', 's-maxage=600, stale-while-revalidate=300');
     res.json({
       visitors: {
         today: stats.find((s) => s.day === todayStr)?.daily || 0,
