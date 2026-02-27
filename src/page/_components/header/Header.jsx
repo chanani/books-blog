@@ -10,7 +10,6 @@ function Header({ theme, toggleTheme }) {
   const isBooks = pathname === '/books' || pathname.startsWith('/book');
   const isGuestbook = pathname === '/guestbook';
 
-
   const { stats } = useDashboardStats();
   const visitors = stats?.visitors || { today: 0, yesterday: 0, total: 0 };
 

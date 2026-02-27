@@ -37,6 +37,15 @@
 .footer-copy {
   font-size: 0.75rem;
   color: var(--text-tertiary);
+  cursor: default;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.footer-copy--admin {
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 3px;
 }
 
 @media (max-width: 768px) {

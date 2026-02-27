@@ -1,5 +1,8 @@
+import { useRef, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { FiGithub, FiLinkedin } from 'react-icons/fi';
 import { SiTistory } from 'react-icons/si';
+import { useAuth } from '../../../context/AuthContext';
 import './Footer.css';
 
 const LINKS = [
@@ -21,6 +24,27 @@ const LINKS = [
 ];
 
 function Footer() {
+  const navigate = useNavigate();
+  const { authenticated } = useAuth();
+  const clickCount = useRef(0);
+  const clickTimer = useRef(null);
+
+  const handleSecretClick = useCallback(() => {
+    clickCount.current += 1;
+
+    if (clickTimer.current) clearTimeout(clickTimer.current);
+
+    if (clickCount.current >= 3) {
+      clickCount.current = 0;
+      navigate('/admin');
+      return;
+    }
+
+    clickTimer.current = setTimeout(() => {
+      clickCount.current = 0;
+    }, 2000);
+  }, [navigate]);
+
   return (
     <footer className="footer">
       <div className="footer-inner">
@@ -38,7 +62,12 @@ function Footer() {
             </a>
           ))}
         </div>
-        <p className="footer-copy">&copy; chanani</p>
+        <p
+          className={`footer-copy${authenticated ? ' footer-copy--admin' : ''}`}
+          onClick={handleSecretClick}
+        >
+          &copy; chanani
+        </p>
       </div>
     </footer>
   );

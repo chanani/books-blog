@@ -283,6 +283,7 @@
   color: var(--text-primary);
 }
 
+
 @media (max-width: 768px) {
   .header-inner {
     padding: 0 16px;
