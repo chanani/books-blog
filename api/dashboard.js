@@ -5,6 +5,22 @@ function ghHeaders(token) {
   return { Accept: 'application/vnd.github.v3+json', ...(token ? { Authorization: `Bearer ${token}` } : {}) };
 }
 
+// Git quotes non-ASCII paths: "\NNN\NNN..." (octal escape in double quotes)
+function decodeGitName(name) {
+  if (!name.startsWith('"') || !name.endsWith('"')) return name;
+  const inner = name.slice(1, -1);
+  const bytes = [];
+  for (let i = 0; i < inner.length; i++) {
+    if (inner[i] === '\\' && i + 3 < inner.length && /^[0-7]{3}$/.test(inner.substring(i + 1, i + 4))) {
+      bytes.push(parseInt(inner.substring(i + 1, i + 4), 8));
+      i += 3;
+      continue;
+    }
+    bytes.push(inner.charCodeAt(i));
+  }
+  return Buffer.from(bytes).toString('utf-8');
+}
+
 async function gcFetch(path, token) {
   const res = await fetch(`${GC_BASE}${path}`, {
     headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
@@ -13,22 +29,32 @@ async function gcFetch(path, token) {
   return res.ok ? res.json() : null;
 }
 
-function findCoverUrl(files) {
+function findCoverUrl(files, basePath, headers) {
   if (!Array.isArray(files)) return '';
-  const cover = files.find((f) => f.type === 'file' && /^cover\.(png|jpe?g|webp|gif|svg)$/i.test(f.name));
-  return cover?.download_url || '';
+  for (const f of files) {
+    const fname = decodeGitName(f.name);
+    if (f.type === 'file' && /^cover\.(png|jpe?g|webp|gif|svg)$/i.test(fname)) {
+      return f.download_url || '';
+    }
+  }
+  return '';
 }
 
 async function resolvePostInfo(category, slug, owner, repo, token) {
   const headers = ghHeaders(token);
+  const basePath = `${GH_API}/repos/${owner}/${repo}/contents/dev/${encodeURIComponent(category)}/${encodeURIComponent(slug)}`;
   try {
-    const dirRes = await fetch(`${GH_API}/repos/${owner}/${repo}/contents/dev/${encodeURIComponent(category)}/${encodeURIComponent(slug)}`, { headers });
+    const dirRes = await fetch(basePath, { headers });
     if (dirRes.ok) {
       const files = await dirRes.json();
       const cover = findCoverUrl(files);
-      const md = Array.isArray(files) && files.find((f) => f.type === 'file' && f.name.endsWith('.md'));
+      const md = Array.isArray(files) && files.find((f) => {
+        const n = decodeGitName(f.name);
+        return f.type === 'file' && n.endsWith('.md');
+      });
       if (md) {
-        const fileRes = await fetch(md.url, { headers });
+        const mdName = decodeGitName(md.name);
+        const fileRes = await fetch(`${basePath}/${encodeURIComponent(mdName)}`, { headers });
         if (fileRes.ok) {
           const data = await fileRes.json();
           const content = Buffer.from(data.content, 'base64').toString('utf-8');
@@ -38,7 +64,7 @@ async function resolvePostInfo(category, slug, owner, repo, token) {
       }
       return { title: slug.replace(/_/g, ' '), cover };
     }
-    const flatRes = await fetch(`${GH_API}/repos/${owner}/${repo}/contents/dev/${encodeURIComponent(category)}/${encodeURIComponent(slug)}.md`, { headers });
+    const flatRes = await fetch(`${basePath}.md`, { headers });
     if (flatRes.ok) {
       const data = await flatRes.json();
       const content = Buffer.from(data.content, 'base64').toString('utf-8');
@@ -51,17 +77,17 @@ async function resolvePostInfo(category, slug, owner, repo, token) {
 
 async function resolveBookInfo(slug, owner, repo, booksPath, token) {
   const headers = ghHeaders(token);
+  const basePath = `${GH_API}/repos/${owner}/${repo}/contents/${booksPath}/${encodeURIComponent(slug)}`;
   try {
-    const dirRes = await fetch(`${GH_API}/repos/${owner}/${repo}/contents/${booksPath}/${encodeURIComponent(slug)}`, { headers });
+    const dirRes = await fetch(basePath, { headers });
     if (!dirRes.ok) return { title: slug, cover: '' };
     const files = await dirRes.json();
 
-    const coverFile = files.find((f) => /^cover\.(png|jpe?g|webp|gif|svg)$/i.test(f.name));
-    const cover = coverFile?.download_url || '';
+    const cover = findCoverUrl(files);
 
-    const infoFile = files.find((f) => f.name === 'info.json');
+    const infoFile = files.find((f) => decodeGitName(f.name) === 'info.json');
     if (infoFile) {
-      const infoRes = await fetch(infoFile.url, { headers });
+      const infoRes = await fetch(`${basePath}/info.json`, { headers });
       if (infoRes.ok) {
         const infoData = await infoRes.json();
         const info = JSON.parse(Buffer.from(infoData.content, 'base64').toString('utf-8'));
