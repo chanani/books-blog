@@ -314,10 +314,10 @@ function Admin() {
           <RateLimitCard rateLimit={stats.rateLimit} />
           <PeriodChart hits={stats.hits} />
           <HitsTable hits={stats.hits} />
+          <StatBarCard title="유입 경로" data={stats.referrers} />
           <StatBarCard title="브라우저" data={stats.browsers} />
           <StatBarCard title="운영체제" data={stats.systems} />
           <StatBarCard title="지역" data={stats.locations} />
-          <StatBarCard title="언어" data={stats.languages} />
         </div>
       </div>
     </main>

@@ -119,6 +119,7 @@
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md, 8px);
   padding: 20px;
+  overflow: hidden;
 }
 
 .admin-card-title {
@@ -345,14 +346,15 @@
 .stat-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 12px;
+  min-width: 0;
 }
 
 .stat-name {
   font-size: 0.8rem;
   color: var(--text-primary);
   flex: 1;
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

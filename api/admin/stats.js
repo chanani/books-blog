@@ -61,12 +61,12 @@ export default async function handler(req, res) {
       gcToken ? gcFetch(`/api/v0/stats/hits/?${longRange}&limit=20&daily=true`, gcToken) : null,
     ]);
 
-    // Batch 2: 상세 통계 (GC 4개)
-    const [browsers, systems, locations, languages] = await Promise.all([
+    // Batch 2: 상세 통계 (GC 5개)
+    const [browsers, systems, locations, toprefs] = await Promise.all([
       gcToken ? gcFetch(`/api/v0/stats/browsers/?${longRange}&limit=10`, gcToken) : null,
       gcToken ? gcFetch(`/api/v0/stats/systems/?${longRange}&limit=10`, gcToken) : null,
       gcToken ? gcFetch(`/api/v0/stats/locations/?${longRange}&limit=10`, gcToken) : null,
-      gcToken ? gcFetch(`/api/v0/stats/languages/?${longRange}&limit=10`, gcToken) : null,
+      gcToken ? gcFetch(`/api/v0/stats/toprefs/?${longRange}&limit=10`, gcToken) : null,
     ]);
 
     // Batch 3: GitHub (별도 서비스)
@@ -96,7 +96,7 @@ export default async function handler(req, res) {
       browsers: browsers?.stats || [],
       systems: systems?.stats || [],
       locations: locations?.stats || [],
-      languages: languages?.stats || [],
+      referrers: toprefs?.stats || [],
       rateLimit: rateLimit?.resources?.core || null,
     }));
   } catch {
