@@ -1,48 +1,24 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { FiTrendingUp, FiBookOpen } from 'react-icons/fi';
-import useDevStore from '../../store/useDevStore';
-import useBookStore from '../../store/useBookStore';
 import { fetchDashboardStats } from '../../api/dashboard';
 import './Dashboard.css';
 
 function Dashboard() {
-  const { posts, loadPosts } = useDevStore();
-  const { books, loadBooks } = useBookStore();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadPosts();
-    loadBooks();
     fetchDashboardStats().then((data) => {
       setStats(data);
       setLoading(false);
     });
-  }, [loadPosts, loadBooks]);
-
-  const postTitleMap = useMemo(() => {
-    const map = {};
-    posts.forEach((p) => { map[`/post/${p.category}/${p.slug}`] = p.title; });
-    return map;
-  }, [posts]);
-
-  const bookMap = useMemo(() => {
-    const map = {};
-    books.forEach((b) => { map[b.slug] = { title: b.title, cover: b.cover }; });
-    return map;
-  }, [books]);
+  }, []);
 
   const v = stats?.visitors || { today: 0, yesterday: 0, total: 0 };
-
-  const topPosts = useMemo(() => {
-    return (stats?.topPosts || [])
-      .filter((p) => postTitleMap[p.path])
-      .slice(0, 5);
-  }, [stats, postTitleMap]);
-
+  const topPosts = stats?.topPosts || [];
   const topBooks = stats?.topBooks || [];
 
   return (
@@ -107,7 +83,7 @@ function Dashboard() {
                 <li key={post.path}>
                   <Link to={post.path} className="rank-item">
                     <span className={`rank-num${i < 3 ? ' top' : ''}`}>{i + 1}</span>
-                    <span className="rank-title">{postTitleMap[post.path]}</span>
+                    <span className="rank-title">{post.title}</span>
                   </Link>
                 </li>
               ))}
@@ -146,15 +122,15 @@ function Dashboard() {
                   className="dash-book-card"
                 >
                   <div className="dash-book-cover">
-                    {bookMap[book.slug]?.cover ? (
-                      <img src={bookMap[book.slug].cover} alt={bookMap[book.slug]?.title || book.title} className="dash-book-img" />
+                    {book.cover ? (
+                      <img src={book.cover} alt={book.title} className="dash-book-img" />
                     ) : (
                       <div className="dash-book-placeholder">
                         <FiBookOpen size={24} />
                       </div>
                     )}
                   </div>
-                  <span className="dash-book-title">{bookMap[book.slug]?.title || book.title}</span>
+                  <span className="dash-book-title">{book.title}</span>
                 </Link>
               ))}
             </div>
