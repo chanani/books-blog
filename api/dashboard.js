@@ -106,7 +106,7 @@ export default async function handler(req, res) {
   const ghOwner = process.env.VITE_GITHUB_OWNER;
   const ghRepo = process.env.VITE_GITHUB_REPO;
   const booksPath = process.env.VITE_GITHUB_PATH || 'books';
-  const empty = { visitors: { today: 0, yesterday: 0, total: 0 }, topPosts: [], topBooks: [] };
+  const empty = { visitors: { today: 0, yesterday: 0, total: 0 }, topPosts: [], topBooks: [], recentGuestbook: [] };
 
   if (!gcToken) return res.json(empty);
 
@@ -117,11 +117,50 @@ export default async function handler(req, res) {
   weekAgo.setUTCDate(weekAgo.getUTCDate() - 7);
 
   try {
-    const [recent, allTime, hits] = await Promise.all([
+    const guestbookQuery = `{
+      repository(owner: "${ghOwner}", name: "books-blog") {
+        discussions(first: 10, categoryId: "DIC_kwDORI3Ks84C15da") {
+          nodes {
+            title
+            comments(last: 3) {
+              nodes {
+                author { login avatarUrl }
+                body
+                createdAt
+              }
+            }
+          }
+        }
+      }
+    }`;
+
+    const [recent, allTime, hits, guestbookRes] = await Promise.all([
       gcFetch(`/api/v0/stats/total/?start=${weekAgo.toISOString()}&end=${now.toISOString()}`, gcToken),
       gcFetch(`/api/v0/stats/total/?start=2020-01-01T00:00:00Z&end=${now.toISOString()}`, gcToken),
       gcFetch(`/api/v0/stats/hits/?start=${weekAgo.toISOString()}&end=${now.toISOString()}&limit=100&daily=true`, gcToken),
+      ghToken
+        ? fetch('https://api.github.com/graphql', {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${ghToken}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query: guestbookQuery }),
+          }).then((r) => (r.ok ? r.json() : null)).catch(() => null)
+        : Promise.resolve(null),
     ]);
+
+    let recentGuestbook = [];
+    try {
+      const discussions = guestbookRes?.data?.repository?.discussions?.nodes || [];
+      const guestbook = discussions.find((d) => d.title === 'guestbook');
+      if (guestbook) {
+        recentGuestbook = (guestbook.comments?.nodes || []).map((c) => ({
+          author: c.author?.login || 'anonymous',
+          avatar: c.author?.avatarUrl || '',
+          body: c.body?.length > 50 ? c.body.slice(0, 50) + '…' : c.body || '',
+          createdAt: c.createdAt,
+        }));
+      }
+    } catch {}
+
 
     const todayStr = todayStart.toISOString().split('T')[0];
     const yd = new Date(todayStart);
@@ -173,6 +212,7 @@ export default async function handler(req, res) {
       },
       topPosts: topPosts.filter(Boolean),
       topBooks,
+      recentGuestbook,
     });
   } catch {
     res.json(empty);
