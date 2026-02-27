@@ -94,11 +94,7 @@ main .gsc-loading-image {
   background-image: url(https://github.githubassets.com/images/mona-loading-dark.gif);
 }
 
-/* Hide entire header and footer */
-.gsc-header {
-  display: none !important;
-}
-
+/* Hide footer only, keep header for sort toggle */
 .gsc-footer,
 .powered-by,
 a[href*="giscus.app"] {
@@ -115,10 +111,6 @@ a[href*="giscus.app"] {
   max-width: 100% !important;
 }
 
-/* Hide comment list, keep only input box */
-.gsc-timeline {
-  display: none !important;
-}
 
 .gsc-comment-box {
   max-width: 100% !important;

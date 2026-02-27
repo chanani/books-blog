@@ -1,6 +1,7 @@
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import dashboardHandler from './api/dashboard.js';
+import guestbookHandler from './api/guestbook.js';
 
 function dashboardPlugin(env) {
   return {
@@ -14,6 +15,23 @@ function dashboardPlugin(env) {
           res.end(JSON.stringify(data));
         };
         dashboardHandler(req, res);
+      });
+    },
+  };
+}
+
+function guestbookPlugin(env) {
+  return {
+    name: 'guestbook-api',
+    configureServer(server) {
+      Object.assign(process.env, env);
+      server.middlewares.use('/api/guestbook', (req, res) => {
+        req.query = Object.fromEntries(new URL(req.url, 'http://localhost').searchParams);
+        res.json = (data) => {
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify(data));
+        };
+        guestbookHandler(req, res);
       });
     },
   };
@@ -58,7 +76,7 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
 
   return {
-    plugins: [react(), dashboardPlugin(env), goatcounterPlugin()],
+    plugins: [react(), dashboardPlugin(env), guestbookPlugin(env), goatcounterPlugin()],
     server: {
       proxy: {
         '/gc/count': {
