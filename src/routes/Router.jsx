@@ -9,6 +9,7 @@ const Book = lazy(() => import('../page/book/Book'));
 const Chapter = lazy(() => import('../page/chapter/Chapter'));
 const Reading = lazy(() => import('../page/reading/Reading'));
 const About = lazy(() => import('../page/about/About'));
+const Guestbook = lazy(() => import('../page/guestbook/Guestbook'));
 const NotFound = lazy(() => import('../page/notfound/NotFound'));
 
 function Router() {
@@ -28,6 +29,7 @@ function Router() {
         <Route path="/books" element={<Home />} />
         <Route path="/books/reading" element={<Reading />} />
         <Route path="/about" element={<About />} />
+        <Route path="/guestbook" element={<Guestbook />} />
         <Route path="/book/:bookSlug" element={<Book />} />
         <Route path="/book/:bookSlug/read/*" element={<Chapter />} />
         <Route path="*" element={<NotFound />} />

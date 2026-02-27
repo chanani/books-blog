@@ -1,22 +1,38 @@
 {
-  "rewrites": [
-    { "source": "/gc/count", "destination": "https://chanani.goatcounter.com/count" },
-    { "source": "/(.*)", "destination": "/" }
-  ],
-  "headers": [
+  "routes": [
     {
-      "source": "/sitemap.xml",
-      "headers": [
-        { "key": "Content-Type", "value": "application/xml" },
-        { "key": "Cache-Control", "value": "public, max-age=86400" }
-      ]
+      "src": "/sitemap.xml",
+      "headers": {
+        "Content-Type": "application/xml",
+        "Cache-Control": "public, max-age=86400"
+      },
+      "continue": true
     },
     {
-      "source": "/robots.txt",
-      "headers": [
-        { "key": "Content-Type", "value": "text/plain" },
-        { "key": "Cache-Control", "value": "public, max-age=86400" }
-      ]
+      "src": "/robots.txt",
+      "headers": {
+        "Content-Type": "text/plain",
+        "Cache-Control": "public, max-age=86400"
+      },
+      "continue": true
+    },
+    {
+      "src": "/giscus-(.*)\\.css",
+      "headers": {
+        "Access-Control-Allow-Origin": "*",
+        "Content-Type": "text/css",
+        "Cache-Control": "public, max-age=3600"
+      },
+      "continue": true
+    },
+    { "handle": "filesystem" },
+    {
+      "src": "/gc/count",
+      "dest": "https://chanani.goatcounter.com/count"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/"
     }
   ]
 }

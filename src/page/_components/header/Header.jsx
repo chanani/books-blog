@@ -8,6 +8,7 @@ function Header({ theme, toggleTheme }) {
   const { pathname } = useLocation();
   const isDev = pathname === '/posts' || pathname.startsWith('/post');
   const isBooks = pathname === '/books' || pathname.startsWith('/book');
+  const isGuestbook = pathname === '/guestbook';
 
 
   const { stats } = useDashboardStats();
@@ -39,6 +40,9 @@ function Header({ theme, toggleTheme }) {
             </Link>
             <Link to="/books" className={`header-tab${isBooks ? ' active' : ''}`}>
               책방
+            </Link>
+            <Link to="/guestbook" className={`header-tab${isGuestbook ? ' active' : ''}`}>
+              방명록
             </Link>
           </nav>
         </div>

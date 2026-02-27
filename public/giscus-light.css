@@ -1,0 +1,124 @@
+/*! Custom Giscus theme - Light (matching blog design) */
+main {
+  --color-prettylights-syntax-comment: #6e7781;
+  --color-prettylights-syntax-constant: #0550ae;
+  --color-prettylights-syntax-entity: #8250df;
+  --color-prettylights-syntax-storage-modifier-import: #1f1a14;
+  --color-prettylights-syntax-entity-tag: #116329;
+  --color-prettylights-syntax-keyword: #cf222e;
+  --color-prettylights-syntax-string: #0a3069;
+  --color-prettylights-syntax-variable: #953800;
+  --color-prettylights-syntax-brackethighlighter-unmatched: #82071e;
+  --color-prettylights-syntax-invalid-illegal-text: #f6f8fa;
+  --color-prettylights-syntax-invalid-illegal-bg: #82071e;
+  --color-prettylights-syntax-carriage-return-text: #f6f8fa;
+  --color-prettylights-syntax-carriage-return-bg: #cf222e;
+  --color-prettylights-syntax-string-regexp: #116329;
+  --color-prettylights-syntax-markup-list: #3b2300;
+  --color-prettylights-syntax-markup-heading: #0550ae;
+  --color-prettylights-syntax-markup-italic: #1f1a14;
+  --color-prettylights-syntax-markup-bold: #1f1a14;
+  --color-prettylights-syntax-markup-deleted-text: #82071e;
+  --color-prettylights-syntax-markup-deleted-bg: #ffebe9;
+  --color-prettylights-syntax-markup-inserted-text: #116329;
+  --color-prettylights-syntax-markup-inserted-bg: #dafbe1;
+  --color-prettylights-syntax-markup-changed-text: #953800;
+  --color-prettylights-syntax-markup-changed-bg: #ffd8b5;
+  --color-prettylights-syntax-markup-ignored-text: #eaeef2;
+  --color-prettylights-syntax-markup-ignored-bg: #0550ae;
+  --color-prettylights-syntax-meta-diff-range: #8250df;
+  --color-prettylights-syntax-brackethighlighter-angle: #57606a;
+  --color-prettylights-syntax-sublimelinter-gutter-mark: #8c959f;
+  --color-prettylights-syntax-constant-other-reference-link: #0a3069;
+
+  --color-btn-text: #1f1a14;
+  --color-btn-bg: #f0eeed;
+  --color-btn-border: #c9bfb426;
+  --color-btn-shadow: 0 1px 0 #1f23280a;
+  --color-btn-inset-shadow: inset 0 1px 0 #ffffff40;
+  --color-btn-hover-bg: #e8e4e0;
+  --color-btn-hover-border: #c9bfb426;
+  --color-btn-active-bg: #e0dbd6;
+  --color-btn-active-border: #c9bfb426;
+  --color-btn-selected-bg: #e0dbd6;
+  --color-btn-primary-text: #fff;
+  --color-btn-primary-bg: #e8735a;
+  --color-btn-primary-border: transparent;
+  --color-btn-primary-shadow: 0 1px 0 #1f23281a;
+  --color-btn-primary-inset-shadow: inset 0 1px 0 #ffffff08;
+  --color-btn-primary-hover-bg: #d4604a;
+  --color-btn-primary-hover-border: transparent;
+  --color-btn-primary-selected-bg: #c45540;
+  --color-btn-primary-selected-shadow: inset 0 1px 0 #00000020;
+  --color-btn-primary-disabled-text: #fffc;
+  --color-btn-primary-disabled-bg: #f0a899;
+  --color-btn-primary-disabled-border: transparent;
+  --color-action-list-item-default-hover-bg: #c9bfb430;
+  --color-segmented-control-bg: #f0eeed;
+  --color-segmented-control-button-bg: #ffffff;
+  --color-segmented-control-button-selected-border: #c9bfb4;
+
+  --color-fg-default: #1f1a14;
+  --color-fg-muted: #5c5347;
+  --color-fg-subtle: #8a7f72;
+  --color-canvas-default: #f9f8f7;
+  --color-canvas-overlay: #ffffff;
+  --color-canvas-inset: #f0eeed;
+  --color-canvas-subtle: #f0eeed;
+  --color-border-default: #c9bfb4;
+  --color-border-muted: #c9bfb4a0;
+  --color-neutral-muted: #c9bfb433;
+  --color-accent-fg: #e8735a;
+  --color-accent-emphasis: #e8735a;
+  --color-accent-muted: #e8735a66;
+  --color-accent-subtle: #fdf0ed;
+  --color-success-fg: #1a7f37;
+  --color-attention-fg: #9a6700;
+  --color-attention-muted: #d4a72c66;
+  --color-attention-subtle: #fff8c5;
+  --color-danger-fg: #d1242f;
+  --color-danger-muted: #ff818266;
+  --color-danger-subtle: #ffebe9;
+  --color-primer-shadow-inset: inset 0 1px 0 #c9bfb433;
+  --color-scale-gray-1: #f0eeed;
+  --color-scale-blue-1: #fdf0ed;
+  --color-social-reaction-bg-hover: var(--color-scale-gray-1);
+  --color-social-reaction-bg-reacted-hover: var(--color-scale-blue-1);
+}
+
+main .pagination-loader-container {
+  background-image: url(https://github.com/images/modules/pulls/progressive-disclosure-line.svg);
+}
+
+main .gsc-loading-image {
+  background-image: url(https://github.githubassets.com/images/mona-loading-default.gif);
+}
+
+/* "댓글" → "방명록" 텍스트 교체 */
+.gsc-comments-count {
+  font-size: 0 !important;
+}
+
+.gsc-comments-count::before {
+  font-size: 1.125rem;
+  font-weight: 600;
+  content: "방명록";
+}
+
+/* Hide powered-by giscus */
+.powered-by {
+  display: none !important;
+}
+
+.gsc-footer {
+  display: none !important;
+}
+
+a.Link--secondary[href="https://giscus.app"] {
+  display: none !important;
+}
+
+/* Hide sort buttons (not needed for guestbook) */
+.gsc-right-header {
+  display: none !important;
+}

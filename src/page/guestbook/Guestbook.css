@@ -1,0 +1,48 @@
+.guestbook {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 24px 24px;
+}
+
+.guestbook-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.guestbook-intro {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  background: var(--bg-secondary);
+  padding: 14px 24px;
+}
+
+.guestbook-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.guestbook-desc {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.guestbook-comments {
+  min-height: 300px;
+}
+
+@media (max-width: 768px) {
+  .guestbook {
+    padding: 20px 16px;
+  }
+
+  .guestbook-intro {
+    padding: 14px 20px;
+  }
+}
