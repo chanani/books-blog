@@ -181,7 +181,7 @@ function StatBarCard({ title, data }) {
       <div className="stat-rows">
         {items.map((item, i) => (
           <div className="stat-row" key={item.name || item.id || item.language || i}>
-            <span className="stat-name">{item.name || item.id || item.language || 'Unknown'}</span>
+            <span className="stat-name" title={item.name || item.id || item.language || 'Unknown'}>{item.name || item.id || item.language || 'Unknown'}</span>
             <div className="stat-bar-bg">
               <div className="stat-bar-fill" style={{ width: `${((item.count || 0) / maxVal) * 100}%` }} />
             </div>
