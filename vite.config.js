@@ -43,6 +43,40 @@ function goatcounterPlugin() {
   return {
     name: 'goatcounter-views',
     configureServer(server) {
+      server.middlewares.use('/api/views-batch', async (req, res) => {
+        if (req.method !== 'POST') {
+          res.writeHead(405, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: 'Method not allowed' }));
+          return;
+        }
+        let body = '';
+        req.on('data', (chunk) => { body += chunk; });
+        req.on('end', async () => {
+          const { paths } = JSON.parse(body);
+          if (!Array.isArray(paths) || paths.length === 0) {
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({}));
+            return;
+          }
+          const results = await Promise.all(
+            paths.map(async (path) => {
+              const browserPath = encodeURI(path);
+              const url = `https://chanani.goatcounter.com/counter/${encodeURIComponent(browserPath)}.json`;
+              try {
+                const response = await fetch(url);
+                if (!response.ok) return [path, '0'];
+                const data = await response.json();
+                return [path, data.count ?? '0'];
+              } catch {
+                return [path, '0'];
+              }
+            }),
+          );
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify(Object.fromEntries(results)));
+        });
+      });
+
       server.middlewares.use('/api/views', async (req, res) => {
         const url = new URL(req.url, 'http://localhost');
         const path = url.searchParams.get('path');

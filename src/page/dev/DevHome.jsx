@@ -4,7 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { FiSearch, FiX, FiCalendar, FiEye, FiMessageSquare, FiChevronLeft, FiChevronRight, FiChevronDown } from 'react-icons/fi';
 import useDevStore from '../../store/useDevStore';
-import { fetchViewCount } from '../../api/goatcounter';
+import { fetchViewCountBatch } from '../../api/goatcounter';
 import defaultCover from '../../assets/images/default/default.png';
 import './DevHome.css';
 
@@ -153,15 +153,13 @@ function DevHome() {
 
   useEffect(() => {
     if (posts.length === 0) return;
-    Promise.all(
-      posts.map((p) =>
-        fetchViewCount(`/post/${p.category}/${p.slug}`).then((count) => [
-          `${p.category}/${p.slug}`,
-          count,
-        ]),
-      ),
-    ).then((results) => {
-      setViewCounts(Object.fromEntries(results));
+    const paths = posts.map((p) => `/post/${p.category}/${p.slug}`);
+    fetchViewCountBatch(paths).then((data) => {
+      const counts = {};
+      posts.forEach((p) => {
+        counts[`${p.category}/${p.slug}`] = data[`/post/${p.category}/${p.slug}`] ?? '0';
+      });
+      setViewCounts(counts);
     });
   }, [posts]);
 

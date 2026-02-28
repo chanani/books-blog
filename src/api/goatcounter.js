@@ -8,3 +8,17 @@ export async function fetchViewCount(path) {
     return "0";
   }
 }
+
+export async function fetchViewCountBatch(paths) {
+  try {
+    const res = await fetch('/api/views-batch', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ paths }),
+    });
+    if (!res.ok) return {};
+    return await res.json();
+  } catch {
+    return {};
+  }
+}
