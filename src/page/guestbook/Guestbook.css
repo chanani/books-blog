@@ -38,9 +38,11 @@
   min-height: 300px;
 }
 
-.guestbook-comments .giscus,
 .guestbook-comments .giscus-frame {
-  width: 100% !important;
+  width: 100%;
+  border: none;
+  min-height: 150px;
+  color-scheme: light dark;
 }
 
 @media (max-width: 768px) {
