@@ -503,8 +503,8 @@
 /* ── Book Card Grid ── */
 .dash-book-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 14px;
 }
 
 .dash-book-card {
@@ -609,6 +609,7 @@
   }
 
   .dash-book-grid {
+    grid-template-columns: repeat(3, 1fr);
     gap: 12px;
   }
 }
