@@ -261,7 +261,6 @@ export default async function handler(req, res) {
       },
       topPosts: topPosts.filter(Boolean),
       topBooks,
-      _debug: { hitsNull: hits === null, hitsCount: hits?.hits?.length ?? 0, rawPostsCount: rawPosts.length, rawBooksCount: rawBooks.length },
       recentComments,
       recentGuestbook,
     });
