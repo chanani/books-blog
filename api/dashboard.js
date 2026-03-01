@@ -22,11 +22,20 @@ function decodeGitName(name) {
 }
 
 async function gcFetch(path, token) {
-  const res = await fetch(`${GC_BASE}${path}`, {
-    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-    redirect: 'follow',
-  });
-  return res.ok ? res.json() : null;
+  try {
+    const res = await fetch(`${GC_BASE}${path}`, {
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+      redirect: 'follow',
+    });
+    if (!res.ok) {
+      console.error(`[gcFetch] ${path} → ${res.status} ${res.statusText}`);
+      return null;
+    }
+    return res.json();
+  } catch (err) {
+    console.error(`[gcFetch] ${path} → ${err.message}`);
+    return null;
+  }
 }
 
 function findCoverUrl(files, basePath, headers) {
@@ -252,6 +261,7 @@ export default async function handler(req, res) {
       },
       topPosts: topPosts.filter(Boolean),
       topBooks,
+      _debug: { hitsNull: hits === null, hitsCount: hits?.hits?.length ?? 0, rawPostsCount: rawPosts.length, rawBooksCount: rawBooks.length },
       recentComments,
       recentGuestbook,
     });
